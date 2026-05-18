@@ -92,7 +92,6 @@
           .ios-container { padding-top: env(safe-area-inset-top, 24px); padding-bottom: calc(env(safe-area-inset-bottom, 16px) + 80px); width: 100%; max-width: 430px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
           button { cursor: pointer; touch-action: manipulation; }
           .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: rgba(10, 16, 32, 0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 12px); z-index: 999; }
-          .quick-btn { background: var(--card2); border: 1px solid var(--border); color: #fff; width: 36 ... height: 36px; border-radius: 8px; font-weight: bold; font-size: 18px; display: flex; alignItems: center; justifyContent: center; }
         `;
 
         // ─── App ──────────────────────────────────────────────────────────────────────
@@ -413,7 +412,7 @@
 
         // ─── ระบบช่วยคำนวณช่วงอัตราการเต้นหัวใจ Zone 2 (Karvonen Formula) ───────────
         function ZoneCalculator({ onClose }) {
-          const [age, setAge] = useState("30"); // ตั้งค่าเริ่มต้นตามอายุผู้ใช้งานหลัก เพื่อความสะดวกรวดเร็ว
+          const [age, setAge] = useState("30"); // ตั้งค่าเริ่มต้นตามอายุของคุณ
           const [restingHr, setRestingHr] = useState("65");
           const [result, setResult] = useState(null);
 
@@ -464,10 +463,9 @@
           const [color, icon] = map[status] || map.error;
           return <div style={{ display:"flex", alignItems:"center", gap:4, fontSize:11, color, background:`${color}15`, padding:"4px 10px", borderRadius:20, border:`1px solid ${color}30` }}><span style={{ animation: (status==="loading"||status==="saving") ? "spin 1s linear infinite" : "none", display:"inline-block" }}>{icon}</span></div>;
         }
-        function SecLabel({ children }) { return <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:11, letterSpacing:2, color:"var(--text2)", textTransform:"uppercase", marginBottom:8 }}>{children}</div>; }
+        function SecLabel({ children }) { return <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:11, letterSpacing:2, color:"var(--text2)", textTransform:"uppercase", marginBottom:4 }}>{children}</div>; }
         function FLabel({ children }) { return <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:600, fontSize:11, letterSpacing:1, color:"var(--text2)", textTransform:"uppercase", marginBottom:4 }}>{children}</div>; }
         function BigStat({ label, value, color }) { return <div style={{ background:"var(--card)", border:"1px solid var(--border)", borderRadius:14, padding:14, textAlign:"center" }}><div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:28, color, lineHeight:1, marginBottom:4 }}>{value}</div><div style={{ fontSize:11, color:"var(--text2)" }}>{label}</div></div>; }
-        function StatCard({ label, value, color }) { return <div style={{ flex:1, background:"var(--card)", border:"1px solid var(--border)", borderRadius:14, padding:12 }}><div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:22, color }}>{value}</div><div style={{ fontSize:11, color:"var(--text2)" }}>{label}</div></div>; }
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
