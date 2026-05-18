@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Calisthenics & Zone 2</title>
+    
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // ─── Google Sheets Config ─────────────────────────────────────────────────────
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbyKNxCJTKc1qBa6VQuKna_REyJiMEFnHbZn7fxkWcx9V0fZjo37wmb7zxTp4aTp7UCW/exec";
+
+        async function sheetLoad() {
+          try {
+            const res = await fetch(SHEET_URL);
+            if (!res.ok) throw new Error("fetch_failed");
+            const data = await res.json();
+            return data?.logs ? data : { logs: {} };
+          } catch { return null; }
+        }
+
+        async function sheetSave(allData) {
+          const encoded = encodeURIComponent(JSON.stringify(allData));
+          const res = await fetch(`${SHEET_URL}?action=save&data=${encoded}`);
+          if (!res.ok) throw new Error("save_failed");
+        }
+
+        // ─── Data ─────────────────────────────────────────────────────────────────────
+        const SCHEDULE = {
+          0: { type: "rest",         label: "Rest",              sub: "Full Recovery 😴" },
+          1: { type: "cardio",       label: "Zone 2 Cardio",     sub: "25–35 min / HR 138–150" },
+          2: { type: "calisthenics", label: "Full Body Strength", sub: "Routine A" },
+          3: { type: "cardio",       label: "Zone 2 Cardio",     sub: "25–35 min / HR 138–150" },
+          4: { type: "calisthenics", label: "Full Body Strength", sub: "Routine A" },
+          5: { type: "cardio",       label: "Zone 2 Cardio",     sub: "25–35 min / HR 138–150" },
+          6: { type: "calisthenics", label: "Full Body Strength", sub: "Routine A" },
+        };
+
+        const EXERCISES = [
+          { id: "aus_pull",   name: "Australian Pull-Ups",   icon: "🏋️", target: "Max Reps",   goal: "Build pulling base" },
+          { id: "neg_pull",   name: "Negative Pull-Ups",     icon: "⬇️", target: "3–5 reps",   goal: "3–5 sec slow eccentric" },
+          { id: "dec_push",   name: "Decline Push-Ups",      icon: "💪", target: "Max Reps",   goal: "Upper chest & shoulder" },
+          { id: "pike_push",  name: "Incline Pike Push-Ups", icon: "🔺", target: "8–10 reps",  goal: "Handstand / Overhead base" },
+          { id: "knee_raise", name: "Hanging Knee Raises",   icon: "🦵", target: "10–12 reps", goal: "Core compression for L-sit" },
+          { id: "squats",     name: "Bodyweight Squats",     icon: "🦴", target: "15–20 reps", goal: "Leg endurance" },
+        ];
+
+        const DAYS_TH = ["อา","จ","อ","พ","พฤ","ศ","ส"];
+        function dateKey(d = new Date()) { return d.toISOString().slice(0, 10); }
+
+        // ─── AI Insight ───────────────────────────────────────────────────────────────
+        async function generateInsights(logs) {
+          const entries = Object.entries(logs).sort(([a],[b]) => a.localeCompare(b));
+          if (entries.length === 0) throw new Error("no_data");
+
+          const cardioEntries = entries
+            .filter(([,v]) => v.type === "cardio")
+            .map(([date,v]) => ({ date, duration: v.duration, avgHR: v.avgHR, notes: v.notes || "" }));
+
+          const calsEntries = entries
+            .filter(([,v]) => v.type === "calisthenics")
+            .map(([date,v]) => ({
+              date,
+              exercises: EXERCISES.map(ex => ({
+                name: ex.name,
+                sets: (v.exercises?.[ex.id] || []).map(Number).filter(Boolean)
+              }))
+            }));
+
+          const prompt = `You are a calisthenics and Zone 2 cardio coach. Analyze this athlete's workout data and provide concise, actionable insights in Thai language.
+
+        ZONE 2 CARDIO DATA (target: 25-35 min, HR 138-150 bpm):
+        ${JSON.stringify(cardioEntries, null, 2)}
+
+        CALISTHENICS DATA (3 sets each, Routine A):
+        ${JSON.stringify(calsEntries, null, 2)}
+
+        Respond ONLY with a JSON object (no markdown, no text outside JSON):
+        {
+          "overall": { "rating": "A/B/C/D/F", "summary": "2-3 sentences in Thai" },
+          "cardio": {
+            "trend": "up|down|stable|insufficient_data",
+            "insight": "2-3 sentences in Thai",
+            "tip": "one actionable tip in Thai"
+          },
+          "strength": [
+            { "exercise": "exact exercise name", "trend": "up|down|stable|insufficient_data", "insight": "one sentence in Thai", "tip": "one tip in Thai" }
+          ],
+          "priority": { "focus": "most important focus now in Thai", "next_milestone": "next milestone in Thai" },
+          "consistency": { "score": 0-100, "comment": "one sentence in Thai" }
+        }`;
+
+          const res = await fetch("https://api.anthropic.com/v1/messages", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model: "claude-sonnet-4-20250514",
+              max_tokens: 1500,
+              messages: [{ role: "user", content: prompt }]
+            })
+          });
+          if (!res.ok) throw new Error("api_error");
+          const data = await res.json();
+          const text = data.content?.find(b => b.type === "text")?.text || "";
+          const match = text.match(/\{[\s\S]*\}/);
+          if (!match) throw new Error("parse_error");
+          return JSON.parse(match[0]);
+        }
+
+        // ─── Styles ───────────────────────────────────────────────────────────────────
+        const css = `
+          @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap');
+          * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+          body { background: #080c14; color: #e8edf5; font-family: 'Barlow', sans-serif; position: fixed; width: 100%; height: 100%; overflow: hidden; }
+          :root {
+            --cyan:#00d4ff; --orange:#ff6b2b; --green:#00e676; --purple:#a855f7; --danger:#ff4757;
+            --card:#101824; --card2:#141e2c; --border:rgba(255,255,255,0.07); --text2:#7a8fa8;
+          }
+          input:focus { outline: 2px solid var(--cyan) !important; }
+          @keyframes spin    { to { transform: rotate(360deg); } }
+          @keyframes pulse   { 0%,100%{opacity:0.3} 50%{opacity:1} }
+          @keyframes fadeIn  { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+          .fade-in { animation: fadeIn 0.35s ease forwards; }
+          .ios-container { padding-top: env(safe-area-inset-top, 20px); padding-bottom: env(safe-area-inset-bottom, 20px); height: 100%; display: flex; flexDirection: column; }
+          button { cursor: pointer; touch-action: manipulation; }
+        `;
+
+        // ─── App ──────────────────────────────────────────────────────────────────────
+        function App() {
+          const [tab, setTab]           = useState("today");
+          const [allData, setAllData]   = useState({ logs: {} });
+          const [syncStatus, setSyncStatus] = useState("loading");
+          const [toast, setToast]       = useState("");
+          const [logging, setLogging]   = useState(false);
+
+          const today    = new Date();
+          const todayKey = dateKey(today);
+          const schedule = SCHEDULE[today.getDay()];
+          const todayLog = allData.logs[todayKey] || null;
+
+          useEffect(() => {
+            (async () => {
+              setSyncStatus("loading");
+              const data = await sheetLoad();
+              if (data) { setAllData(data); setSyncStatus("ready"); }
+              else { setSyncStatus("error"); showToast("⚠️ โหลดจาก Google Sheets ไม่สำเร็จ", true); }
+            })();
+          }, []);
+
+          const showToast = (msg, isError = false) => {
+            setToast({ msg, isError });
+            setTimeout(() => setToast(""), 3500);
+          };
+
+          const handleSaveLog = async (logData) => {
+            const updated = { ...allData, logs: { ...allData.logs, [todayKey]: logData } };
+            setAllData(updated);
+            setLogging(false);
+            setSyncStatus("saving");
+            try {
+              await sheetSave(updated);
+              setSyncStatus("ready");
+              showToast("✅ บันทึกลง Google Sheets แล้ว");
+            } catch {
+              setSyncStatus("error");
+              showToast("⚠️ บันทึกไม่สำเร็จ ข้อมูลยังอยู่ใน session นี้", true);
+            }
+          };
+
+          const TABS = [["today","📅","วันนี้"],["history","📊","ประวัติ"],["insight","🧠","Insight"],["stats","🏆","สถิติ"]];
+
+          return (
+            <>
+              <style>{css}</style>
+              <div className="ios-container" style={{ maxWidth: 430, margin: "0 auto", background: "#080c14" }}>
+
+                {/* Header */}
+                <div style={{ padding: "18px 20px 12px", background: "linear-gradient(180deg,#0d1520,#080c14)" }}>
+                  <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 900, fontSize: 10, letterSpacing: 3, color: "var(--cyan)", textTransform: "uppercase", marginBottom: 2 }}>Weekly Training</div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 900, fontSize: 24 }}>Calisthenics & Zone 2</div>
+                    <SyncBadge status={syncStatus} />
+                  </div>
+                </div>
+
+                {/* Toast */}
+                {toast && (
+                  <div style={{ margin: "0 16px 8px", padding: "10px 14px", background: toast.isError ? "#200a0a" : "#001a0e", border: `1px solid ${toast.isError ? "var(--danger)" : "var(--green)"}50`, borderRadius: 10, fontSize: 13, color: toast.isError ? "var(--danger)" : "var(--green)", animation: "fadeIn 0.2s ease" }}>
+                    {toast.msg}
+                  </div>
+                )}
+
+                {/* Content */}
+                <div style={{ flex: 1, overflowY: "auto", paddingBottom: 80, paddingTop: 6 }}>
+                  {syncStatus === "loading" ? <LoadingScreen /> :
+                   logging ? <LogScreen schedule={schedule} onSave={handleSaveLog} onCancel={() => setLogging(false)} existingLog={todayLog} saving={syncStatus === "saving"} /> :
+                   tab === "today"   ? <TodayScreen schedule={schedule} today={today} todayLog={todayLog} onLog={() => setLogging(true)} /> :
+                   tab === "history" ? <HistoryScreen today={today} logs={allData.logs} /> :
+                   tab === "insight" ? <InsightScreen logs={allData.logs} /> :
+                                       <StatsScreen logs={allData.logs} />}
+                </div>
+
+                {/* Bottom Nav */}
+                {!logging && syncStatus !== "loading" && (
+                  <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 430, background: "#0a1020", borderTop: "1px solid var(--border)", display: "flex", zIndex: 99 }}>
+                    {TABS.map(([id, icon, label]) => (
+                      <button key={id} onClick={() => setTab(id)} style={{ flex: 1, padding: "10px 0 8px", background: "none", border: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+                        <span style={{ fontSize: 18 }}>{icon}</span>
+                        <span style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: 0.8, color: tab === id ? "var(--cyan)" : "var(--text2)", textTransform: "uppercase" }}>{label}</span>
+                        {tab === id && <div style={{ width: 16, height: 2, background: "var(--cyan)", borderRadius: 1 }} />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          );
+        }
+
+        // ─── Sub-Components (โหลดแบบดั้งเดิม) ─────────────────────────────────────────
+        function SyncBadge({ status }) {
+          const map = {
+            loading: ["#f0a500", "⟳", "กำลังโหลด…"],
+            ready:   ["var(--green)", "☁️", "Sheets"],
+            saving:  ["var(--cyan)", "⟳", "กำลังบันทึก…"],
+            error:   ["var(--danger)", "✕", "Sync Error"],
+          };
+          const [color, icon, label] = map[status] || map.error;
+          const spin = status === "loading" || status === "saving";
+          return (
+            <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color, background: `${color}15`, padding: "4px 10px", borderRadius: 20, border: `1px solid ${color}40` }}>
+              <span style={{ animation: spin ? "spin 1s linear infinite" : "none", display: "inline-block" }}>{icon}</span>
+              <span>{label}</span>
+            </div>
+          );
+        }
+
+        function LoadingScreen() {
+          return (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 20px", gap: 14 }}>
+              <div style={{ fontSize: 52 }}>📊</div>
+              <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700, fontSize: 20, color: "var(--cyan)" }}>กำลังโหลดจาก Google Sheets</div>
+              <div style={{ fontSize: 13, color: "var(--text2)" }}>รอสักครู่…</div>
+              <div style={{ display: "flex", gap: 8 }}>
+                {[0,1,2].map(i => <div key={i} style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--cyan)", animation: `pulse 1.2s ${i*0.2}s ease-in-out infinite` }} />)}
+              </div>
+            </div>
+          );
+        }
+
+        function TodayScreen({ schedule, today, todayLog, onLog }) {
+          const dayName = ["อาทิตย์","จันทร์","อังคาร","พุธ","พฤหัสบดี","ศุกร์","เสาร์"][today.getDay()];
+          const dateStr = today.toLocaleDateString("th-TH", { day:"numeric", month:"long", year:"numeric" });
+          const tc = schedule.type === "cardio" ? "var(--cyan)" : schedule.type === "calisthenics" ? "var(--orange)" : "var(--text2)";
+          const ti = schedule.type === "cardio" ? "🏃" : schedule.type === "calisthenics" ? "💪" : "😴";
+
+          return (
+            <div style={{ padding: "0 16px" }}>
+              <div style={{ background:"var(--card)", borderRadius:20, padding:20, marginBottom:14, border:"1px solid var(--border)", position:"relative", overflow:"hidden" }}>
+                <div style={{ position:"absolute", top:-20, right:-20, fontSize:100, opacity:0.06 }}>{ti}</div>
+                <div style={{ fontSize:12, color:"var(--text2)", marginBottom:4 }}>{dateStr}</div>
+                <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:28, marginBottom:10 }}>วัน{dayName}</div>
+                <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:`${tc}18`, border:`1px solid ${tc}40`, borderRadius:100, padding:"6px 14px" }}>
+                  <span style={{ fontSize:16 }}>{ti}</span>
+                  <span style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:15, color:tc }}>{schedule.label}</span>
+                </div>
+                <div style={{ marginTop:8, fontSize:13, color:"var(--text2)" }}>{schedule.sub}</div>
+              </div>
+
+              {todayLog ? (
+                <div style={{ background:"#001a0e", border:"1px solid #00e67640", borderRadius:16, padding:16, marginBottom:14 }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:12 }}>
+                    <div style={{ width:8, height:8, borderRadius:"50%", background:"var(--green)" }} />
+                    <span style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:16, color:"var(--green)" }}>บันทึกแล้ว ✓</span>
+                  </div>
+                  <LogSummary log={todayLog} schedule={schedule} />
+                  <button onClick={onLog} style={{ marginTop:12, width:"100%", padding:"10px", background:"transparent", border:"1px solid var(--border)", borderRadius:10, color:"var(--text2)", fontSize:13, fontFamily:"'Barlow',sans-serif" }}>แก้ไขบันทึก</button>
+                </div>
+              ) : schedule.type !== "rest" ? (
+                <button onClick={onLog} style={{ width:"100%", padding:"18px", background:`linear-gradient(135deg,${tc},${tc}88)`, border:"none", borderRadius:16, color: schedule.type === "cardio" ? "#000" : "#fff", fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:18, letterSpacing:1, textTransform:"uppercase", boxShadow:`0 8px 30px ${tc}40` }}>
+                  {ti} บันทึก{schedule.type === "cardio" ? " Cardio" : " Workout"}
+                </button>
+              ) : (
+                <div style={{ textAlign:"center", padding:"30px 0", color:"var(--text2)", fontSize:14 }}>
+                  <div style={{ fontSize:48, marginBottom:12 }}>😴</div>วันนี้พักผ่อนเต็มที่<br />ร่างกายต้องการเวลาฟื้นฟู
+                </div>
+              )}
+
+              {schedule.type === "calisthenics" && (
+                <div style={{ marginTop:14 }}>
+                  <SecLabel>Routine A — 3 Sets Each</SecLabel>
+                  {EXERCISES.map((ex, i) => (
+                    <div key={ex.id} style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 14px", background:"var(--card)", borderRadius:12, marginBottom:8, border:"1px solid var(--border)" }}>
+                      <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:18, color:"var(--orange)", width:22 }}>{i+1}</div>
+                      <div style={{ flex:1 }}>
+                        <div style={{ fontWeight:600, fontSize:14 }}>{ex.name}</div>
+                        <div style={{ fontSize:11, color:"var(--text2)" }}>{ex.target} · {ex.goal}</div>
+                      </div>
+                      <span style={{ fontSize:18 }}>{ex.icon}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {schedule.type === "cardio" && (
+                <div style={{ marginTop:14, background:"var(--card)", borderRadius:16, padding:16, border:"1px solid var(--border)" }}>
+                  <SecLabel>เป้าหมาย Zone 2</SecLabel>
+                  {[["⏱️","ระยะเวลา","25–35 นาที"],["❤️","Heart Rate","138–150 bpm"],["🎯","เป้าหมาย","Build aerobic base"]].map(([icon,label,val]) => (
+                    <div key={label} style={{ display:"flex", justifyContent:"space-between", padding:"8px 0", borderBottom:"1px solid var(--border)" }}>
+                      <span style={{ color:"var(--text2)", fontSize:13 }}>{icon} {label}</span>
+                      <span style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:15, color:"var(--cyan)" }}>{val}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        function LogSummary({ log, schedule }) {
+          if (schedule.type === "cardio") return (
+            <div style={{ display:"flex", gap:20 }}>
+              <div style={{ textAlign:"center" }}>
+                <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:28, color:"var(--cyan)" }}>{log.duration}</div>
+                <div style={{ fontSize:11, color:"var(--text2)" }}>นาที</div>
+              </div>
+              <div style={{ textAlign:"center" }}>
+                <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:28, color:"var(--orange)" }}>{log.avgHR}</div>
+                <div style={{ fontSize:11, color:"var(--text2)" }}>avg HR</div>
+              </div>
+              {log.notes && <div style={{ flex:1, fontSize:12, color:"var(--text2)", alignSelf:"center" }}>"{log.notes}"</div>}
+            </div>
+          );
+          return (
+            <div>{EXERCISES.map(ex => {
+              const sets = log.exercises?.[ex.id];
+              if (!sets || sets.every(s => !s)) return null;
+              return (
+                <div key={ex.id} style={{ display:"flex", justifyContent:"space-between", marginBottom:4 }}>
+                  <span style={{ fontSize:13 }}>{ex.icon} {ex.name}</span>
+                  <span style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:14, color:"var(--orange)" }}>{sets.filter(Boolean).join(" / ")}</span>
+                </div>
+              );
+            })}</div>
+          );
+        }
+
+        function LogScreen({ schedule, onSave, onCancel, existingLog, saving }) {
+          const [duration, setDuration] = useState(existingLog?.duration ?? "");
+          const [avgHR, setAvgHR]       = useState(existingLog?.avgHR ?? "");
+          const [notes, setNotes]       = useState(existingLog?.notes ?? "");
+          const [exSets, setExSets]     = useState(() => {
+            const init = {};
+            EXERCISES.forEach(ex => { init[ex.id] = existingLog?.exercises?.[ex.id] ?? ["","",""]; });
+            return init;
+          });
+
+          const inp = { width:"100%", background:"var(--card2)", border:"1px solid var(--border)", borderRadius:12, padding:"14px 16px", color:"#fff", fontSize:16, fontFamily:"'Barlow',sans-serif", outline:"none" };
+          const hrNum = Number(avgHR);
+          const hrColor = hrNum < 60 ? null : hrNum < 138 ? "var(--cyan)" : hrNum <= 150 ? "var(--green)" : "var(--danger)";
+          const hrLabel = hrNum < 60 ? null : hrNum < 138 ? "⬇️ ต่ำกว่า Zone 2" : hrNum <= 150 ? "✅ อยู่ใน Zone 2!" : "⬆️ สูงเกิน Zone 2";
+
+          const submit = () => {
+            if (schedule.type === "cardio") {
+              if (!duration || !avgHR) return alert("กรุณากรอกระยะเวลาและ HR");
+              onSave({ type:"cardio", duration:Number(duration), avgHR:Number(avgHR), notes });
+            } else {
+              onSave({ type:"calisthenics", exercises:exSets });
+            }
+          };
+
+          return (
+            <div style={{ padding:"0 16px" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:20 }}>
+                <button onClick={onCancel} style={{ background:"var(--card)", border:"none", color:"#fff", fontSize:18, padding:"8px 14px", borderRadius:10 }}>←</button>
+                <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:22 }}>{schedule.type === "cardio" ? "🏃 บันทึก Zone 2" : "💪 บันทึก Calisthenics"}</div>
+              </div>
+
+              {schedule.type === "cardio" ? (
+                <>
+                  <FLabel>ระยะเวลา (นาที)</FLabel>
+                  <input style={inp} type="number" inputMode="numeric" placeholder="เช่น 30" value={duration} onChange={e => setDuration(e.target.value)} />
+                  <div style={{ height:14 }} />
+                  <FLabel>Average Heart Rate (bpm)</FLabel>
+                  <input style={inp} type="number" inputMode="numeric" placeholder="เช่น 145" value={avgHR} onChange={e => setAvgHR(e.target.value)} />
+                  {hrColor && <div style={{ marginTop:8, padding:"8px 12px", background:`${hrColor}18`, borderRadius:8, border:`1px solid ${hrColor}40`, fontSize:12, color:hrColor }}>{hrLabel}</div>}
+                  <div style={{ height:14 }} />
+                  <FLabel>หมายเหตุ (ไม่บังคับ)</FLabel>
+                  <input style={inp} placeholder="เช่น วิ่งในสวน รู้สึกดี" value={notes} onChange={e => setNotes(e.target.value)} />
+                </>
+              ) : (
+                <>
+                  <div style={{ fontSize:12, color:"var(--text2)", marginBottom:14 }}>⚡ 3 เซตต่อท่า · พัก 90–120 วินาที</div>
+                  {EXERCISES.map((ex, i) => (
+                    <div key={ex.id} style={{ background:"var(--card)", borderRadius:16, padding:16, marginBottom:12, border:"1px solid var(--border)" }}>
+                      <div style={{ display:"flex", gap:10, alignItems:"center", marginBottom:12 }}>
+                        <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:20, color:"var(--orange)", width:26 }}>{i+1}</div>
+                        <div>
+                          <div style={{ fontWeight:700, fontSize:15 }}>{ex.icon} {ex.name}</div>
+                          <div style={{ fontSize:11, color:"var(--text2)" }}>{ex.target}</div>
+                        </div>
+                      </div>
+                      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8 }}>
+                        {[0,1,2].map(si => (
+                          <div key={si}>
+                            <div style={{ fontSize:10, color:"var(--text2)", textAlign:"center", marginBottom:4 }}>เซต {si+1}</div>
+                            <input style={{ ...inp, textAlign:"center", padding:"12px 4px", fontSize:20, fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700 }}
+                              type="number" inputMode="numeric" placeholder="—"
+                              value={exSets[ex.id][si]}
+                              onChange={e => { const v=[...exSets[ex.id]]; v[si]=e.target.value; setExSets(p=>({...p,[ex.id]:v})); }} />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
+
+              <button onClick={submit} disabled={saving} style={{ marginTop:16, width:"100%", padding:"18px", background: saving ? "var(--card2)" : "linear-gradient(135deg,var(--orange),#ff3f00)", border:"none", borderRadius:16, color: saving ? "var(--text2)" : "#fff", fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:18, letterSpacing:1, textTransform:"uppercase", boxShadow: saving ? "none" : "0 8px 30px rgba(255,107,43,0.4)", transition:"all 0.2s" }}>
+                {saving ? "☁️ กำลังบันทึกลง Sheets…" : "☁️ บันทึกลง Google Sheets"}
+              </button>
+              <div style={{ height:24 }} />
+            </div>
+          );
+        }
+
+        function HistoryScreen({ today, logs }) {
+          const weeks = Array.from({length:4}, (_,i) =>
+            Array.from({length:7}, (_,d) => { const dt=new Date(today); dt.setDate(dt.getDate()-(i*7+(6-d))); return dt; })
+          );
+          const streak = calcStreak(today, logs);
+
+          return (
+            <div style={{ padding:"0 16px" }}>
+              <div style={{ display:"flex", gap:12, marginBottom:18 }}>
+                <StatCard label="Streak" value={`${streak} 🔥`} color="var(--orange)" />
+                <StatCard label="รวม Workouts" value={Object.keys(logs).length} color="var(--cyan)" />
+              </div>
+              {weeks.map((week, wi) => (
+                <div key={wi} style={{ marginBottom:16 }}>
+                  <SecLabel>{wi === 0 ? "สัปดาห์นี้" : `${wi} สัปดาห์ที่แล้ว`}</SecLabel>
+                  <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:4 }}>
+                    {week.map(date => {
+                      const k=dateKey(date), log=logs[k];
+                      const isToday=k===dateKey(today), isFuture=date>today;
+                      const dot=log?(log.type==="cardio"?"var(--cyan)":"var(--orange)"):null;
+                      return (
+                        <div key={k} style={{ background:isFuture?"transparent":log?`${dot}18`:"#111820", border:isToday?"2px solid var(--cyan)":"1px solid var(--border)", borderRadius:10, padding:"8px 4px", textAlign:"center", opacity:isFuture?0.25:1 }}>
+                          <div style={{ fontSize:9, color:"var(--text2)", marginBottom:3 }}>{DAYS_TH[date.getDay()]}</div>
+                          <div style={{ fontSize:11, fontWeight:600, marginBottom:4 }}>{date.getDate()}</div>
+                          <div style={{ width:6, height:6, borderRadius:"50%", background:dot||"transparent", border:!dot?"1px solid var(--border)":"none", margin:"0 auto" }} />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        }
+
+        function calcStreak(today, logs) {
+          let streak=0, d=new Date(today);
+          for (let i=0; i<365; i++) {
+            const k=dateKey(d), sched=SCHEDULE[d.getDay()];
+            if (sched.type==="rest") { d.setDate(d.getDate()-1); continue; }
+            if (logs[k]) { streak++; d.setDate(d.getDate()-1); } else break;
+          }
+          return streak;
+        }
+
+        function InsightScreen({ logs }) {
+          const [insight, setInsight] = useState(null);
+          const [loading, setLoading] = useState(false);
+          const [error, setError]     = useState("");
+
+          const analyze = async () => {
+            setLoading(true); setError(""); setInsight(null);
+            try { setInsight(await generateInsights(logs)); }
+            catch (e) {
+              setError(e.message === "no_data"
+                ? "ยังไม่มีข้อมูล Workout\nบันทึกอย่างน้อย 2–3 ครั้งก่อนนะครับ 💪"
+                : "วิเคราะห์ไม่สำเร็จ ลองใหม่อีกครั้ง");
+            }
+            setLoading(false);
+          };
+
+          const gradeColor = g => !g?"var(--text2)":g[0]==="A"?"var(--green)":g[0]==="B"?"var(--cyan)":g[0]==="C"?"var(--orange)":"var(--danger)";
+          const trendIcon  = t => ({up:"📈",down:"📉",stable:"➡️",insufficient_data:"❓"}[t]||"❓");
+          const trendColor = t => ({up:"var(--green)",down:"var(--danger)",stable:"var(--cyan)",insufficient_data:"var(--text2)"}[t]||"var(--text2)");
+
+          return (
+            <div style={{ padding:"0 16px" }}>
+              <div style={{ background:"linear-gradient(135deg,#1a0d2e,#0d1a2e)", border:"1px solid #a855f740", borderRadius:20, padding:20, marginBottom:16 }}>
+                <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:22, marginBottom:4 }}>🧠 AI Progression Insights</div>
+                <div style={{ fontSize:13, color:"var(--text2)", marginBottom:16 }}>วิเคราะห์ {Object.keys(logs).length} workout · หา progression และสิ่งที่ควรปรับ</div>
+                <button onClick={analyze} disabled={loading} style={{ width:"100%", padding:"14px", background:loading?"var(--card2)":"linear-gradient(135deg,#a855f7,#7c3aed)", border:"none", borderRadius:12, color:loading?"var(--text2)":"#fff", fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:16, letterSpacing:1, textTransform:"uppercase" }}>
+                  {loading ? "🧠 กำลังวิเคราะห์…" : insight ? "🔄 วิเคราะห์ใหม่" : "✨ วิเคราะห์ผลการออกกำลังกาย"}
+                </button>
+              </div>
+
+              {loading && (
+                <div style={{ textAlign:"center", padding:"40px 20px" }}>
+                  <div style={{ fontSize:48, marginBottom:14 }}>🧠</div>
+                  <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:18, color:"var(--purple)", marginBottom:8 }}>Claude กำลังวิเคราะห์…</div>
+                  <div style={{ display:"flex", gap:8, justifyContent:"center" }}>
+                    {[0,1,2].map(i => <div key={i} style={{ width:8, height:8, borderRadius:"50%", background:"var(--purple)", animation:`pulse 1.2s ${i*0.2}s ease-in-out infinite` }} />)}
+                  </div>
+                </div>
+              )}
+
+              {error && !loading && (
+                <div style={{ background:"#200a0a", border:"1px solid var(--danger)40", borderRadius:14, padding:20, textAlign:"center" }}>
+                  <div style={{ fontSize:32, marginBottom:8 }}>⚠️</div>
+                  <div style={{ fontSize:13, color:"var(--text2)", whiteSpace:"pre-line" }}>{error}</div>
+                </div>
+              )}
+
+              {insight && !loading && (
+                <div className="fade-in">
+                  <div style={{ background:"var(--card)", border:"1px solid var(--border)", borderRadius:18, padding:20, marginBottom:12, display:"flex", gap:16, alignItems:"center" }}>
+                    <div style={{ textAlign:"center", minWidth:64 }}>
+                      <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:52, color:gradeColor(insight.overall?.rating), lineHeight:1 }}>{insight.overall?.rating}</div>
+                      <div style={{ fontSize:10, color:"var(--text2)", marginTop:2 }}>Overall</div>
+                    </div>
+                    <div style={{ flex:1 }}>
+                      <SecLabel>ภาพรวม</SecLabel>
+                      <div style={{ fontSize:13, lineHeight:1.65, color:"#c8d8e8" }}>{insight.overall?.summary}</div>
+                    </div>
+                  </div>
+
+                  {insight.consistency && (
+                    <div style={{ background:"var(--card)", border:"1px solid var(--border)", borderRadius:14, padding:16, marginBottom:12 }}>
+                      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
+                        <SecLabel>🗓 ความสม่ำเสมอ</SecLabel>
+                        <span style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:20, color:insight.consistency.score>=70?"var(--green)":insight.consistency.score>=40?"var(--orange)":"var(--danger)" }}>{insight.consistency.score}%</span>
+                      </div>
+                      <div style={{ height:6, background:"var(--card2)", borderRadius:3, overflow:"hidden", marginBottom:8 }}>
+                        <div style={{ height:"100%", width:`${insight.consistency.score}%`, background:insight.consistency.score>=70?"var(--green)":insight.consistency.score>=40?"var(--orange)":"var(--danger)", borderRadius:3 }} />
+                      </div>
+                      <div style={{ fontSize:12, color:"var(--text2)" }}>{insight.consistency.comment}</div>
+                    </div>
+                  )}
+
+                  {insight.priority && (
+                    <div style={{ background:"linear-gradient(135deg,#0a1a0a,#1a1a0a)", border:"1px solid #00e67640", borderRadius:14, padding:16, marginBottom:12 }}>
+                      <SecLabel>🎯 โฟกัสสำคัญที่สุดตอนนี้</SecLabel>
+                      <div style={{ fontSize:14, fontWeight:600, color:"var(--green)", marginBottom:6 }}>{insight.priority.focus}</div>
+                      <div style={{ fontSize:12, color:"var(--text2)" }}>Next milestone: {insight.priority.next_milestone}</div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        function StatsScreen({ logs }) {
+          const cardioLogs = Object.values(logs).filter(l => l.type === "cardio");
+          const calsLogs   = Object.values(logs).filter(l => l.type === "calisthenics");
+          const avgHR  = cardioLogs.length ? Math.round(cardioLogs.reduce((s,l)=>s+l.avgHR,0)/cardioLogs.length) : 0;
+          const totalMins = cardioLogs.reduce((s,l)=>s+(l.duration||0),0);
+          const bestReps = {};
+          EXERCISES.forEach(ex => {
+            bestReps[ex.id]=0;
+            calsLogs.forEach(l=>(l.exercises?.[ex.id]||[]).forEach(r=>{ if(+r>bestReps[ex.id]) bestReps[ex.id]=+r; }));
+          });
+
+          return (
+            <div style={{ padding:"0 16px" }}>
+              <SecLabel>Zone 2 Cardio</SecLabel>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:20 }}>
+                <BigStat label="เซสชัน"   value={cardioLogs.length}  color="var(--cyan)" />
+                <BigStat label="นาทีรวม"  value={totalMins||"—"}     color="var(--cyan)" />
+                <BigStat label="avg HR"   value={avgHR||"—"}          unit={avgHR?"bpm":""} color={avgHR>=138&&avgHR<=150?"var(--green)":"var(--cyan)"} />
+              </div>
+            </div>
+          );
+        }
+
+        function SecLabel({ children }) { return <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:11, letterSpacing:2, color:"var(--text2)", textTransform:"uppercase", marginBottom:8 }}>{children}</div>; }
+        function FLabel({ children }) { return <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:600, fontSize:11, letterSpacing:2, color:"var(--text2)", textTransform:"uppercase", marginBottom:6 }}>{children}</div>; }
+        function StatCard({ label, value, color }) {
+          return (
+            <div style={{ flex:1, background:"var(--card)", border:"1px solid var(--border)", borderRadius:14, padding:"14px 16px" }}>
+              <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:26, color }}>{value}</div>
+              <div style={{ fontSize:11, color:"var(--text2)" }}>{label}</div>
+            </div>
+          );
+        }
+        function BigStat({ label, value, unit, color }) {
+          return (
+            <div style={{ background:"var(--card)", border:"1px solid var(--border)", borderRadius:14, padding:"14px 10px", textAlign:"center" }}>
+              <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:28, color, lineHeight:1 }}>{value}</div>
+              {unit && <div style={{ fontSize:9, color:"var(--text2)", marginTop:2 }}>{unit}</div>}
+              <div style={{ fontSize:10, color:"var(--text2)", marginTop:4 }}>{label}</div>
+            </div>
+          );
+        }
+
+        // Render แอปพลิเคชันหลักเข้าไปใน id="root"
+        const root = tragedies = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
