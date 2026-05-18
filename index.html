@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Calisthenics & Running Record </title>
+    <title>Wracker !</title>
     
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -170,6 +170,56 @@
             padding-bottom: env(safe-area-inset-bottom, 12px);
             z-index: 999;
           }
+
+          /* ดีไซน์ปุ่ม Bubble 3D ยืดหยุ่น เด้ง นูน สวยสะดุดตาเวลาเหนื่อยๆ */
+          .bubble-btn {
+            width: 100%;
+            padding: 16px 20px;
+            border: none;
+            border-radius: 100px; /* ทรงแคปซูลกลมมน */
+            color: #ffffff;
+            font-family: 'Barlow Condensed', sans-serif;
+            font-weight: 950;
+            font-size: 17px;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          }
+
+          .bubble-btn:active {
+            transform: scale(0.96);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4) !important;
+          }
+
+          /* ไฮไลท์มิติแสงสะท้อนด้านบนปุ่มแบบแก้ว (Glossy Overlay) */
+          .bubble-btn::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 5%;
+            width: 90%;
+            height: 35%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0) 100%);
+            border-radius: 50px 50px 20px 20px;
+            pointer-events: none;
+          }
+
+          .bubble-btn-cardio {
+            background: linear-gradient(135deg, #00d4ff 0%, #008cb3 100%);
+            box-shadow: 0 8px 24px rgba(0, 212, 255, 0.35), inset 0 -4px 8px rgba(0,0,0,0.2);
+          }
+
+          .bubble-btn-calisthenics {
+            background: linear-gradient(135deg, #ff6b2b 0%, #cc3f00 100%);
+            box-shadow: 0 8px 24px rgba(255, 107, 43, 0.35), inset 0 -4px 8px rgba(0,0,0,0.2);
+          }
         `;
 
         // ─── App ──────────────────────────────────────────────────────────────────────
@@ -179,6 +229,8 @@
           const [syncStatus, setSyncStatus] = useState("loading");
           const [toast, setToast]       = useState("");
           const [logging, setLogging]   = useState(false);
+          // เพิ่ม state ระบุว่ากำลังจะบันทึกประเภทไหน ("cardio" หรือ "calisthenics")
+          const [logType, setLogType]   = useState("cardio");
 
           const today    = new Date();
           const todayKey = dateKey(today);
@@ -214,6 +266,11 @@
             }
           };
 
+          const openLogScreen = (type) => {
+            setLogType(type);
+            setLogging(true);
+          };
+
           const TABS = [["today","📅","วันนี้"],["history","📊","ประวัติ"],["insight","🧠","Insight"],["stats","🏆","สถิติ"]];
 
           return (
@@ -240,8 +297,8 @@
                 {/* Content Area */}
                 <div style={{ flex: 1, padding: "0 4px" }}>
                   {syncStatus === "loading" ? <LoadingScreen /> :
-                   logging ? <LogScreen schedule={schedule} onSave={handleSaveLog} onCancel={() => setLogging(false)} existingLog={todayLog} saving={syncStatus === "saving"} /> :
-                   tab === "today"   ? <TodayScreen schedule={schedule} today={today} todayLog={todayLog} onLog={() => setLogging(true)} /> :
+                   logging ? <LogScreen logType={logType} onSave={handleSaveLog} onCancel={() => setLogging(false)} existingLog={todayLog} saving={syncStatus === "saving"} /> :
+                   tab === "today"   ? <TodayScreen schedule={schedule} today={today} todayLog={todayLog} onLogCardio={() => openLogScreen("cardio")} onLogCals={() => openLogScreen("calisthenics")} /> :
                    tab === "history" ? <HistoryScreen today={today} logs={allData.logs} /> :
                    tab === "insight" ? <InsightScreen logs={allData.logs} /> :
                                        <StatsScreen logs={allData.logs} />}
@@ -289,13 +346,14 @@
               <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700, fontSize: 20, color: "var(--cyan)" }}>กำลังโหลดจาก Google Sheets</div>
               <div style={{ fontSize: 13, color: "var(--text2)" }}>รอสักครู่…</div>
               <div style={{ display: "flex", gap: 8 }}>
-                {[0,1,2].map(i => <div key={i} style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--cyan)", animation: `pulse 1.2s ${i*0.2}s ease-in-out infinite` }} />)}
+                {[0,1,2].map(i => <div key={i} style={{ width: 8, height: 8, borderRadius:"50%", background: "var(--cyan)", animation: `pulse 1.2s ${i*0.2}s ease-in-out infinite` }} />)}
               </div>
             </div>
           );
         }
 
-        function TodayScreen({ schedule, today, todayLog, onLog }) {
+        // หน้าแรกแบบปลดล็อคอิสระ เพิ่มปุ่มคู่ Bubble 3D บันทึกข้ามสายได้ตลอดเวลา
+        function TodayScreen({ schedule, today, todayLog, onLogCardio, onLogCals }) {
           const dayName = ["อาทิตย์","จันทร์","อังคาร","พุธ","พฤหัสบดี","ศุกร์","เสาร์"][today.getDay()];
           const dateStr = today.toLocaleDateString("th-TH", { day:"numeric", month:"long", year:"numeric" });
           const tc = schedule.type === "cardio" ? "var(--cyan)" : schedule.type === "calisthenics" ? "var(--orange)" : "var(--text2)";
@@ -303,37 +361,44 @@
 
           return (
             <div style={{ padding: "0 12px" }}>
-              <div style={{ background:"var(--card)", borderRadius:20, padding:20, marginBottom:14, border:"1px solid var(--border)", position:"relative", overflow:"hidden" }}>
+              {/* การ์ดตารางประจำวัน */}
+              <div style={{ background:"var(--card)", borderRadius:20, padding:20, marginBottom:20, border:"1px solid var(--border)", position:"relative", overflow:"hidden" }}>
                 <div style={{ position:"absolute", top:-20, right:-20, fontSize:100, opacity:0.06 }}>{ti}</div>
                 <div style={{ fontSize:12, color:"var(--text2)", marginBottom:4 }}>{dateStr}</div>
                 <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:28, marginBottom:10 }}>วัน{dayName}</div>
                 <div style={{ display:"inline-flex", alignItems:"center", gap:8, background:`${tc}18`, border:`1px solid ${tc}40`, borderRadius:100, padding:"6px 14px" }}>
                   <span style={{ fontSize:16 }}>{ti}</span>
-                  <span style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:15, color:tc }}>{schedule.label}</span>
+                  <span style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:15, color:tc }}>เป้าหมายตาราง: {schedule.label}</span>
                 </div>
                 <div style={{ marginTop:8, fontSize:13, color:"var(--text2)" }}>{schedule.sub}</div>
               </div>
 
-              {todayLog ? (
-                <div style={{ background:"#001a0e", border:"1px solid #00e67640", borderRadius:16, padding:16, marginBottom:14 }}>
+              {/* สรุปผลบันทึกของวันนี้ (ถ้ามี) */}
+              {todayLog && (
+                <div style={{ background:"#001a0e", border:"1px solid #00e67640", borderRadius:16, padding:16, marginBottom:20 }}>
                   <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:12 }}>
                     <div style={{ width:8, height:8, borderRadius:"50%", background:"var(--green)" }} />
-                    <span style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:16, color:"var(--green)" }}>บันทึกแล้ว ✓</span>
+                    <span style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:16, color:"var(--green)" }}>บันทึกข้อมูลวันนี้แล้ว ✓</span>
                   </div>
-                  <LogSummary log={todayLog} schedule={schedule} />
-                  <button onClick={onLog} style={{ marginTop:12, width:"100%", padding:"10px", background:"transparent", border:"1px solid var(--border)", borderRadius:10, color:"var(--text2)", fontSize:13, fontFamily:"'Barlow',sans-serif" }}>แก้ไขบันทึก</button>
-                </div>
-              ) : schedule.type !== "rest" ? (
-                /* ปุ่มกดบันทึกดีไซน์ใหม่ ตัวหนังสือขาวหนา นูนเด่นชัด ไม่จมหายไปกับพื้นหลัง */
-                <button onClick={onLog} style={{ width:"100%", padding:"18px", background:`linear-gradient(135deg,${tc},${tc}88)`, border:"none", borderRadius:16, color: "#fff", fontFamily:"'Barlow Condensed',sans-serif", fontWeight:950, fontSize:19, letterSpacing:1.2, textTransform:"uppercase", textShadow: "0 2px 4px rgba(0,0,0,0.5)", boxShadow:`0 8px 30px ${tc}40` }}>
-                  {ti} บันทึก{schedule.type === "cardio" ? " Cardio" : " Workout"}
-                </button>
-              ) : (
-                <div style={{ textAlign:"center", padding:"30px 0", color:"var(--text2)", fontSize:14 }}>
-                  <div style={{ fontSize:48, marginBottom:12 }}>😴</div>วันนี้พักผ่อนเต็มที่<br />ร่างกายต้องการเวลาฟื้นฟู
+                  <LogSummary log={todayLog} schedule={todayLog} />
                 </div>
               )}
 
+              {/* ส่วนเลือกบันทึกการออกกำลังกายยืดหยุ่น (ปุ่มคู่ 3D Glass Bubble) */}
+              <div style={{ background: "rgba(255,255,255,0.02)", padding: "16px", borderRadius: 20, border: "1px solid var(--border)", marginBottom: 20 }}>
+                <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:12, letterSpacing:1.5, color:"var(--text2)", textTransform:"uppercase", marginBottom:12, textAlign: "center" }}>⚡ เลือกบันทึกผล (ออกกำลังไม่ตรงตารางก็กดได้)</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  <button onClick={onLogCardio} className="bubble-btn bubble-btn-cardio">
+                    🏃 บันทึก Zone 2 Cardio
+                  </button>
+                  <button onClick={onLogCals} className="bubble-btn bubble-btn-calisthenics">
+                    💪 บันทึก Calisthenics
+                  </button>
+                </div>
+                {todayLog && <div style={{ textAlign: "center", fontSize: 11, color: "var(--text2)", marginTop: 10 }}>* การกดบันทึกใหม่ จะบันทึกทับข้อมูลเดิมของวันนี้</div>}
+              </div>
+
+              {/* ท่าฝึกซ้อมอ้างอิงประจำวัน */}
               {schedule.type === "calisthenics" && (
                 <div style={{ marginTop:14 }}>
                   <SecLabel>Routine A — 3 Sets Each</SecLabel>
@@ -393,13 +458,15 @@
           );
         }
 
-        function LogScreen({ schedule, onSave, onCancel, existingLog, saving }) {
-          const [duration, setDuration] = useState(existingLog?.duration ?? "");
-          const [avgHR, setAvgHR]       = useState(existingLog?.avgHR ?? "");
-          const [notes, setNotes]       = useState(existingLog?.notes ?? "");
+        function LogScreen({ logType, onSave, onCancel, existingLog, saving }) {
+          const isCardioMode = logType === "cardio";
+          const [duration, setDuration] = useState(existingLog?.type === "cardio" ? (existingLog?.duration ?? "") : "");
+          const [avgHR, setAvgHR]       = useState(existingLog?.type === "cardio" ? (existingLog?.avgHR ?? "") : "");
+          const [notes, setNotes]       = useState(existingLog?.type === "cardio" ? (existingLog?.notes ?? "") : "");
           const [exSets, setExSets]     = useState(() => {
             const init = {};
-            EXERCISES.forEach(ex => { init[ex.id] = existingLog?.exercises?.[ex.id] ?? ["","",""]; });
+            const activeLog = existingLog?.type === "calisthenics" ? existingLog : null;
+            EXERCISES.forEach(ex => { init[ex.id] = activeLog?.exercises?.[ex.id] ?? ["","",""]; });
             return init;
           });
 
@@ -409,7 +476,7 @@
           const hrLabel = hrNum < 60 ? null : hrNum < 138 ? "⬇️ ต่ำกว่า Zone 2" : hrNum <= 150 ? "✅ อยู่ใน Zone 2!" : "⬆️ สูงเกิน Zone 2";
 
           const submit = () => {
-            if (schedule.type === "cardio") {
+            if (isCardioMode) {
               if (!duration || !avgHR) return alert("กรุณากรอกระยะเวลาและ HR");
               onSave({ type:"cardio", duration:Number(duration), avgHR:Number(avgHR), notes });
             } else {
@@ -421,10 +488,10 @@
             <div style={{ padding:"0 12px" }}>
               <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:20 }}>
                 <button onClick={onCancel} style={{ background:"var(--card)", border:"none", color:"#fff", fontSize:18, padding:"8px 14px", borderRadius:10 }}>←</button>
-                <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:22 }}>{schedule.type === "cardio" ? "🏃 บันทึก Zone 2" : "💪 บันทึก Calisthenics"}</div>
+                <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:22 }}>{isCardioMode ? "🏃 บันทึก Zone 2" : "💪 บันทึก Calisthenics"}</div>
               </div>
 
-              {schedule.type === "cardio" ? (
+              {isCardioMode ? (
                 <>
                   <FLabel>ระยะเวลา (นาที)</FLabel>
                   <input style={inp} type="number" inputMode="numeric" placeholder="เช่น 30" value={duration} onChange={e => setDuration(e.target.value)} />
@@ -464,7 +531,8 @@
                 </>
               )}
 
-              <button onClick={submit} disabled={saving} style={{ marginTop:16, width:"100%", padding:"18px", background: saving ? "var(--card2)" : "linear-gradient(135deg,var(--orange),#ff3f00)", border:"none", borderRadius:16, color: saving ? "var(--text2)" : "#fff", fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:18, letterSpacing:1, textTransform:"uppercase", boxShadow: saving ? "none" : "0 8px 30px rgba(255,107,43,0.4)", transition:"all 0.2s" }}>
+              {/* ปุ่มบันทึกใหญ่ดีไซน์ Bubble 3D สวยพรีเมียม */}
+              <button onClick={submit} disabled={saving} className={`bubble-btn ${isCardioMode ? 'bubble-btn-cardio' : 'bubble-btn-calisthenics'}`} style={{ marginTop: 20, background: saving ? "var(--card2)" : undefined, boxShadow: saving ? "none" : undefined, color: saving ? "var(--text2)" : "#fff" }}>
                 {saving ? "☁️ กำลังบันทึกลง Sheets…" : "☁️ บันทึกลง Google Sheets"}
               </button>
               <div style={{ height:24 }} />
@@ -472,7 +540,6 @@
           );
         }
 
-        // ─── หน้าจอประวัติย้อนหลังแบบจิ้มดูรายละเอียด (History Component) ──────────────────
         function HistoryScreen({ today, logs }) {
           const weeks = Array.from({length:4}, (_,i) =>
             Array.from({length:7}, (_,d) => { const dt=new Date(today); dt.setDate(dt.getDate()-(i*7+(6-d))); return dt; })
@@ -536,7 +603,7 @@
                     })}
                   </div>
 
-                  {/* กล่องดรอปดาวน์รายละเอียดใต้สัปดาห์นั้น ๆ เมื่อกดเลือกวันที่มีข้อมูล */}
+                  {/* กล่องดรอปดาวน์รายละเอียดข้อมูล */}
                   {week.some(date => date.toISOString().slice(0, 10) === selectedDate) && (() => {
                     const currentLog = logs[selectedDate];
                     if (!currentLog) return null;
