@@ -17,7 +17,8 @@
         const { useState, useEffect } = React;
 
         // ─── Google Sheets Config ─────────────────────────────────────────────────────
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbwzBXjNV_gl3VGDMx0nXb_Fz3_aOyx7LANFjBKQwThgXCTuh9udbKCUjY-0ZFnJTVay/exec";
+        // ⚠️ นำลิงก์ที่ได้จากการ Deploy Apps Script รอบล่าสุดของพี่มาวางแทนที่ข้อความด้านล่างนี้ครับ
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbzq_9k8-foi6kTMEyqlv7PsU244AP3BJCrYolPQt-u0cPRJ6wDYRWJE1S-0p4NdJAEC/exec";
 
         async function sheetLoad() {
           try {
@@ -70,7 +71,7 @@
           if (entries.length === 0) {
             return {
               rating: "N/A",
-              summary: "ยังไม่พบสถิติการซ้อมในระบบ บันทึกผลการออกกำลังกายอย่างน้อย 1 ครั้ง เพื่อเริ่มให้ AI วิเคราะห์ฟอร์มซ้อมครับ",
+              summary: "ยังไม่พบสถิติการซ้อมในระบบ บันทึกผลการออกกำลังกายอย่างน้อย 1 ครั้ง เพื่อเริ่มให้ AI วิเคราะห์สถิติครับ",
               score: 0, comment: "ไม่มีข้อมูลประวัติการซ้อม",
               focus: "เริ่มบันทึกผลการฝึกซ้อมวันนี้เป็นก้าวแรก", milestone: "สะสมยอดเซสชันรวมให้ครบ 3 ครั้ง"
             };
@@ -396,6 +397,17 @@
         function HistoryScreen({ today, logs }) {
           const weeks = Array.from({length:4}, (_,i) => Array.from({length:7}, (_,d) => { const dt=new Date(today); dt.setDate(dt.getDate()-(i*7+(6-d))); return dt; }));
           const [selectedDate, setSelectedDate] = useState(null);
+          
+          // ประกาศตัวแปรอ้างอิงรายท่าไว้ในฟังก์ชันย่อย ป้องกันบราวเซอร์บอดี้สคริปต์แคลช (แก้บั๊กจอขาวสำเร็จ!)
+          const LOCAL_EXERCISES = [
+            { id: "aus_pull",   name: "Australian Pull-Ups",   icon: "🏋️" },
+            { id: "neg_pull",   name: "Negative Pull-Ups",     icon: "⬇️" },
+            { id: "dec_push",   name: "Decline Push-Ups",      icon: "💪" },
+            { id: "pike_push",  name: "Incline Pike Push-Ups", icon: "🔺" },
+            { id: "knee_raise", name: "Hanging Knee Raises",   icon: "🦵" },
+            { id: "squats",     name: "Bodyweight Squats",     icon: "🦴" },
+          ];
+
           return (
             <div style={{ padding:"0 12px" }}>
               {weeks.map((week, wi) => (
@@ -419,8 +431,23 @@
                     const currentLog = logs[selectedDate];
                     return (
                       <div className="fade-in" style={{ marginTop:12, padding:12, background:"var(--card2)", borderRadius:12, border:"1px solid rgba(255,255,255,0.05)" }}>
-                        <div style={{ fontWeight:700, fontSize:12, color:"var(--cyan)", marginBottom:4 }}>📋 ประวัติเซสชันของวันที่ {selectedDate}</div>
-                        <LogSummary log={currentLog} />
+                        <div style={{ fontWeight:700, fontSize:12, color:"var(--cyan)", marginBottom:6 }}>📋 ประวัติประมวลผลวันที่ {selectedDate}</div>
+                        {currentLog.type === "cardio" ? (
+                          <div style={{ display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:10, textAlign:"center" }}>
+                            <div><div style={{ color:"var(--cyan)", fontWeight:900 }}>{currentLog.duration}</div><div style={{ fontSize:10 }}>นาที</div></div>
+                            <div><div style={{ color:"var(--green)", fontWeight:900 }}>{currentLog.distance || "—"}</div><div style={{ fontSize:10 }}>กม.</div></div>
+                            <div><div style={{ color:"var(--orange)", fontWeight:900 }}>{calculatePace(currentLog.duration, currentLog.distance)}</div><div style={{ fontSize:10 }}>Pace</div></div>
+                          </div>
+                        ) : (
+                          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
+                            {LOCAL_EXERCISES.map(ex => {
+                              const sets = currentLog.exercises?.[ex.id];
+                              if (!sets || sets.every(s => !s)) return null;
+                              return <div key={ex.id} style={{ fontSize:12 }}>{ex.icon} {ex.name}: <span style={{color:"var(--orange)", fontWeight:700}}>{sets.filter(Boolean).join("/")}</span></div>;
+                            })}
+                          </div>
+                        )}
+                        {currentLog.notes && <div style={{ fontSize:11, color:"var(--text2)", marginTop:8, fontStyle:"italic" }}>* {currentLog.notes}</div>}
                       </div>
                     );
                   })()}
@@ -446,7 +473,7 @@
                   </div>
                   <div>
                     <div style={{ fontSize:11, color:"var(--text2)", textTransform:"uppercase" }}>Overall Grade</div>
-                    <div style={{ fontSize:14, fontWeight:600, color:"#fff" }}>ผลลัพธ์ประสิทธิภาพคาร์ดิโอโดยรวม</div>
+                    <div style={{ fontSize:14, fontWeight:600, color:"#fff" }}>ผลลัพธ์ประสิทธิภาพคาร์โดโดยรวม</div>
                   </div>
                 </div>
                 <div style={{ fontSize:13, lineHeight:1.6, color:"#c8d8e8", background: "var(--card2)", padding: "10px 12px", borderRadius: 10 }}>
