@@ -17,8 +17,7 @@
         const { useState, useEffect } = React;
 
         // ─── Google Sheets Config ─────────────────────────────────────────────────────
-        // ⚠️ นำลิงก์ที่ได้จากการ Deploy Apps Script รอบล่าสุดของพี่มาวางแทนที่ข้อความด้านล่างนี้ครับ
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbxaWCiP6ePvelc_9Y9WYKeuWZLvx1r2e4sjDcgue3SGD1zJClHaKYKwkXUKQSm15F2I/exec";
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycby9YUIhRx_ZatF_yPlahISv6Nuan6xazhOf1Vajtrt1KunPwhlzZS7nQd4LHjkqFTe3/exec";
 
         async function sheetLoad() {
           try {
@@ -478,7 +477,7 @@
                     <div style={{ fontSize:14, fontWeight:600, color:"#fff" }}>ผลลัพธ์ประสิทธิภาพคาร์ดิโอโดยรวม</div>
                   </div>
                 </div>
-                <div style={{ fontSize:13, lineHeight:1.6, color:"#c8d8e8", background: "var(--card2)", padding: "10px 12px", borderRadius: 10 }}>
+                <div style={{ fontSize:14, lineHeight:1.6, color:"#c8d8e8", background: "var(--card2)", padding: "10px 12px", borderRadius: 10 }}>
                   {analysis.summary}
                 </div>
               </div>
