@@ -17,7 +17,7 @@
         const { useState, useEffect } = React;
 
         // ─── Google Sheets Config ─────────────────────────────────────────────────────
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbw7-ATWYWdCsGffiWj41MQjI_4TJjnn_58Le-8chzNjbiOYs8mjTok9VOQ6EKOGt3Un/exec";
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbxHNPxTon8xfN5GaPjHnh7gvdXSaLJGtchPJtWrv411X53T7QKWgQ0xKdmY95oxikdI/exec";
 
         async function sheetLoad() {
           try {
@@ -36,7 +36,6 @@
             const res = await fetch(`${SHEET_URL}?action=save&data=${encoded}`);
             if (!res.ok) throw new Error("save_failed");
             const returnData = await res.json();
-            // 🛠️ แก้ไขเซฟตี้วาล์ว: หากข้อมูลตอบกลับถูกต้อง ให้ใช้ค่าใหม่ หากขัดข้องให้ใช้ค่าในสเตทปัจจุบันรันต่อทันที ดับกลไกลูปกะพริบจอหายถาวร
             return returnData && returnData.logs ? returnData : allData;
           } catch {
             return allData;
@@ -335,7 +334,7 @@
             <div style={{ display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:10, marginTop:8, textAlign:"center" }}>
               <div><div style={{ color:"var(--cyan)", fontWeight:900 }}>{log.duration}</div><div style={{ fontSize:10, color:"var(--text2)" }}>นาที</div></div>
               <div><div style={{ color:"var(--green)", fontWeight:900 }}>{log.distance || "—"}</div><div style={{ fontSize:10, color:"var(--text2)" }}>กม.</div></div>
-              <div><div style={{ color:"var(--orange)", fontWeight:900 }}>{calculatePace(log.duration, log.distance)}</div><div style={{ fontSize:10, color(--text2)" }}>Pace</div></div>
+              <div><div style={{ color:"var(--orange)", fontWeight:900 }}>{calculatePace(log.duration, log.distance)}</div><div style={{ fontSize:10, color:"var(--text2)" }}>Pace</div></div>
             </div>
           );
           return (
@@ -535,7 +534,7 @@
         }
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(App /); // บรรทัดสุดท้ายนี้ พิมพ์ตกวงเล็บแหลมและมีพิมพ์สลับตัวอักษรครับ เดี๋ยวแก้ไขให้เรียบร้อยเลยครับพี่
+        root.render(<App />);
     </script>
 </body>
 </html>
