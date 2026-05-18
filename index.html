@@ -17,8 +17,7 @@
         const { useState, useEffect } = React;
 
         // ─── Google Sheets Config ─────────────────────────────────────────────────────
-        // ⚠️ เอาลิงก์ Web App URL ตัวล่าสุดของพี่มาวางแทนที่ข้อความด้านล่างนี้ครับ
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbyVVHBSh46u8XBRHZLmGKXo3AOX4zdyq2krAJOG3UV5kBWk0cH5KuHB_JZssa27c_hA/exec";
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbwyN3ejGUgYfTr3ERvGVHgACXR9QCMI63FconLrUK-9zTiYXUbjv3VBbIOOQ7yNEVKb/exec";
 
         async function sheetLoad() {
           try {
@@ -26,17 +25,13 @@
             if (!res.ok) throw new Error("fetch_failed");
             const data = await res.json();
             return data?.logs ? data : { logs: {} };
-          } catch { 
-            return { logs: {} }; // เซฟตี้วาล์ว: หากเกิดเหตุสุดวิสัย ให้จำลองวัตถุเปล่าขึ้นมารันต่อทันที ห้ามปล่อยให้แอป Crash สีแดง
-          }
+          } catch { return null; }
         }
 
         async function sheetSave(allData) {
           const encoded = encodeURIComponent(JSON.stringify(allData));
           const res = await fetch(`${SHEET_URL}?action=save&data=${encoded}`);
           if (!res.ok) throw new Error("save_failed");
-          const returnData = await res.json();
-          return returnData?.logs ? returnData : allData;
         }
 
         // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -61,46 +56,6 @@
 
         const DAYS_TH = ["อา","จ","อ","พ","พฤ","ศ","ส"];
         function dateKey(d = new Date()) { return d.toISOString().slice(0, 10); }
-
-        function calculatePace(duration, distance) {
-          if (!duration || !distance || Number(distance) === 0) return "—";
-          const totalSeconds = (Number(duration) * 60) / Number(distance);
-          const paceMinutes = Math.floor(totalSeconds / 60);
-          const paceSeconds = Math.round(totalSeconds % 60);
-          return `${paceMinutes}:${paceSeconds < 10 ? '0' : ''}${paceSeconds}`;
-        }
-
-        function runLocalAIAnalysis(logs) {
-          const entries = Object.values(logs);
-          if (entries.length === 0) {
-            return {
-              rating: "N/A",
-              summary: "ยังไม่พบสถิติการซ้อมในระบบ บันทึกผลการออกกำลังกายอย่างน้อย 1 ครั้ง เพื่อเริ่มให้ AI วิเคราะห์ฟอร์มซ้อมครับ",
-              score: 0, comment: "ไม่มีข้อมูลประวัติการซ้อม",
-              focus: "เริ่มบันทึกผลการฝึกซ้อมวันนี้เป็นก้าวแรก", milestone: "สะสมยอดเซสชันรวมให้ครบ 3 ครั้ง"
-            };
-          }
-
-          const cardioLogs = entries.filter(l => l.type === "cardio");
-          let summary = "จากการวิเคราะห์ฟอร์มการซ้อม ล่าสุดร่างกายของคุณเริ่มปรับตัวเข้ากับตารางฝึกได้เป็นอย่างดี ";
-          let score = Math.min(100, Math.round((entries.length / 8) * 100));
-          let rating = "B+";
-          let focus = "รักษาความต่อเนื่องในการคุมอัตราการเต้นของหัวใจให้อยู่ใน Zone 2 และเพิ่มวินัยรายสัปดาห์";
-          let milestone = "ทำสถิติวิ่งคุม HR ได้นิ่งต่อเนื่องมากกว่า 30 นาทีขึ้นไป";
-
-          if (cardioLogs.length > 0) {
-            const lastCardio = cardioLogs[cardioLogs.length - 1];
-            if (lastCardio.avgHR >= 138 && lastCardio.avgHR <= 150) {
-              summary += `การวิ่งล่าสุดทำได้ดีเยี่ยม คุมระดับชีพจรเฉลี่ยได้ ${lastCardio.avgHR} bpm อยู่ในเกณฑ์แอโรบิกเบสโซน 2 ที่เหมาะสมสำหรับพัฒนาความเร็ว Pace 8`;
-              rating = "A";
-            } else if (lastCardio.avgHR > 150) {
-              summary += `ตรวจพบว่าการซ้อมวิ่งล่าสุด ชีพจรเฉลี่ยสูงเกินเกณฑ์โซน 2 (${lastCardio.avgHR} bpm) แนะนำให้คุมความเร็วลดฝีเท้าลงเพื่อไม่ให้ร่างกายล้าสะสม `;
-              rating = "B";
-              focus = "เน้นคุมความเร็ว (เน้นคุม Pace 8 นิ่งๆ ความเหนื่อยระดับพูดคุยรู้เรื่อง) เพื่อดึงหัวใจให้ลงมาอยู่ Zone 2";
-            }
-          }
-          return { rating, summary, score, comment: "รักษาระดับวินัยการซ้อมอย่างต่อเนื่องเพื่อสร้างกล้ามเนื้อและการคาร์ดิโอที่สมดุล", focus, milestone };
-        }
 
         // ─── Styles ───────────────────────────────────────────────────────────────────
         const css = `
@@ -152,36 +107,6 @@
             padding-bottom: env(safe-area-inset-bottom, 12px);
             z-index: 999;
           }
-
-          .bubble-btn {
-            width: 100%;
-            padding: 16px 20px;
-            border: none;
-            border-radius: 100px;
-            color: #ffffff;
-            font-family: 'Barlow Condensed', sans-serif;
-            font-weight: 950;
-            font-size: 17px;
-            letter-spacing: 1.2px;
-            text-transform: uppercase;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
-            transition: all 0.2s ease;
-          }
-
-          .bubble-btn:active { transform: scale(0.96); }
-          .bubble-btn::before {
-            content: ''; position: absolute; top: 2px; left: 5%; width: 90%; height: 35%;
-            background: linear-gradient(to bottom, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
-            border-radius: 50px;
-          }
-          .bubble-btn-cardio { background: linear-gradient(135deg, #00d4ff, #008cb3); box-shadow: 0 8px 24px rgba(0, 212, 255, 0.3); }
-          .bubble-btn-calisthenics { background: linear-gradient(135deg, #ff6b2b, #cc3f00); box-shadow: 0 8px 24px rgba(255, 107, 43, 0.3); }
         `;
 
         // ─── App Component ────────────────────────────────────────────────────────────
@@ -191,7 +116,6 @@
           const [syncStatus, setSyncStatus] = useState("loading");
           const [toast, setToast]       = useState("");
           const [logging, setLogging]   = useState(false);
-          const [logType, setLogType]   = useState("cardio");
 
           const today    = new Date();
           const todayKey = dateKey(today);
@@ -217,23 +141,13 @@
           }, [tab]);
 
           const handleSaveLog = async (logData) => {
-            const currentDayObj = allData.logs[todayKey] || {};
-            let updatedDayObj = {};
-
-            if (logData.type === "cardio") {
-              updatedDayObj = { ...currentDayObj, type: "cardio", duration: logData.duration, distance: logData.distance, avgHR: logData.avgHR, notes: logData.notes };
-            } else {
-              updatedDayObj = { ...currentDayObj, type: "calisthenics", exercises: logData.exercises };
-            }
-
-            const updated = { ...allData, logs: { ...allData.logs, [todayKey]: updatedDayObj } };
+            const updated = { ...allData, logs: { ...allData.logs, [todayKey]: logData } };
             setAllData(updated);
             setLogging(false);
             setSyncStatus("saving");
             
             try {
-              const freshData = await sheetSave(updated);
-              setAllData(freshData);
+              await sheetSave(updated);
               setSyncStatus("ready");
               setToast({ msg: "✅ บันทึกสถิติลงชีตสำเร็จ", isError: false });
             } catch {
@@ -242,12 +156,7 @@
             }
           };
 
-          const openLogScreen = (type) => {
-            setLogType(type);
-            setLogging(true);
-          };
-
-          const TABS = [["today","📅","วันนี้"],["history","📊","ประวัติ"],["insight","🧠","Insight"],["stats","🏆","สถิติ"]];
+          const TABS = [["today","📅","วันนี้"],["history","📊","ประวัติ"],["stats","🏆","สถิติ"]];
 
           return (
             <>
@@ -266,10 +175,9 @@
                 )}
 
                 <div style={{ flex: 1, padding: "0 4px" }}>
-                  {logging ? <LogScreen logType={logType} onSave={handleSaveLog} onCancel={() => setLogging(false)} existingLog={todayLog} saving={syncStatus === "saving"} /> :
-                   tab === "today"   ? <TodayScreen schedule={schedule} today={today} todayLog={todayLog} onLogCardio={() => openLogScreen("cardio")} onLogCals={() => openLogScreen("calisthenics")} /> :
+                  {logging ? <LogScreen schedule={schedule} onSave={handleSaveLog} onCancel={() => setLogging(false)} existingLog={todayLog} saving={syncStatus === "saving"} /> :
+                   tab === "today"   ? <TodayScreen schedule={schedule} today={today} todayLog={todayLog} onLog={() => setLogging(true)} /> :
                    tab === "history" ? <HistoryScreen today={today} logs={allData.logs} /> :
-                   tab === "insight" ? <InsightScreen logs={allData.logs} /> :
                                        <StatsScreen logs={allData.logs} />}
                 </div>
 
@@ -299,8 +207,10 @@
           );
         }
 
-        function TodayScreen({ schedule, today, todayLog, onLogCardio, onLogCals }) {
+        function TodayScreen({ schedule, today, todayLog, onLog }) {
           const dateStr = today.toLocaleDateString("th-TH", { day:"numeric", month:"long", year:"numeric" });
+          const tc = schedule.type === "cardio" ? "var(--cyan)" : schedule.type === "calisthenics" ? "var(--orange)" : "var(--text2)";
+          const ti = schedule.type === "cardio" ? "🏃" : schedule.type === "calisthenics" ? "💪" : "😴";
           return (
             <div style={{ padding: "0 12px" }}>
               <div style={{ background:"var(--card)", borderRadius:20, padding:20, marginBottom:16, border:"1px solid var(--border)" }}>
@@ -309,29 +219,28 @@
                 <div style={{ marginTop:6, fontSize:13, color:"var(--text2)" }}>{schedule.sub}</div>
               </div>
 
-              {todayLog && (
+              {todayLog ? (
                 <div style={{ background:"#001a0e", border:"1px solid #00e67640", borderRadius:16, padding:16, marginBottom:16 }}>
                   <span style={{ color:"var(--green)", fontWeight:700, fontSize:14 }}>✓ บันทึกข้อมูลวันนี้สำเร็จ</span>
-                  <LogSummary log={todayLog} />
+                  <LogSummary log={todayLog} schedule={schedule} />
+                  <button onClick={onLog} style={{ marginTop:12, width:"100%", padding:"10px", background:"transparent", border:"1px solid var(--border)", borderRadius:10, color:"var(--text2)", fontSize:13 }}>แก้ไขบันทึก</button>
                 </div>
+              ) : schedule.type !== "rest" ? (
+                <button onClick={onLog} style={{ width:"100%", padding:"18px", background:`linear-gradient(135deg,${tc},${tc}88)`, border:"none", borderRadius:16, color: "#fff", fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:18, letterSpacing:1, textTransform:"uppercase" }}>
+                  {ti} บันทึก {schedule.label}
+                </button>
+              ) : (
+                <div style={{ textAlign:"center", padding:"30px 0", color:"var(--text2)", fontSize:14 }}>😴 วันนี้พักผ่อนเต็มที่ ร่างกายต้องการเวลาฟื้นฟู</div>
               )}
-
-              <div style={{ background: "rgba(255,255,255,0.02)", padding: "16px", borderRadius: 20, border: "1px solid var(--border)" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  <button onClick={onLogCardio} className="bubble-btn bubble-btn-cardio">🏃 บันทึก Zone 2 Cardio</button>
-                  <button onClick={onLogCals} className="bubble-btn bubble-btn-calisthenics">💪 บันทึก Calisthenics</button>
-                </div>
-              </div>
             </div>
           );
         }
 
-        function LogSummary({ log }) {
-          if (log.type === "cardio") return (
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:10, marginTop:8, textAlign:"center" }}>
-              <div><div style={{ color:"var(--cyan)", fontWeight:900 }}>{log.duration}</div><div style={{ fontSize:10, color:"var(--text2)" }}>นาที</div></div>
-              <div><div style={{ color:"var(--green)", fontWeight:900 }}>{log.distance || "—"}</div><div style={{ fontSize:10, color:"var(--text2)" }}>กม.</div></div>
-              <div><div style={{ color:"var(--orange)", fontWeight:900 }}>{calculatePace(log.duration, log.distance)}</div><div style={{ fontSize:10, color:"var(--text2)" }}>Pace</div></div>
+        function LogSummary({ log, schedule }) {
+          if (schedule.type === "cardio") return (
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginTop:8, textAlign:"center" }}>
+              <div><div style={{ color:"var(--cyan)", fontWeight:900, fontSize:22 }}>{log.duration}</div><div style={{ fontSize:10, color:"var(--text2)" }}>นาที</div></div>
+              <div><div style={{ color:"var(--orange)", fontWeight:900, fontSize:22 }}>{log.avgHR}</div><div style={{ fontSize:10, color:"var(--text2)" }}>avg HR</div></div>
             </div>
           );
           return (
@@ -345,16 +254,14 @@
           );
         }
 
-        function LogScreen({ logType, onSave, onCancel, existingLog, saving }) {
-          const isCardioMode = logType === "cardio";
-          const [duration, setDuration] = useState(existingLog?.type === "cardio" ? (existingLog?.duration ?? "") : "");
-          const [distance, setDistance] = useState(existingLog?.type === "cardio" ? (existingLog?.distance ?? "") : "");
-          const [avgHR, setAvgHR]       = useState(existingLog?.type === "cardio" ? (existingLog?.avgHR ?? "") : "");
-          const [notes, setNotes]       = useState(existingLog?.type === "cardio" ? (existingLog?.notes ?? "") : "");
+        function LogScreen({ schedule, onSave, onCancel, existingLog, saving }) {
+          const isCardioMode = schedule.type === "cardio";
+          const [duration, setDuration] = useState(existingLog?.duration ?? "");
+          const [avgHR, setAvgHR]       = useState(existingLog?.avgHR ?? "");
+          const [notes, setNotes]       = useState(existingLog?.notes ?? "");
           const [exSets, setExSets]     = useState(() => {
             const init = {};
-            const activeLog = existingLog?.type === "calisthenics" ? existingLog : null;
-            EXERCISES.forEach(ex => { init[ex.id] = activeLog?.exercises?.[ex.id] ?? ["","",""]; });
+            EXERCISES.forEach(ex => { init[ex.id] = existingLog?.exercises?.[ex.id] ?? ["","",""]; });
             return init;
           });
 
@@ -370,7 +277,6 @@
               {isCardioMode ? (
                 <>
                   <input style={inp} type="number" placeholder="ระยะเวลาวิ่ง (นาที)" value={duration} onChange={e => setDuration(e.target.value)} />
-                  <input style={inp} type="number" step="0.01" placeholder="ระยะทางรวม (กิโลเมตร)" value={distance} onChange={e => setDistance(e.target.value)} />
                   <input style={inp} type="number" placeholder="Heart Rate เฉลี่ย (bpm)" value={avgHR} onChange={e => setAvgHR(e.target.value)} />
                   <input style={inp} placeholder="บันทึกเพิ่มเติม" value={notes} onChange={e => setNotes(e.target.value)} />
                 </>
@@ -381,7 +287,7 @@
                       <div style={{ fontSize:14, fontWeight:700, marginBottom:8 }}>{ex.icon} {ex.name}</div>
                       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8 }}>
                         {[0,1,2].map(si => (
-                          <input key={si} style={{ ...inp, marginBottom:0, textAlign:"center", padding:8, fontFamily:"'Barlow Condensed'" }} type="number" placeholder={`เซต ${si+1}`} value={exSets[ex.id][si]} onChange={e => { const v=[...exSets[ex.id]]; v[si]=e.target.value; setExSets(p=>({...p,[ex.id]:v})); }} />
+                          <input key={si} style={{ ...inp, marginBottom:0, textAlign:"center", padding:8 }} type="number" placeholder={`เซต ${si+1}`} value={exSets[ex.id][si]} onChange={e => { const v=[...exSets[ex.id]]; v[si]=e.target.value; setExSets(p=>({...p,[ex.id]:v})); }} />
                         ))}
                       </div>
                     </div>
@@ -390,9 +296,9 @@
               )}
 
               <button onClick={() => {
-                if (isCardioMode) onSave({ type:"cardio", duration, distance, avgHR, notes });
+                if (isCardioMode) onSave({ type:"cardio", duration, avgHR, notes });
                 else onSave({ type:"calisthenics", exercises:exSets });
-              }} disabled={saving} className={`bubble-btn ${isCardioMode ? 'bubble-btn-cardio' : 'bubble-btn-calisthenics'}`}>
+              }} disabled={saving} style={{ marginTop: 10, width:"100%", padding:"16px", background:"linear-gradient(135deg,var(--orange),#ff3f00)", border:"none", borderRadius:100, color:"#fff", fontWeight:900, fontSize:16 }}>
                 {saving ? "🔄 กำลังอัปเดตลงตารางชีต…" : "☁️ บันทึกลง Google Sheets"}
               </button>
             </div>
@@ -401,29 +307,18 @@
 
         function HistoryScreen({ today, logs }) {
           const weeks = Array.from({length:4}, (_,i) => Array.from({length:7}, (_,d) => { const dt=new Date(today); dt.setDate(dt.getDate()-(i*7+(6-d))); return dt; }));
-          const [selectedDate, setSelectedDate] = useState(null);
-          
-          const LOCAL_EXERCISES = [
-            { id: "aus_pull",   name: "Australian Pull-Ups",   icon: "🏋️" },
-            { id: "neg_pull",   name: "Negative Pull-Ups",     icon: "⬇️" },
-            { id: "dec_push",   name: "Decline Push-Ups",      icon: "💪" },
-            { id: "pike_push",  name: "Incline Pike Push-Ups", icon: "🔺" },
-            { id: "knee_raise", name: "Hanging Knee Raises",   icon: "🦵" },
-            { id: "squats",     name: "Bodyweight Squats",     icon: "🦴" },
-          ];
-
           return (
             <div style={{ padding:"0 12px" }}>
               {weeks.map((week, wi) => (
                 <div key={wi} style={{ marginBottom:14, background: "var(--card)", padding: "12px", borderRadius: 16, border: "1px solid var(--border)" }}>
-                  <div style={{ fontSize:11, color:"var(--text2)", marginBottom:6, fontFamily:"'Barlow Condensed'", fontWeight:700 }}>สัปดาห์ {wi === 0 ? "ปัจจุบัน" : wi + " ที่แล้ว"}</div>
+                  <div style={{ fontSize:11, color:"var(--text2)", marginBottom:6, fontWeight:700 }}>สัปดาห์ {wi === 0 ? "ปัจจุบัน" : wi + " ที่แล้ว"}</div>
                   <div style={{ display:"grid", gridTemplateColumns:"repeat(7, 1fr)", gap:5 }}>
                     {week.map(date => {
                       const k = date.toISOString().slice(0, 10);
                       const log = logs[k];
                       const dot = log ? (log.type === "cardio" ? "var(--cyan)" : "var(--orange)") : null;
                       return (
-                        <div key={k} onClick={() => log && setSelectedDate(selectedDate === k ? null : k)} style={{ background: selectedDate === k ? `${dot}30` : "#141c26", padding:"8px 2px", textAlign:"center", borderRadius:8, border: k === dateKey(today) ? "1px solid var(--cyan)" : "1px solid transparent" }}>
+                        <div key={k} style={{ background: "#141c26", padding:"8px 2px", textAlign:"center", borderRadius:8, border: k === dateKey(today) ? "1px solid var(--cyan)" : "1px solid transparent" }}>
                           <div style={{ fontSize:10, color:"var(--text2)" }}>{DAYS_TH[date.getDay()]}</div>
                           <div style={{ fontSize:12, fontWeight:700 }}>{date.getDate()}</div>
                           <div style={{ width:6, height:6, borderRadius:"50%", background:dot||"transparent", margin:"4px auto 0" }} />
@@ -431,76 +326,8 @@
                       );
                     })}
                   </div>
-                  {week.some(date => date.toISOString().slice(0, 10) === selectedDate) && (() => {
-                    const currentLog = logs[selectedDate];
-                    return (
-                      <div className="fade-in" style={{ marginTop:12, padding:12, background:"var(--card2)", borderRadius:12, border:"1px solid rgba(255,255,255,0.05)" }}>
-                        <div style={{ fontWeight:700, fontSize:12, color:"var(--cyan)", marginBottom:6 }}>📋 ประวัติประมวลผลวันที่ {selectedDate}</div>
-                        {currentLog.type === "cardio" ? (
-                          <div style={{ display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:10, textAlign:"center" }}>
-                            <div><div style={{ color:"var(--cyan)", fontWeight:900 }}>{currentLog.duration}</div><div style={{ fontSize:10 }}>นาที</div></div>
-                            <div><div style={{ color:"var(--green)", fontWeight:900 }}>{currentLog.distance || "—"}</div><div style={{ fontSize:10 }}>กม.</div></div>
-                            <div><div style={{ color:"var(--orange)", fontWeight:900 }}>{calculatePace(currentLog.duration, currentLog.distance)}</div><div style={{ fontSize:10 }}>Pace</div></div>
-                          </div>
-                        ) : (
-                          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
-                            {LOCAL_EXERCISES.map(ex => {
-                              const sets = currentLog.exercises?.[ex.id];
-                              if (!sets || sets.every(s => !s)) return null;
-                              return <div key={ex.id} style={{ fontSize:12 }}>{ex.icon} {ex.name}: <span style={{color:"var(--orange)", fontWeight:700}}>{sets.filter(Boolean).join("/")}</span></div>;
-                            })}
-                          </div>
-                        )}
-                        {currentLog.notes && <div style={{ fontSize:11, color:"var(--text2)", marginTop:8, fontStyle:"italic" }}>* {currentLog.notes}</div>}
-                      </div>
-                    );
-                  })()}
                 </div>
               ))}
-            </div>
-          );
-        }
-
-        function InsightScreen({ logs }) {
-          const analysis = runLocalAIAnalysis(logs);
-          return (
-            <div style={{ padding: "0 12px" }} className="fade-in">
-              <div style={{ background:"linear-gradient(135deg,#1a0d2e,#0d1a2e)", border:"1px solid #a855f740", borderRadius:20, padding:18, marginBottom:14 }}>
-                <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:20, marginBottom:2 }}>🧠 AI Progression Insights</div>
-                <div style={{ fontSize:12, color:"var(--text2)" }}>วิเคราะห์สถิติจิตวิทยาการซ้อมคาร์ดิโอรายสัปดาห์ของคุณอัตโนมัติ</div>
-              </div>
-
-              <div style={{ background:"var(--card)", border:"1px solid var(--border)", borderRadius:18, padding:16, marginBottom:12, display:"flex", flexDirection: "column", gap:12 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                  <div style={{ background: "rgba(0,230,118,0.1)", width: 56, height: 56, borderRadius: 14, display: "flex", flexDirection: "column", alignItems: "center", justifyContent:"center", border: "1px solid var(--green)" }}>
-                    <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:28, color:"var(--green)", lineHeight:1 }}>{analysis.rating}</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize:11, color:"var(--text2)", textTransform:"uppercase" }}>Overall Grade</div>
-                    <div style={{ fontSize:14, fontWeight:600, color:"#fff" }}>ผลลัพธ์ประสิทธิภาพคาร์ดิโอโดยรวม</div>
-                  </div>
-                </div>
-                <div style={{ fontSize:14, lineHeight:1.6, color:"#c8d8e8", background: "var(--card2)", padding: "10px 12px", borderRadius: 10 }}>
-                  {analysis.summary}
-                </div>
-              </div>
-
-              <div style={{ background:"var(--card)", border:"1px solid var(--border)", borderRadius:14, padding:14, marginBottom:12 }}>
-                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
-                  <div style={{ fontSize:11, color:"var(--text2)", fontWeight:700 }}>🗓️ ความสม่ำเสมอในการออกกำลังกาย</div>
-                  <span style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:16, color:"var(--cyan)" }}>{analysis.score}%</span>
-                </div>
-                <div style={{ height:5, background:"var(--card2)", borderRadius:3, overflow:"hidden", marginBottom:6 }}>
-                  <div style={{ height:"100%", width:`${analysis.score}%`, background:"var(--cyan)" }} />
-                </div>
-                <div style={{ fontSize:12, color:"var(--text2)" }}>{analysis.comment}</div>
-              </div>
-
-              <div style={{ background:"linear-gradient(135deg,#0a1a0a,#1a1a0a)", border:"1px solid #00e67640", borderRadius:14, padding:14 }}>
-                <div style={{ fontSize:11, color:"var(--green)", fontWeight:700, textTransform:"uppercase", letterSpacing:1, marginBottom:4 }}>🎯 โฟกัสเป้าหมายถัดไป</div>
-                <div style={{ fontSize:14, fontWeight:600, color:"#fff", marginBottom:4 }}>{analysis.focus}</div>
-                <div style={{ fontSize:12, color:"var(--text2)" }}>หมุดหมายหลัก: {analysis.milestone}</div>
-              </div>
             </div>
           );
         }
@@ -509,12 +336,10 @@
           const entries = Object.values(logs);
           const cardioLogs = entries.filter(l => l.type === "cardio");
           const totalMins = cardioLogs.reduce((s,l)=>s+Number(l.duration||0),0);
-          const totalDist = cardioLogs.reduce((s,l)=>s+Number(l.distance||0),0);
           return (
             <div style={{ padding:"0 12px" }}>
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10 }}>
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
                 <BigStat label="เซสชันรวม" value={entries.length} color="var(--orange)" />
-                <BigStat label="กิโลเมตรสะสม" value={totalDist.toFixed(1)} color="var(--green)" />
                 <BigStat label="เวลารวม (นาที)" value={totalMins} color="var(--cyan)" />
               </div>
             </div>
