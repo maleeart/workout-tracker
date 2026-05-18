@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Wracker !</title>
+    <title>Calisthenics & Zone 2</title>
     
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -18,7 +18,7 @@
 
         // ─── Google Sheets Config ─────────────────────────────────────────────────────
         // ⚠️ นำลิงก์ที่ได้จากการ Deploy Apps Script รอบล่าสุดของพี่มาวางแทนที่ข้อความด้านล่างนี้ครับ
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbz8aghzBeFdi9W_pGgoP-NFdidMwIjS8MvdsLFIy43eD92KDysEIBzGgYtyaO2dysF1/exec";
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbxaWCiP6ePvelc_9Y9WYKeuWZLvx1r2e4sjDcgue3SGD1zJClHaKYKwkXUKQSm15F2I/exec";
 
         async function sheetLoad() {
           try {
@@ -89,7 +89,7 @@
           if (cardioLogs.length > 0) {
             const lastCardio = cardioLogs[cardioLogs.length - 1];
             if (lastCardio.avgHR >= 138 && lastCardio.avgHR <= 150) {
-              summary += `การวิ่งล่าสุดทำได้ดีเยี่ยม คุมระดับชีพจรเฉลี่ยได้ ${lastCardio.avgHR} bpm อยู่ในเกณฑ์แอโรบิกเบสโซน 2 ที่เหมาะสมสำหรับพัฒนา Pace 8`;
+              summary += `การวิ่งล่าสุดทำได้ดีเยี่ยม คุมระดับชีพจรเฉลี่ยได้ ${lastCardio.avgHR} bpm อยู่ในเกณฑ์แอโรบิกเบสโซน 2 ที่เหมาะสมสำหรับพัฒนาความเร็ว Pace 8`;
               rating = "A";
             } else if (lastCardio.avgHR > 150) {
               summary += `ตรวจพบว่าการซ้อมวิ่งล่าสุด ชีพจรเฉลี่ยสูงเกินเกณฑ์โซน 2 (${lastCardio.avgHR} bpm) แนะนำให้คุมความเร็วลดฝีเท้าลงเพื่อไม่ให้ร่างกายล้าสะสม `;
@@ -230,7 +230,6 @@
             setSyncStatus("saving");
             
             try {
-              // 🛠️ อัปเดตสเตทขากลับด้วยก้อนผลลัพธ์ที่ดึงกลับมาจากชีตให้เคลียร์ปัญหาเอ๋อ
               const freshData = await sheetSave(updated);
               setAllData(freshData);
               setSyncStatus("ready");
