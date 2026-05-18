@@ -17,7 +17,8 @@
         const { useState, useEffect } = React;
 
         // ─── Google Sheets Config ─────────────────────────────────────────────────────
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbxHNPxTon8xfN5GaPjHnh7gvdXSaLJGtchPJtWrv411X53T7QKWgQ0xKdmY95oxikdI/exec";
+        // ⚠️ อย่าลืมสลับเปลี่ยนนำลิงก์ Web App ใหม่ของพี่มาวางตรงนี้แทนนะครับ
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbxSaZoHckplExHSMad9PTb3Wfy2ra2lkwkBTpFwEkTHgEd6mJFNprebJeJM3MaooszY/exec";
 
         async function sheetLoad() {
           try {
@@ -36,6 +37,7 @@
             const res = await fetch(`${SHEET_URL}?action=save&data=${encoded}`);
             if (!res.ok) throw new Error("save_failed");
             const returnData = await res.json();
+            // คืนข้อมูลชุดจริงที่รวมมาจากฐานข้อมูล Sheets กลับไปอัปเดตสเตทในแอปหน้าบ้านทันที
             return returnData && returnData.logs ? returnData : allData;
           } catch {
             return allData;
@@ -201,6 +203,7 @@
           const schedule = SCHEDULE[today.getDay()];
           const todayLog = allData.logs[todayKey] || null;
 
+          // ดึงข้อมูลประวัติใหม่เมื่อไหร่ก็ตามที่สลับสเตทหน้าจอแท็บ
           useEffect(() => {
             let active = true;
             async function load() {
@@ -229,19 +232,23 @@
               updatedDayObj = { ...currentDayObj, type: "calisthenics", exercises: logData.exercises };
             }
 
-            const updated = { ...allData, logs: { ...allData.logs, [todayKey]: updatedDayObj } };
-            setAllData(updated);
+            // ตั้งค่าบันทึกหน้าโฮมแบบ Local ทันทีเพื่อความสมูท
+            const localUpdate = { ...allData, logs: { ...allData.logs, [todayKey]: updatedDayObj } };
+            setAllData(localUpdate);
             setLogging(false);
             setSyncStatus("saving");
             
             try {
-              const freshData = await sheetSave(updated);
+              // รอยิงข้อมูลข้ามคลาวด์ พร้อมรับค่าก้อนจริงจากชีตมาอัปเดตหน้าประวัติและ Insight
+              const freshData = await sheetSave(localUpdate);
               setAllData(freshData);
               setSyncStatus("ready");
-              setToast({ msg: "✅ บันทึกสถิติลงชีตสำเร็จ", isError: false });
+              setToast({ msg: "✅ บันทึกสถิติลงชีตและอัปเดตระบบสำเร็จ", isError: false });
+              // เคลียร์ป้ายเตือนหลังผ่านไป 3 วินาที
+              setTimeout(() => setToast(""), 3000);
             } catch {
               setSyncStatus("error");
-              setToast({ msg: "⚠️ ไม่สามารถเชื่อมโยงข้อมูลข้ามระบบได้", isError: true });
+              setToast({ msg: "⚠️ ระบบคลาวด์ชีตมีปัญหาระหว่างอัปเดตสเตทข้อมูล", isError: true });
             }
           };
 
@@ -423,7 +430,7 @@
                   <div style={{ display:"grid", gridTemplateColumns:"repeat(7, 1fr)", gap:5 }}>
                     {week.map(date => {
                       const k = date.toISOString().slice(0, 10);
-                      const log = logs[k];
+                      const log = logs ? logs[k] : null;
                       const dot = log ? (log.type === "cardio" ? "var(--cyan)" : "var(--orange)") : null;
                       return (
                         <div key={k} onClick={() => log && setSelectedDate(selectedDate === k ? null : k)} style={{ background: selectedDate === k ? `${dot}30` : "#141c26", padding:"8px 2px", textAlign:"center", borderRadius:8, border: k === dateKey(today) ? "1px solid var(--cyan)" : "1px solid transparent" }}>
@@ -435,7 +442,8 @@
                     })}
                   </div>
                   {week.some(date => date.toISOString().slice(0, 10) === selectedDate) && (() => {
-                    const currentLog = logs[selectedDate];
+                    const currentLog = logs ? logs[selectedDate] : null;
+                    if (!currentLog) return null;
                     return (
                       <div className="fade-in" style={{ marginTop:12, padding:12, background:"var(--card2)", borderRadius:12, border:"1px solid rgba(255,255,255,0.05)" }}>
                         <div style={{ fontWeight:700, fontSize:12, color:"var(--cyan)", marginBottom:6 }}>📋 ประวัติประมวลผลวันที่ {selectedDate}</div>
@@ -465,7 +473,7 @@
         }
 
         function InsightScreen({ logs }) {
-          const analysis = runLocalAIAnalysis(logs);
+          const analysis = runLocalAIAnalysis(logs || {});
           return (
             <div style={{ padding: "0 12px" }} className="fade-in">
               <div style={{ background:"linear-gradient(135deg,#1a0d2e,#0d1a2e)", border:"1px solid #a855f740", borderRadius:20, padding:18, marginBottom:14 }}>
@@ -509,7 +517,7 @@
         }
 
         function StatsScreen({ logs }) {
-          const entries = Object.values(logs);
+          const entries = logs ? Object.values(logs) : [];
           const cardioLogs = entries.filter(l => l.type === "cardio");
           const totalMins = cardioLogs.reduce((s,l)=>s+Number(l.duration||0),0);
           const totalDist = cardioLogs.reduce((s,l)=>s+Number(l.distance||0),0);
