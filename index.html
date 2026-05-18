@@ -16,7 +16,7 @@
         const { useState, useEffect } = React;
 
         // ─── Google Sheets Config ─────────────────────────────────────────────────────
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbxfdQRGQgDzOGwrAHNLXKv7cWL_Rd3DLgy9Dd-e2fGbasL8lkSL5FSmWW7cIgt-HhI/exec";
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbzVP5cYHmUl23R6NHh0k9BmoVSq8kH6SoCiJdba5PNAfi04BLWUGgz2KQCL1UBaxG-z/exec";
 
         // ระบบโหลดข้อมูลจาก Cache หรือ Server (PWA Mode)
         async function sheetLoad() {
@@ -36,7 +36,7 @@
         }
 
         async function sheetSave(allData) {
-          localStorage.setItem("workout_logs_cache", JSON.stringify(allData)); // บันทึกลงเครื่องทันทีก่อนเผื่อเน็ตหลุด
+          localStorage.setItem("workout_logs_cache", JSON.stringify(allData));
           const encoded = encodeURIComponent(JSON.stringify(allData));
           const res = await fetch(`${SHEET_URL}?action=save&data=${encoded}`);
           if (!res.ok) throw new Error("save_failed");
@@ -65,7 +65,6 @@
         const DAYS_TH = ["อา","จ","อ","พ","พฤ","ศ","ส"];
         function dateKey(d = new Date()) { return d.toISOString().slice(0, 10); }
 
-        // Helper คำนวณความเร็ว Pace จากวินาทีต่อกิโลเมตร
         function calculatePaceStr(minutes, distance) {
           if (!minutes || !distance || distance <= 0) return "—";
           const totalSeconds = minutes * 60;
@@ -232,7 +231,7 @@
           );
         }
 
-        // ─── หน้าจอบันทึกผล (Log Input) + ปุ่ม Quick Fill ────────────────────────────
+        // ─── หน้าจอบันทึกผล (Log Input) ────────────────────────────────────────────
         function LogScreen({ schedule, onSave, onCancel, existingLog, saving }) {
           const [duration, setDuration] = useState(existingLog?.duration ?? "");
           const [avgHR, setAvgHR]       = useState(existingLog?.avgHR ?? "");
@@ -358,7 +357,7 @@
           );
         }
 
-        // ─── หน้าจอประวัติ (History) แบบ Grid Responsive ───────────────────────────
+        // ─── หน้าจอประวัติ (History) ────────────────────────────────────────────────
         function HistoryScreen({ today, logs }) {
           const weeks = Array.from({length:3}, (_,i) =>
             Array.from({length:7}, (_,d) => { const dt=new Date(today); dt.setDate(dt.getDate()-(i*7+(6-d))); return dt; })
@@ -412,7 +411,7 @@
 
         // ─── ระบบช่วยคำนวณช่วงอัตราการเต้นหัวใจ Zone 2 (Karvonen Formula) ───────────
         function ZoneCalculator({ onClose }) {
-          const [age, setAge] = useState("30"); // ตั้งค่าเริ่มต้นตามอายุของคุณ
+          const [age, setAge] = useState("30"); // ดึงข้อมูลอายุพื้นฐานของผู้ใช้อัตโนมัติ
           const [restingHr, setRestingHr] = useState("65");
           const [result, setResult] = useState(null);
 
@@ -420,11 +419,9 @@
             const a = Number(age), r = Number(restingHr);
             if (!a || !r) return alert("กรุณากรอกข้อมูลตัวเลขให้ครบถ้วน");
             
-            // สูตรคำนวณอัตราการเต้นหัวใจสูงสุดแบบแม่นยำ (Gellish Formula)
             const maxHR = Math.round(207 - (0.7 * a));
-            const hrr = maxHR - r; // Heart Rate Reserve
+            const hrr = maxHR - r;
             
-            // ช่วงความเข้มข้นสําหรับสร้างฐานแอโรบิก Zone 2 (60% - 70% HRR)
             const lowZone = Math.round((hrr * 0.60) + r);
             const highZone = Math.round((hrr * 0.70) + r);
             
