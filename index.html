@@ -19,17 +19,26 @@
         // ─── Google Sheets Config ─────────────────────────────────────────────────────
         const SHEET_URL = "https://script.google.com/macros/s/AKfycbxSaZoHckplExHSMad9PTb3Wfy2ra2lkwkBTpFwEkTHgEd6mJFNprebJeJM3MaooszY/exec";
 
-        async function sheetLoad() {
-          try {
-            const res = await fetch(SHEET_URL);
-            if (!res.ok) throw new Error("fetch_failed");
-            const data = await res.json();
-            // 🛠️ ปรับแก้กลไกแกะรหัส: บังคับให้อ่านโครงสร้างตรงๆ จากรากฐาน (Root Object) ป้องกันประวัติโล่ง
-            return data && typeof data === "object" ? data : { logs: {} };
-          } catch { 
-            return { logs: {} }; 
-          }
-        }
+        //  แก้ไขฟังก์ชัน sheetLoad ใหม่ให้ถอดรหัสประวัติได้ถูกต้อง ไม่หายตอนเข้าแอปใหม่ครับ
+async function sheetLoad() {
+  try {
+    const res = await fetch(SHEET_URL);
+    if (!res.ok) throw new Error("fetch_failed");
+    const data = await res.json();
+    
+    // ตรวจสอบโครงสร้าง: ถ้าข้อมูลส่งกลับมาในรูปของวัตถุที่มีคีย์ logs อยู่แล้ว ให้ดึงไปใช้ตรงๆ ได้เลย
+    if (data && data.logs) {
+      return data;
+    }
+    // ถ้าส่งกลับมาแค่โครงสร้าง logs ดิบๆ ให้จัดฟอร์แมตครอบให้ iPhone อ่านได้ทันที
+    if (data && typeof data === "object" && !data.logs) {
+      return { logs: data };
+    }
+    return { logs: {} };
+  } catch { 
+    return { logs: {} }; 
+  }
+}
 
         async function sheetSave(allData) {
           try {
