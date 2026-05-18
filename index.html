@@ -120,18 +120,58 @@
         const css = `
           @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap');
           * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-          body { background: #080c14; color: #e8edf5; font-family: 'Barlow', sans-serif; position: fixed; width: 100%; height: 100%; overflow: hidden; }
+          
+          body { 
+            background: #080c14; 
+            color: #e8edf5; 
+            font-family: 'Barlow', sans-serif; 
+            width: 100%;
+            min-height: 100vh;
+            overflow-x: hidden;
+          }
+          
           :root {
             --cyan:#00d4ff; --orange:#ff6b2b; --green:#00e676; --purple:#a855f7; --danger:#ff4757;
             --card:#101824; --card2:#141e2c; --border:rgba(255,255,255,0.07); --text2:#7a8fa8;
           }
+          
           input:focus { outline: 2px solid var(--cyan) !important; }
           @keyframes spin    { to { transform: rotate(360deg); } }
           @keyframes pulse   { 0%,100%{opacity:0.3} 50%{opacity:1} }
           @keyframes fadeIn  { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
           .fade-in { animation: fadeIn 0.35s ease forwards; }
-          .ios-container { padding-top: env(safe-area-inset-top, 20px); padding-bottom: env(safe-area-inset-bottom, 20px); height: 100%; display: flex; flexDirection: column; }
+          
+          /* จัดสัดส่วนคอนเทนเนอร์หลักให้เลื่อนจอได้ถูกวิธี */
+          .ios-container { 
+            padding-top: env(safe-area-inset-top, 24px); 
+            padding-bottom: calc(env(safe-area-inset-bottom, 16px) + 75px); /* เว้นกันทับแถบเมนูล่าง */
+            width: 100%;
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex; 
+            flex-direction: column;
+            position: relative;
+          }
+          
           button { cursor: pointer; touch-action: manipulation; }
+          
+          /* แถบเมนูล่างแบบล็อคตำแหน่ง ป้องกันการเบี้ยว */
+          .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            maxWidth: 430px;
+            background: rgba(10, 16, 32, 0.94);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid var(--border);
+            display: flex;
+            padding-bottom: env(safe-area-inset-bottom, 12px);
+            z-index: 999;
+          }
         `;
 
         // ─── App ──────────────────────────────────────────────────────────────────────
@@ -181,26 +221,26 @@
           return (
             <>
               <style>{css}</style>
-              <div className="ios-container" style={{ maxWidth: 430, margin: "0 auto", background: "#080c14" }}>
+              <div className="ios-container">
 
                 {/* Header */}
-                <div style={{ padding: "18px 20px 12px", background: "linear-gradient(180deg,#0d1520,#080c14)" }}>
-                  <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 900, fontSize: 10, letterSpacing: 3, color: "var(--cyan)", textTransform: "uppercase", marginBottom: 2 }}>Weekly Training</div>
+                <div style={{ padding: "16px 16px 12px", background: "linear-gradient(180deg,#0d1520,transparent)" }}>
+                  <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 900, fontSize: 11, letterSpacing: 3, color: "var(--cyan)", textTransform: "uppercase", marginBottom: 2 }}>Weekly Training</div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 900, fontSize: 24 }}>Calisthenics & Zone 2</div>
+                    <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 900, fontSize: 26 }}>Calisthenics & Zone 2</div>
                     <SyncBadge status={syncStatus} />
                   </div>
                 </div>
 
                 {/* Toast */}
                 {toast && (
-                  <div style={{ margin: "0 16px 8px", padding: "10px 14px", background: toast.isError ? "#200a0a" : "#001a0e", border: `1px solid ${toast.isError ? "var(--danger)" : "var(--green)"}50`, borderRadius: 10, fontSize: 13, color: toast.isError ? "var(--danger)" : "var(--green)", animation: "fadeIn 0.2s ease" }}>
+                  <div style={{ margin: "0 16px 12px", padding: "12px 14px", background: toast.isError ? "#200a0a" : "#001a0e", border: `1px solid ${toast.isError ? "var(--danger)" : "var(--green)"}50`, borderRadius: 12, fontSize: 13, color: toast.isError ? "var(--danger)" : "var(--green)", animation: "fadeIn 0.2s ease" }}>
                     {toast.msg}
                   </div>
                 )}
 
-                {/* Content */}
-                <div style={{ flex: 1, overflowY: "auto", paddingBottom: 80, paddingTop: 6 }}>
+                {/* Content Area */}
+                <div style={{ flex: 1, padding: "0 4px" }}>
                   {syncStatus === "loading" ? <LoadingScreen /> :
                    logging ? <LogScreen schedule={schedule} onSave={handleSaveLog} onCancel={() => setLogging(false)} existingLog={todayLog} saving={syncStatus === "saving"} /> :
                    tab === "today"   ? <TodayScreen schedule={schedule} today={today} todayLog={todayLog} onLog={() => setLogging(true)} /> :
@@ -211,12 +251,12 @@
 
                 {/* Bottom Nav */}
                 {!logging && syncStatus !== "loading" && (
-                  <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 430, background: "#0a1020", borderTop: "1px solid var(--border)", display: "flex", zIndex: 99 }}>
+                  <div className="bottom-nav">
                     {TABS.map(([id, icon, label]) => (
-                      <button key={id} onClick={() => setTab(id)} style={{ flex: 1, padding: "10px 0 8px", background: "none", border: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                        <span style={{ fontSize: 18 }}>{icon}</span>
-                        <span style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: 0.8, color: tab === id ? "var(--cyan)" : "var(--text2)", textTransform: "uppercase" }}>{label}</span>
-                        {tab === id && <div style={{ width: 16, height: 2, background: "var(--cyan)", borderRadius: 1 }} />}
+                      <button key={id} onClick={() => setTab(id)} style={{ flex: 1, padding: "12px 0 8px", background: "none", border: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+                        <span style={{ fontSize: 20 }}>{icon}</span>
+                        <span style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: 0.8, color: tab === id ? "var(--cyan)" : "var(--text2)", textTransform: "uppercase" }}>{label}</span>
+                        {tab === id && <div style={{ width: 16, height: 2, background: "var(--cyan)", borderRadius: 1, marginTop: 2 }} />}
                       </button>
                     ))}
                   </div>
@@ -226,7 +266,7 @@
           );
         }
 
-        // ─── Sub-Components (โหลดแบบดั้งเดิม) ─────────────────────────────────────────
+        // ─── Sub-Components ───────────────────────────────────────────────────────────
         function SyncBadge({ status }) {
           const map = {
             loading: ["#f0a500", "⟳", "กำลังโหลด…"],
@@ -264,7 +304,7 @@
           const ti = schedule.type === "cardio" ? "🏃" : schedule.type === "calisthenics" ? "💪" : "😴";
 
           return (
-            <div style={{ padding: "0 16px" }}>
+            <div style={{ padding: "0 12px" }}>
               <div style={{ background:"var(--card)", borderRadius:20, padding:20, marginBottom:14, border:"1px solid var(--border)", position:"relative", overflow:"hidden" }}>
                 <div style={{ position:"absolute", top:-20, right:-20, fontSize:100, opacity:0.06 }}>{ti}</div>
                 <div style={{ fontSize:12, color:"var(--text2)", marginBottom:4 }}>{dateStr}</div>
@@ -299,7 +339,7 @@
                 <div style={{ marginTop:14 }}>
                   <SecLabel>Routine A — 3 Sets Each</SecLabel>
                   {EXERCISES.map((ex, i) => (
-                    <div key={ex.id} style={{ display:"flex", alignItems:"center", gap:12, padding:"10px 14px", background:"var(--card)", borderRadius:12, marginBottom:8, border:"1px solid var(--border)" }}>
+                    <div key={ex.id} style={{ display:"flex", alignItems:"center", gap:12, padding:"12px 14px", background:"var(--card)", borderRadius:12, marginBottom:8, border:"1px solid var(--border)" }}>
                       <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:18, color:"var(--orange)", width:22 }}>{i+1}</div>
                       <div style={{ flex:1 }}>
                         <div style={{ fontWeight:600, fontSize:14 }}>{ex.name}</div>
@@ -315,7 +355,7 @@
                 <div style={{ marginTop:14, background:"var(--card)", borderRadius:16, padding:16, border:"1px solid var(--border)" }}>
                   <SecLabel>เป้าหมาย Zone 2</SecLabel>
                   {[["⏱️","ระยะเวลา","25–35 นาที"],["❤️","Heart Rate","138–150 bpm"],["🎯","เป้าหมาย","Build aerobic base"]].map(([icon,label,val]) => (
-                    <div key={label} style={{ display:"flex", justifyContent:"space-between", padding:"8px 0", borderBottom:"1px solid var(--border)" }}>
+                    <div key={label} style={{ display:"flex", justifyContent:"space-between", padding:"10px 0", borderBottom:"1px solid var(--border)" }}>
                       <span style={{ color:"var(--text2)", fontSize:13 }}>{icon} {label}</span>
                       <span style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:15, color:"var(--cyan)" }}>{val}</span>
                     </div>
@@ -345,7 +385,7 @@
               const sets = log.exercises?.[ex.id];
               if (!sets || sets.every(s => !s)) return null;
               return (
-                <div key={ex.id} style={{ display:"flex", justifyContent:"space-between", marginBottom:4 }}>
+                <div key={ex.id} style={{ display:"flex", justifyContent:"space-between", marginBottom:6, borderBottom:"1px solid rgba(255,255,255,0.03)", paddingBottom:4 }}>
                   <span style={{ fontSize:13 }}>{ex.icon} {ex.name}</span>
                   <span style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:14, color:"var(--orange)" }}>{sets.filter(Boolean).join(" / ")}</span>
                 </div>
@@ -379,7 +419,7 @@
           };
 
           return (
-            <div style={{ padding:"0 16px" }}>
+            <div style={{ padding:"0 12px" }}>
               <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:20 }}>
                 <button onClick={onCancel} style={{ background:"var(--card)", border:"none", color:"#fff", fontSize:18, padding:"8px 14px", borderRadius:10 }}>←</button>
                 <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:22 }}>{schedule.type === "cardio" ? "🏃 บันทึก Zone 2" : "💪 บันทึก Calisthenics"}</div>
@@ -440,24 +480,25 @@
           const streak = calcStreak(today, logs);
 
           return (
-            <div style={{ padding:"0 16px" }}>
-              <div style={{ display:"flex", gap:12, marginBottom:18 }}>
-                <StatCard label="Streak" value={`${streak} 🔥`} color="var(--orange)" />
+            <div style={{ padding:"0 12px" }}>
+              <div style={{ display:"flex", gap:12, marginBottom:20 }}>
+                <StatCard label="Streak ต่อเนื่อง" value={`${streak} 🔥`} color="var(--orange)" />
                 <StatCard label="รวม Workouts" value={Object.keys(logs).length} color="var(--cyan)" />
               </div>
               {weeks.map((week, wi) => (
-                <div key={wi} style={{ marginBottom:16 }}>
+                <div key={wi} style={{ marginBottom:18, background: "var(--card)", padding: "14px", borderRadius: 16, border: "1px solid var(--border)" }}>
                   <SecLabel>{wi === 0 ? "สัปดาห์นี้" : `${wi} สัปดาห์ที่แล้ว`}</SecLabel>
-                  <div style={{ display:"grid", gridTemplateColumns:"repeat(7,1fr)", gap:4 }}>
+                  {/* ใช้ display Grid แบบปรับขนาดตามหน้าจออัตโนมัติเพื่อไม่ให้ล้น */}
+                  <div style={{ display:"grid", gridTemplateColumns:"repeat(7, minmax(0, 1fr))", gap:6, marginTop:8 }}>
                     {week.map(date => {
                       const k=dateKey(date), log=logs[k];
                       const isToday=k===dateKey(today), isFuture=date>today;
                       const dot=log?(log.type==="cardio"?"var(--cyan)":"var(--orange)"):null;
                       return (
-                        <div key={k} style={{ background:isFuture?"transparent":log?`${dot}18`:"#111820", border:isToday?"2px solid var(--cyan)":"1px solid var(--border)", borderRadius:10, padding:"8px 4px", textAlign:"center", opacity:isFuture?0.25:1 }}>
-                          <div style={{ fontSize:9, color:"var(--text2)", marginBottom:3 }}>{DAYS_TH[date.getDay()]}</div>
-                          <div style={{ fontSize:11, fontWeight:600, marginBottom:4 }}>{date.getDate()}</div>
-                          <div style={{ width:6, height:6, borderRadius:"50%", background:dot||"transparent", border:!dot?"1px solid var(--border)":"none", margin:"0 auto" }} />
+                        <div key={k} style={{ background:isFuture?"transparent":log?`${dot}15`:"#141c26", border:isToday?"2px solid var(--cyan)":"1px solid var(--border)", borderRadius:10, padding:"10px 2px", textAlign:"center", opacity:isFuture?0.2:1 }}>
+                          <div style={{ fontSize:10, color:"var(--text2)", marginBottom:4, fontWeight:500 }}>{DAYS_TH[date.getDay()]}</div>
+                          <div style={{ fontSize:12, fontWeight:700, marginBottom:6 }}>{date.getDate()}</div>
+                          <div style={{ width:7, height:7, borderRadius:"50%", background:dot||"transparent", border:!dot?"1px solid rgba(255,255,255,0.1)":"none", margin:"0 auto" }} />
                         </div>
                       );
                     })}
@@ -495,11 +536,9 @@
           };
 
           const gradeColor = g => !g?"var(--text2)":g[0]==="A"?"var(--green)":g[0]==="B"?"var(--cyan)":g[0]==="C"?"var(--orange)":"var(--danger)";
-          const trendIcon  = t => ({up:"📈",down:"📉",stable:"➡️",insufficient_data:"❓"}[t]||"❓");
-          const trendColor = t => ({up:"var(--green)",down:"var(--danger)",stable:"var(--cyan)",insufficient_data:"var(--text2)"}[t]||"var(--text2)");
 
           return (
-            <div style={{ padding:"0 16px" }}>
+            <div style={{ padding:"0 12px" }}>
               <div style={{ background:"linear-gradient(135deg,#1a0d2e,#0d1a2e)", border:"1px solid #a855f740", borderRadius:20, padding:20, marginBottom:16 }}>
                 <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:22, marginBottom:4 }}>🧠 AI Progression Insights</div>
                 <div style={{ fontSize:13, color:"var(--text2)", marginBottom:16 }}>วิเคราะห์ {Object.keys(logs).length} workout · หา progression และสิ่งที่ควรปรับ</div>
@@ -527,14 +566,20 @@
 
               {insight && !loading && (
                 <div className="fade-in">
-                  <div style={{ background:"var(--card)", border:"1px solid var(--border)", borderRadius:18, padding:20, marginBottom:12, display:"flex", gap:16, alignItems:"center" }}>
-                    <div style={{ textAlign:"center", minWidth:64 }}>
-                      <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:52, color:gradeColor(insight.overall?.rating), lineHeight:1 }}>{insight.overall?.rating}</div>
-                      <div style={{ fontSize:10, color:"var(--text2)", marginTop:2 }}>Overall</div>
+                  {/* จัดเลย์เอาต์ส่วนคะแนนภาพรวมใหม่ให้อ่านง่ายไม่เบียด */}
+                  <div style={{ background:"var(--card)", border:"1px solid var(--border)", borderRadius:18, padding:20, marginBottom:12, display:"flex", flexDirection: "column", gap:14 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                      <div style={{ background: `${gradeColor(insight.overall?.rating)}15`, width: 64, height: 64, borderRadius: 16, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: `1px solid ${gradeColor(insight.overall?.rating)}40` }}>
+                        <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:36, color:gradeColor(insight.overall?.rating), lineHeight:1 }}>{insight.overall?.rating}</div>
+                        <div style={{ fontSize:9, color:"var(--text2)", marginTop:1 }}>GRADE</div>
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <SecLabel>ภาพรวมประสิทธิภาพ</SecLabel>
+                        <div style={{ fontSize:15, fontWeight:600, color:"#fff" }}>สรุปจาก AI Coach</div>
+                      </div>
                     </div>
-                    <div style={{ flex:1 }}>
-                      <SecLabel>ภาพรวม</SecLabel>
-                      <div style={{ fontSize:13, lineHeight:1.65, color:"#c8d8e8" }}>{insight.overall?.summary}</div>
+                    <div style={{ fontSize:14, lineHeight:1.6, color:"#c8d8e8", background: "var(--card2)", padding: "12px 14px", borderRadius: 12, border: "1px solid var(--border)" }}>
+                      {insight.overall?.summary}
                     </div>
                   </div>
 
@@ -547,14 +592,14 @@
                       <div style={{ height:6, background:"var(--card2)", borderRadius:3, overflow:"hidden", marginBottom:8 }}>
                         <div style={{ height:"100%", width:`${insight.consistency.score}%`, background:insight.consistency.score>=70?"var(--green)":insight.consistency.score>=40?"var(--orange)":"var(--danger)", borderRadius:3 }} />
                       </div>
-                      <div style={{ fontSize:12, color:"var(--text2)" }}>{insight.consistency.comment}</div>
+                      <div style={{ fontSize:13, color:"var(--text2)", lineHeight:1.4 }}>{insight.consistency.comment}</div>
                     </div>
                   )}
 
                   {insight.priority && (
                     <div style={{ background:"linear-gradient(135deg,#0a1a0a,#1a1a0a)", border:"1px solid #00e67640", borderRadius:14, padding:16, marginBottom:12 }}>
                       <SecLabel>🎯 โฟกัสสำคัญที่สุดตอนนี้</SecLabel>
-                      <div style={{ fontSize:14, fontWeight:600, color:"var(--green)", marginBottom:6 }}>{insight.priority.focus}</div>
+                      <div style={{ fontSize:15, fontWeight:600, color:"var(--green)", marginBottom:6, lineHeight:1.4 }}>{insight.priority.focus}</div>
                       <div style={{ fontSize:12, color:"var(--text2)" }}>Next milestone: {insight.priority.next_milestone}</div>
                     </div>
                   )}
@@ -566,18 +611,12 @@
 
         function StatsScreen({ logs }) {
           const cardioLogs = Object.values(logs).filter(l => l.type === "cardio");
-          const calsLogs   = Object.values(logs).filter(l => l.type === "calisthenics");
           const avgHR  = cardioLogs.length ? Math.round(cardioLogs.reduce((s,l)=>s+l.avgHR,0)/cardioLogs.length) : 0;
           const totalMins = cardioLogs.reduce((s,l)=>s+(l.duration||0),0);
-          const bestReps = {};
-          EXERCISES.forEach(ex => {
-            bestReps[ex.id]=0;
-            calsLogs.forEach(l=>(l.exercises?.[ex.id]||[]).forEach(r=>{ if(+r>bestReps[ex.id]) bestReps[ex.id]=+r; }));
-          });
 
           return (
-            <div style={{ padding:"0 16px" }}>
-              <SecLabel>Zone 2 Cardio</SecLabel>
+            <div style={{ padding:"0 12px" }}>
+              <SecLabel>Zone 2 Cardio Stats</SecLabel>
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:10, marginBottom:20 }}>
                 <BigStat label="เซสชัน"   value={cardioLogs.length}  color="var(--cyan)" />
                 <BigStat label="นาทีรวม"  value={totalMins||"—"}     color="var(--cyan)" />
@@ -587,16 +626,18 @@
           );
         }
 
-        function SecLabel({ children }) { return <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:11, letterSpacing:2, color:"var(--text2)", textTransform:"uppercase", marginBottom:8 }}>{children}</div>; }
+        function SecLabel({ children }) { return <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:11, letterSpacing:2, color:"var(--text2)", textTransform:"uppercase", marginBottom:4 }}>{children}</div>; }
         function FLabel({ children }) { return <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:600, fontSize:11, letterSpacing:2, color:"var(--text2)", textTransform:"uppercase", marginBottom:6 }}>{children}</div>; }
+        
         function StatCard({ label, value, color }) {
           return (
             <div style={{ flex:1, background:"var(--card)", border:"1px solid var(--border)", borderRadius:14, padding:"14px 16px" }}>
-              <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:26, color }}>{value}</div>
+              <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:26, color, lineHeight:1, marginBottom:4 }}>{value}</div>
               <div style={{ fontSize:11, color:"var(--text2)" }}>{label}</div>
             </div>
           );
         }
+        
         function BigStat({ label, value, unit, color }) {
           return (
             <div style={{ background:"var(--card)", border:"1px solid var(--border)", borderRadius:14, padding:"14px 10px", textAlign:"center" }}>
@@ -607,7 +648,7 @@
           );
         }
 
-        // Render แอปพลิเคชันหลักเข้าไปใน id="root"
+        // Render เข้าสู่ root element
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
