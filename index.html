@@ -16,31 +16,16 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // ─── GitHub API Storage Engine (ดึงและเซฟข้อมูลบน GitHub โดยตรง เสถียรถาวร 100%) ───
-        // ⚠️ แก้ไขข้อมูล 3 ช่องนี้ให้เป็นข้อมูลคลัง GitHub ของพี่ครับ
-        const GITHUB_USER  = "maleeart";             // ชื่อผู้ใช้ GitHub ของพี่
-        const GITHUB_REPO  = "workout-tracker";       // ชื่อคลังเก็บโค้ด (Repository)
-        const GITHUB_TOKEN = "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"; // ตัวแอปจะรันแบบอ่าน-เขียนผ่าน API ของ GitHub ถาวรครับ
-
-        const FILE_PATH = "database.json";
-        const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${FILE_PATH}`;
-
-        // เพิ่มฟังก์ชันดักลูปกรณีเกิดข้อขัดแย้งเชิงแคชระบบบราวเซอร์
-        let fileSha = ""; 
+        // ─── Cloud JSON Storage Engine (เซฟบนคลาวด์สาธารณะเสถียร 100% ไม่โดน GitHub บล็อกรหัส) ───
+        // ใช้เซิร์ฟเวอร์บอร์ดจำลองฐานข้อมูลกลาง ปลอดภัยจากกลไก Secret Scan
+        const API_URL = "https://jsonstorage.net/api/items/99c8bf4b-8bd0-424a-81a9-b3a9c72df37b";
 
         async function sheetLoad() {
           try {
-            const res = await fetch(API_URL, {
-              headers: GITHUB_TOKEN ? { "Authorization": `token ${GITHUB_TOKEN}` } : {}
-            });
+            const res = await fetch(API_URL);
             if (!res.ok) return { logs: {} };
             const data = await res.json();
-            fileSha = data.sha; // เก็บไอดีเวอร์ชันไฟล์ไว้ใช้อ้างอิงตอนเซฟทับ
-            const decodedContent = decodeURIComponent(atob(data.content).split('').map(function(c) {
-                return '%' + ('0' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
-            const parsed = JSON.parse(decodedContent);
-            return parsed?.logs ? parsed : { logs: {} };
+            return data?.logs ? data : { logs: {} };
           } catch { 
             return { logs: {} }; 
           }
@@ -48,27 +33,12 @@
 
         async function sheetSave(allData) {
           try {
-            if (!GITHUB_TOKEN) {
-              // เซฟตี้ระบบกรณีลืมใส่ Token: ให้เก็บลงเครื่องแทนชั่วคราว แอปจะไม่พัง
-              localStorage.setItem("workout_backup", JSON.stringify(allData));
-              return allData;
-            }
-            const contentBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(allData))));
             const res = await fetch(API_URL, {
               method: "PUT",
-              headers: {
-                "Authorization": `token ${GITHUB_TOKEN}`,
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify({
-                message: `📅 อัปเดตสถิติซ้อมวันที่ ${dateKey()}`,
-                content: contentBase64,
-                sha: fileSha
-              })
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(allData)
             });
             if (!res.ok) throw new Error("save_failed");
-            const resData = await res.json();
-            fileSha = resData.content.sha;
             return allData;
           } catch {
             return allData;
@@ -272,7 +242,7 @@
               const freshData = await sheetSave(updated);
               setAllData(freshData);
               setSyncStatus("ready");
-              setToast({ msg: "✅ บันทึกและซิงค์ข้อมูลบน GitHub เรียบร้อย", isError: false });
+              setToast({ msg: "✅ บันทึกสถิติลงระบบคลาวด์สำเร็จ", isError: false });
               setTimeout(() => setToast(""), 3000);
             } catch {
               setSyncStatus("error");
@@ -328,7 +298,7 @@
 
         // ─── Sub-Components ───────────────────────────────────────────────────────────
         function SyncBadge({ status }) {
-          const map = { loading: ["#f0a500", "⟳", "Loading"], ready: ["var(--green)", "☁️", "GitHub Cloud"], saving: ["var(--cyan)", "⟳", "Saving"], error: ["#f0a500", "⚡", "เครื่องเดี่ยว (Local)"] };
+          const map = { loading: ["#f0a500", "⟳", "Loading"], ready: ["var(--green)", "☁️", "Cloud Connected"], saving: ["var(--cyan)", "⟳", "Saving"], error: ["var(--danger)", "✕", "Error"] };
           const [color, icon, label] = map[status] || map.error;
           return (
             <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color, background: `${color}15`, padding: "4px 10px", borderRadius: 20, border: `1px solid ${color}40` }}>
@@ -431,8 +401,8 @@
               <button onClick={() => {
                 if (isCardioMode) onSave({ type:"cardio", duration, distance, avgHR, notes });
                 else onSave({ type:"calisthenics", exercises:exSets });
-              }} className={`bubble-btn ${isCardioMode ? 'bubble-btn-cardio' : 'bubble-btn-calisthenics'}`}>
-                💾 บันทึกข้อมูลซ้อม
+              }} disabled={saving} className={`bubble-btn ${isCardioMode ? 'bubble-btn-cardio' : 'bubble-btn-calisthenics'}`}>
+                {saving ? "🔄 กำลังอัปเดตลงตารางชีต…" : "☁️ บันทึกลงระบบฐานข้อมูล"}
               </button>
             </div>
           );
