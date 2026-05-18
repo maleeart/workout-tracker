@@ -16,31 +16,7 @@
         const { useState, useEffect } = React;
 
         // ─── Google Sheets Config ─────────────────────────────────────────────────────
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbzVP5cYHmUl23R6NHh0k9BmoVSq8kH6SoCiJdba5PNAfi04BLWUGgz2KQCL1UBaxG-z/exec";
-
-        // ระบบโหลดข้อมูลจาก Cache หรือ Server (PWA Mode)
-        async function sheetLoad() {
-          try {
-            const res = await fetch(`${SHEET_URL}?action=load`);
-            if (!res.ok) throw new Error("fetch_failed");
-            const data = await res.json();
-            if (data?.logs) {
-              localStorage.setItem("workout_logs_cache", JSON.stringify(data));
-              return data;
-            }
-            return { logs: {} };
-          } catch (e) { 
-            const cache = localStorage.getItem("workout_logs_cache");
-            return cache ? JSON.parse(cache) : null; 
-          }
-        }
-
-        async function sheetSave(allData) {
-          localStorage.setItem("workout_logs_cache", JSON.stringify(allData));
-          const encoded = encodeURIComponent(JSON.stringify(allData));
-          const res = await fetch(`${SHEET_URL}?action=save&data=${encoded}`);
-          if (!res.ok) throw new Error("save_failed");
-        }
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbxZiJD9yN1ADsToUVMJ0HdfpX8fK4NiRWunJkb2WH4xzavn977uNO_jmGTrjUOFxubs/exec";
 
         // ─── Data & Schedule ──────────────────────────────────────────────────────────
         const SCHEDULE = {
@@ -64,15 +40,6 @@
 
         const DAYS_TH = ["อา","จ","อ","พ","พฤ","ศ","ส"];
         function dateKey(d = new Date()) { return d.toISOString().slice(0, 10); }
-
-        function calculatePaceStr(minutes, distance) {
-          if (!minutes || !distance || distance <= 0) return "—";
-          const totalSeconds = minutes * 60;
-          const secondsPerKm = totalSeconds / distance;
-          const paceMin = Math.floor(secondsPerKm / 60);
-          const paceSec = Math.round(secondsPerKm % 60);
-          return `${paceMin}:${paceSec < 10 ? '0' : ''}${paceSec}`;
-        }
 
         // ─── Styles ───────────────────────────────────────────────────────────────────
         const css = `
@@ -106,6 +73,30 @@
           const todayKey = dateKey(today);
           const schedule = SCHEDULE[today.getDay()];
           const todayLog = allData.logs[todayKey] || null;
+
+          // ระบบโหลดข้อมูลจาก Cache หรือ Server (PWA Mode)
+          async function sheetLoad() {
+            try {
+              const res = await fetch(`${SHEET_URL}?action=load`);
+              if (!res.ok) throw new Error("fetch_failed");
+              const data = await res.json();
+              if (data?.logs) {
+                localStorage.setItem("workout_logs_cache", JSON.stringify(data));
+                return data;
+              }
+              return { logs: {} };
+            } catch (e) { 
+              const cache = localStorage.getItem("workout_logs_cache");
+              return cache ? JSON.parse(cache) : null; 
+            }
+          }
+
+          async function sheetSave(allData) {
+            localStorage.setItem("workout_logs_cache", JSON.stringify(allData));
+            const encoded = encodeURIComponent(JSON.stringify(allData));
+            const res = await fetch(`${SHEET_URL}?action=save&data=${encoded}`);
+            if (!res.ok) throw new Error("save_failed");
+          }
 
           useEffect(() => {
             (async () => {
@@ -243,7 +234,20 @@
             return init;
           });
 
-          const calculatedPace = calculatePaceStr(Number(duration), Number(distance));
+          // ย้ายฟังก์ชันคำนวณมาอยู่ในตัวคอมโพเนนต์ พร้อมเช็กความปลอดภัยป้องกันค่าล้น
+          const getPaceStr = (mins, dist) => {
+            const numMins = Number(mins);
+            const numDist = Number(dist);
+            if (!numMins || !numDist || numDist <= 0) return "—";
+            const totalSeconds = numMins * 60;
+            const secondsPerKm = totalSeconds / numDist;
+            if (isNaN(secondsPerKm) || !isFinite(secondsPerKm)) return "—";
+            const paceMin = Math.floor(secondsPerKm / 60);
+            const paceSec = Math.round(secondsPerKm % 60);
+            return `${paceMin}:${paceSec < 10 ? '0' : ''}${paceSec}`;
+          };
+
+          const calculatedPace = getPaceStr(duration, distance);
 
           const submit = () => {
             if (schedule.type === "cardio") {
@@ -411,7 +415,7 @@
 
         // ─── ระบบช่วยคำนวณช่วงอัตราการเต้นหัวใจ Zone 2 (Karvonen Formula) ───────────
         function ZoneCalculator({ onClose }) {
-          const [age, setAge] = useState("30"); // ดึงข้อมูลอายุพื้นฐานของผู้ใช้อัตโนมัติ
+          const [age, setAge] = useState("30"); // ล็อกค่าอายุเริ่มต้นของคุณ
           const [restingHr, setRestingHr] = useState("65");
           const [result, setResult] = useState(null);
 
@@ -436,7 +440,7 @@
                 <FLabel>อายุ (ปี)</FLabel>
                 <input style={{ width:"100%", background:"#0c121c", border:"1px solid var(--border)", borderRadius:10, padding:10, color:"#fff", marginBottom:10 }} type="number" value={age} onChange={e => setAge(e.target.value)} />
                 
-                <FLabel>Resting HR (ชีพจรขณะพักขณะตื่นนอนใหม่ ๆ - bpm)</FLabel>
+                <FLabel>Resting HR (ชีพจรขณะพัก - bpm)</FLabel>
                 <input style={{ width:"100%", background:"#0c121c", border:"1px solid var(--border)", borderRadius:10, padding:10, color:"#fff", marginBottom:16 }} type="number" placeholder="เช่น 60" value={restingHr} onChange={e => setRestingHr(e.target.value)} />
 
                 <button onClick={calculate} style={{ width:"100%", padding:12, background:"var(--purple)", border:"none", borderRadius:10, color:"#fff", fontWeight:"bold", marginBottom:12 }}>คำนวณผลลัพธ์</button>
@@ -459,6 +463,17 @@
           const map = { loading: ["#f0a500", "⟳"], ready: ["var(--green)", "☁️"], saving: ["var(--cyan)", "⟳"], error: ["var(--danger)", "✕"] };
           const [color, icon] = map[status] || map.error;
           return <div style={{ display:"flex", alignItems:"center", gap:4, fontSize:11, color, background:`${color}15`, padding:"4px 10px", borderRadius:20, border:`1px solid ${color}30` }}><span style={{ animation: (status==="loading"||status==="saving") ? "spin 1s linear infinite" : "none", display:"inline-block" }}>{icon}</span></div>;
+        }
+        function LoadingScreen() {
+          return (
+            <div style={{ display:"flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "80px 20px", gap: 14 }}>
+              <div style={{ fontSize: 52 }}>📊</div>
+              <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 700, fontSize: 20, color: "var(--cyan)" }}>กำลังโหลดจาก Google Sheets</div>
+              <div style={{ display: "flex", gap: 8 }}>
+                {[0,1,2].map(i => <div key={i} style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--cyan)", animation: "pulse 1.2s ease-in-out infinite" }} />)}
+              </div>
+            </div>
+          );
         }
         function SecLabel({ children }) { return <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:11, letterSpacing:2, color:"var(--text2)", textTransform:"uppercase", marginBottom:4 }}>{children}</div>; }
         function FLabel({ children }) { return <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:600, fontSize:11, letterSpacing:1, color:"var(--text2)", textTransform:"uppercase", marginBottom:4 }}>{children}</div>; }
