@@ -17,7 +17,8 @@
         const { useState, useEffect } = React;
 
         // ─── Google Sheets Config ─────────────────────────────────────────────────────
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycby9YUIhRx_ZatF_yPlahISv6Nuan6xazhOf1Vajtrt1KunPwhlzZS7nQd4LHjkqFTe3/exec";
+        // ⚠️ เอาลิงก์ Web App URL ตัวล่าสุดของพี่มาวางแทนที่ข้อความด้านล่างนี้ครับ
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbyVVHBSh46u8XBRHZLmGKXo3AOX4zdyq2krAJOG3UV5kBWk0cH5KuHB_JZssa27c_hA/exec";
 
         async function sheetLoad() {
           try {
@@ -25,7 +26,9 @@
             if (!res.ok) throw new Error("fetch_failed");
             const data = await res.json();
             return data?.logs ? data : { logs: {} };
-          } catch { return null; }
+          } catch { 
+            return { logs: {} }; // เซฟตี้วาล์ว: หากเกิดเหตุสุดวิสัย ให้จำลองวัตถุเปล่าขึ้นมารันต่อทันที ห้ามปล่อยให้แอป Crash สีแดง
+          }
         }
 
         async function sheetSave(allData) {
