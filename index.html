@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Calisthenics & Zone 2</title>
+    <title>Wracker !</title>
     
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -18,7 +18,7 @@
 
         // ─── Google Sheets Config ─────────────────────────────────────────────────────
         // ⚠️ นำลิงก์ที่ได้จากการ Deploy Apps Script รอบล่าสุดของพี่มาวางแทนที่ข้อความด้านล่างนี้ครับ
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbzq_9k8-foi6kTMEyqlv7PsU244AP3BJCrYolPQt-u0cPRJ6wDYRWJE1S-0p4NdJAEC/exec";
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbz8aghzBeFdi9W_pGgoP-NFdidMwIjS8MvdsLFIy43eD92KDysEIBzGgYtyaO2dysF1/exec";
 
         async function sheetLoad() {
           try {
@@ -33,6 +33,8 @@
           const encoded = encodeURIComponent(JSON.stringify(allData));
           const res = await fetch(`${SHEET_URL}?action=save&data=${encoded}`);
           if (!res.ok) throw new Error("save_failed");
+          const returnData = await res.json();
+          return returnData?.logs ? returnData : allData;
         }
 
         // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -71,7 +73,7 @@
           if (entries.length === 0) {
             return {
               rating: "N/A",
-              summary: "ยังไม่พบสถิติการซ้อมในระบบ บันทึกผลการออกกำลังกายอย่างน้อย 1 ครั้ง เพื่อเริ่มให้ AI วิเคราะห์สถิติครับ",
+              summary: "ยังไม่พบสถิติการซ้อมในระบบ บันทึกผลการออกกำลังกายอย่างน้อย 1 ครั้ง เพื่อเริ่มให้ AI วิเคราะห์ฟอร์มซ้อมครับ",
               score: 0, comment: "ไม่มีข้อมูลประวัติการซ้อม",
               focus: "เริ่มบันทึกผลการฝึกซ้อมวันนี้เป็นก้าวแรก", milestone: "สะสมยอดเซสชันรวมให้ครบ 3 ครั้ง"
             };
@@ -228,7 +230,9 @@
             setSyncStatus("saving");
             
             try {
-              await sheetSave(updated);
+              // 🛠️ อัปเดตสเตทขากลับด้วยก้อนผลลัพธ์ที่ดึงกลับมาจากชีตให้เคลียร์ปัญหาเอ๋อ
+              const freshData = await sheetSave(updated);
+              setAllData(freshData);
               setSyncStatus("ready");
               setToast({ msg: "✅ บันทึกสถิติลงชีตสำเร็จ", isError: false });
             } catch {
@@ -398,7 +402,6 @@
           const weeks = Array.from({length:4}, (_,i) => Array.from({length:7}, (_,d) => { const dt=new Date(today); dt.setDate(dt.getDate()-(i*7+(6-d))); return dt; }));
           const [selectedDate, setSelectedDate] = useState(null);
           
-          // ประกาศตัวแปรอ้างอิงรายท่าไว้ในฟังก์ชันย่อย ป้องกันบราวเซอร์บอดี้สคริปต์แคลช (แก้บั๊กจอขาวสำเร็จ!)
           const LOCAL_EXERCISES = [
             { id: "aus_pull",   name: "Australian Pull-Ups",   icon: "🏋️" },
             { id: "neg_pull",   name: "Negative Pull-Ups",     icon: "⬇️" },
@@ -473,7 +476,7 @@
                   </div>
                   <div>
                     <div style={{ fontSize:11, color:"var(--text2)", textTransform:"uppercase" }}>Overall Grade</div>
-                    <div style={{ fontSize:14, fontWeight:600, color:"#fff" }}>ผลลัพธ์ประสิทธิภาพคาร์โดโดยรวม</div>
+                    <div style={{ fontSize:14, fontWeight:600, color:"#fff" }}>ผลลัพธ์ประสิทธิภาพคาร์ดิโอโดยรวม</div>
                   </div>
                 </div>
                 <div style={{ fontSize:13, lineHeight:1.6, color:"#c8d8e8", background: "var(--card2)", padding: "10px 12px", borderRadius: 10 }}>
