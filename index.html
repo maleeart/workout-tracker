@@ -17,8 +17,8 @@
         const { useState, useEffect } = React;
 
         // ─── Google Sheets Config ─────────────────────────────────────────────────────
-        // ⚠️ นำลิงก์ Web App URL ตัวล่าสุดที่ได้จากขั้นตอนที่ 1 มาวางแทนที่ข้อความด้านล่างนี้ครับ
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbwIDUqkqrO-Px6iFUVP_u5GJKVqERSYMSWlxYriZqY8w5WGJ2FfJSGcGNcPtZlLXziH/exec";
+        // ⚠️ เอาลิงก์ Web App URL ตัวล่าสุดของพี่มาวางแทนที่ข้อความด้านล่างนี้ครับ
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbzHNPxTon8xfN5GaPjHnh7gvdXSaLJGtchPJtWrv411X53T7QKWgQ0xKdmY95oxikdI/exec";
 
         async function sheetLoad() {
           try {
@@ -27,7 +27,7 @@
             const data = await res.json();
             return data?.logs ? data : { logs: {} };
           } catch { 
-            return { logs: {} }; // เซฟตี้วาล์ว: ป้องกันการ Crash หน้าขาวหน้าแดงหากอินเทอร์เน็ตสะดุด
+            return { logs: {} }; // เซฟตี้วาล์ว: หากเกิดเหตุสุดวิสัย ให้จำลองวัตถุเปล่าขึ้นมารันต่อทันที ห้ามปล่อยให้แอป Crash สีแดง
           }
         }
 
@@ -205,7 +205,7 @@
               const data = await sheetLoad();
               if (!active) return;
               if (data) {
-                setAllData({ logs: data });
+                setAllData(data);
                 setSyncStatus("ready");
               } else {
                 setSyncStatus("error");
@@ -232,7 +232,8 @@
             setSyncStatus("saving");
             
             try {
-              await sheetSave(updated);
+              const freshData = await sheetSave(updated);
+              setAllData(freshData);
               setSyncStatus("ready");
               setToast({ msg: "✅ บันทึกสถิติลงชีตสำเร็จ", isError: false });
             } catch {
