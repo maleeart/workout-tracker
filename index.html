@@ -17,8 +17,7 @@
         const { useState, useEffect } = React;
 
         // ─── Google Sheets Config ─────────────────────────────────────────────────────
-        // ⚠️ เอาลิงก์ Web App URL ตัวล่าสุดของพี่มาวางแทนที่ข้อความด้านล่างนี้ครับ
-        const SHEET_URL = "https://script.google.com/macros/s/AKfycbzHmGKhctn-RptOX4LYUYYja2_AIWq5X8O4FYqj83e7M4eVo_iErys_MIt43cpApUJp/exec";
+        const SHEET_URL = "https://script.google.com/macros/s/AKfycbwzBXjNV_gl3VGDMx0nXb_Fz3_aOyx7LANFjBKQwThgXCTuh9udbKCUjY-0ZFnJTVay/exec";
 
         async function sheetLoad() {
           try {
@@ -66,55 +65,36 @@
           return `${paceMinutes}:${paceSeconds < 10 ? '0' : ''}${paceSeconds}`;
         }
 
-        // ─── Local Rule-Based Coach Engine (แก้ปัญหาหน้า Insight โล่งเนื่องจากบราวเซอร์บล็อก API) ───
         function runLocalAIAnalysis(logs) {
           const entries = Object.values(logs);
           if (entries.length === 0) {
             return {
               rating: "N/A",
-              summary: "ยังไม่พบสถิติการซ้อมในระบบ บันทึกผลการออกกำลังกายอย่างน้อย 1 ครั้ง เพื่อเริ่มให้ AI วิเคราะห์การพัฒนาฟอร์มครับ",
-              score: 0,
-              comment: "ไม่มีข้อมูลประวัติการซ้อม",
-              focus: "เริ่มบันทึกผลการฝึกซ้อมวันนี้เป็นก้าวแรก",
-              milestone: "สะสมยอด Workouts รวมให้ครบ 3 เซสชัน"
+              summary: "ยังไม่พบสถิติการซ้อมในระบบ บันทึกผลการออกกำลังกายอย่างน้อย 1 ครั้ง เพื่อเริ่มให้ AI วิเคราะห์ฟอร์มซ้อมครับ",
+              score: 0, comment: "ไม่มีข้อมูลประวัติการซ้อม",
+              focus: "เริ่มบันทึกผลการฝึกซ้อมวันนี้เป็นก้าวแรก", milestone: "สะสมยอดเซสชันรวมให้ครบ 3 ครั้ง"
             };
           }
 
           const cardioLogs = entries.filter(l => l.type === "cardio");
-          const calsLogs = entries.filter(l => l.type === "calisthenics");
-
           let summary = "จากการวิเคราะห์ฟอร์มการซ้อม ล่าสุดร่างกายของคุณเริ่มปรับตัวเข้ากับตารางฝึกได้เป็นอย่างดี ";
           let score = Math.min(100, Math.round((entries.length / 8) * 100));
           let rating = "B+";
-          let focus = "รักษาความต่อเนื่องในการคุมอัตราการเต้นของหัวใจให้อยู่ใน Zone 2 และเพิ่ม Reps ท่าดึง";
+          let focus = "รักษาความต่อเนื่องในการคุมอัตราการเต้นของหัวใจให้อยู่ใน Zone 2 และเพิ่มวินัยรายสัปดาห์";
           let milestone = "ทำสถิติวิ่งคุม HR ได้นิ่งต่อเนื่องมากกว่า 30 นาทีขึ้นไป";
 
           if (cardioLogs.length > 0) {
             const lastCardio = cardioLogs[cardioLogs.length - 1];
             if (lastCardio.avgHR >= 138 && lastCardio.avgHR <= 150) {
-              summary += `การวิ่งล่าสุดทำได้ดีเยี่ยม คุมระดับชีพจรเฉลี่ยได้ ${lastCardio.avgHR} bpm อยู่ในเกณฑ์แอโรบิกเบสโซน 2 ที่เหมาะสมสำหรับพัฒนาความอึดปอดแข็งแรง `;
+              summary += `การวิ่งล่าสุดทำได้ดีเยี่ยม คุมระดับชีพจรเฉลี่ยได้ ${lastCardio.avgHR} bpm อยู่ในเกณฑ์แอโรบิกเบสโซน 2 ที่เหมาะสมสำหรับพัฒนา Pace 8`;
               rating = "A";
             } else if (lastCardio.avgHR > 150) {
-              summary += `ตรวจพบว่าการซ้อมวิ่งล่าสุด ชีพจรเฉลี่ยสูงเกินเกณฑ์โซน 2 (${lastCardio.avgHR} bpm) แนะนำให้ลดความเร็วลง หรือใช้เทคนิคเดินสลับวิ่งเพื่อคุมหัวใจไม่ให้ล้าเกินไป `;
+              summary += `ตรวจพบว่าการซ้อมวิ่งล่าสุด ชีพจรเฉลี่ยสูงเกินเกณฑ์โซน 2 (${lastCardio.avgHR} bpm) แนะนำให้คุมความเร็วลดฝีเท้าลงเพื่อไม่ให้ร่างกายล้าสะสม `;
               rating = "B";
-              focus = "โฟกัสการลดความเร็วหรือสับฝีเท้าลง (เน้นคุม Pace 8 นิ่งๆ) เพื่อดึงหัวใจให้ลงมาอยู่ Zone 2";
-            } else {
-              summary += `การวิ่งล่าสุดคุมความเหนื่อยอยู่ในระดับสบาย ชีพจรเฉลี่ยอยู่ที่ ${lastCardio.avgHR} bpm `;
+              focus = "เน้นคุมความเร็ว (เน้นคุม Pace 8 นิ่งๆ ความเหนื่อยระดับพูดคุยรู้เรื่อง) เพื่อดึงหัวใจให้ลงมาอยู่ Zone 2";
             }
           }
-
-          if (calsLogs.length > 0) {
-            summary += "ในส่วนของบอดี้เวท Calisthenics มีการบันทึกสถิติจำนวนครั้งเป็นระบบตารางแยกรายท่าเรียบร้อย โครงสร้างกล้ามเนื้อได้รับการกระตุ้นในสัดส่วนที่สมดุล";
-          }
-
-          return {
-            rating,
-            summary,
-            score,
-            comment: entries.length >= 5 ? "ระดับความมีวินัยและการรักษาวินัยการซ้อมอยู่ในเกณฑ์ดีเยี่ยม" : "กำลังสร้างความต่อเนื่องที่ดี ซ้อมต่อไปเพื่อสะสมคะแนนวินัยเพิ่มขึ้นครับ",
-            focus,
-            milestone
-          };
+          return { rating, summary, score, comment: "รักษาระดับวินัยการซ้อมอย่างต่อเนื่องเพื่อสร้างกล้ามเนื้อและการคาร์ดิโอที่สมดุล", focus, milestone };
         }
 
         // ─── Styles ───────────────────────────────────────────────────────────────────
@@ -137,8 +117,8 @@
           }
           
           input:focus { outline: 2px solid var(--cyan) !important; }
-          @keyframes fadeIn  { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
           .fade-in { animation: fadeIn 0.35s ease forwards; }
+          @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
           
           .ios-container { 
             padding-top: env(safe-area-inset-top, 24px); 
@@ -189,26 +169,17 @@
             transition: all 0.2s ease;
           }
 
-          .bubble-btn:active {
-            transform: scale(0.96);
-          }
-
+          .bubble-btn:active { transform: scale(0.96); }
           .bubble-btn::before {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 5%;
-            width: 90%;
-            height: 35%;
+            content: ''; position: absolute; top: 2px; left: 5%; width: 90%; height: 35%;
             background: linear-gradient(to bottom, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
             border-radius: 50px;
           }
-
           .bubble-btn-cardio { background: linear-gradient(135deg, #00d4ff, #008cb3); box-shadow: 0 8px 24px rgba(0, 212, 255, 0.3); }
           .bubble-btn-calisthenics { background: linear-gradient(135deg, #ff6b2b, #cc3f00); box-shadow: 0 8px 24px rgba(255, 107, 43, 0.3); }
         `;
 
-        // ─── App ──────────────────────────────────────────────────────────────────────
+        // ─── App Component ────────────────────────────────────────────────────────────
         function App() {
           const [tab, setTab]           = useState("today");
           const [allData, setAllData]   = useState({ logs: {} });
@@ -224,7 +195,8 @@
 
           useEffect(() => {
             let active = true;
-            (async () => {
+            async function load() {
+              setSyncStatus("loading");
               const data = await sheetLoad();
               if (!active) return;
               if (data) {
@@ -232,16 +204,12 @@
                 setSyncStatus("ready");
               } else {
                 setSyncStatus("error");
-                showToast("⚠️ ไม่สามารถเชื่อมต่อฐานข้อมูลชีตได้", true);
+                setToast({ msg: "⚠️ ไม่สามารถเชื่อมต่อฐานข้อมูลชีตได้", isError: true });
               }
-            })();
+            }
+            load();
             return () => { active = false; };
           }, [tab]);
-
-          const showToast = (msg, isError = false) => {
-            setToast({ msg, isError });
-            setTimeout(() => setToast(""), 3500);
-          };
 
           const handleSaveLog = async (logData) => {
             const currentDayObj = allData.logs[todayKey] || {};
@@ -261,10 +229,10 @@
             try {
               await sheetSave(updated);
               setSyncStatus("ready");
-              showToast("✅ บันทึกสถิติสำเร็จ");
+              setToast({ msg: "✅ บันทึกสถิติลงชีตสำเร็จ", isError: false });
             } catch {
               setSyncStatus("error");
-              showToast("⚠️ ไม่สามารถบันทึกข้ามระบบได้", true);
+              setToast({ msg: "⚠️ ไม่สามารถเชื่อมโยงข้อมูลข้ามระบบได้", isError: true });
             }
           };
 
@@ -314,6 +282,7 @@
           );
         }
 
+        // ─── Sub-Components ───────────────────────────────────────────────────────────
         function SyncBadge({ status }) {
           const map = { loading: ["#f0a500", "⟳", "Loading"], ready: ["var(--green)", "☁️", "Sheets"], saving: ["var(--cyan)", "⟳", "Saving"], error: ["var(--danger)", "✕", "Error"] };
           const [color, icon, label] = map[status] || map.error;
@@ -322,10 +291,6 @@
               <span>{icon}</span><span>{label}</span>
             </div>
           );
-        }
-
-        function LoadingScreen() {
-          return <div style={{ textAlignment: "center", padding: "40px", color: "var(--text2)" }}>กำลังโหลดคอนเทนต์...</div>;
         }
 
         function TodayScreen({ schedule, today, todayLog, onLogCardio, onLogCals }) {
@@ -341,22 +306,22 @@
               {todayLog && (
                 <div style={{ background:"#001a0e", border:"1px solid #00e67640", borderRadius:16, padding:16, marginBottom:16 }}>
                   <span style={{ color:"var(--green)", fontWeight:700, fontSize:14 }}>✓ บันทึกข้อมูลวันนี้สำเร็จ</span>
-                  <LogSummary log={todayLog} schedule={todayLog} />
+                  <LogSummary log={todayLog} />
                 </div>
               )}
 
               <div style={{ background: "rgba(255,255,255,0.02)", padding: "16px", borderRadius: 20, border: "1px solid var(--border)" }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  <button onClick={onLogCardio} className="bubble-btn bubble-btn-cardio">Analyse / บันทึก Zone 2 Cardio</button>
-                  <button onClick={onLogCals} className="bubble-btn bubble-btn-calisthenics">Table / บันทึก Calisthenics</button>
+                  <button onClick={onLogCardio} className="bubble-btn bubble-btn-cardio">🏃 บันทึก Zone 2 Cardio</button>
+                  <button onClick={onLogCals} className="bubble-btn bubble-btn-calisthenics">💪 บันทึก Calisthenics</button>
                 </div>
               </div>
             </div>
           );
         }
 
-        function LogSummary({ log, schedule }) {
-          if (schedule.type === "cardio") return (
+        function LogSummary({ log }) {
+          if (log.type === "cardio") return (
             <div style={{ display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:10, marginTop:8, textAlign:"center" }}>
               <div><div style={{ color:"var(--cyan)", fontWeight:900 }}>{log.duration}</div><div style={{ fontSize:10, color:"var(--text2)" }}>นาที</div></div>
               <div><div style={{ color:"var(--green)", fontWeight:900 }}>{log.distance || "—"}</div><div style={{ fontSize:10, color:"var(--text2)" }}>กม.</div></div>
@@ -387,13 +352,13 @@
             return init;
           });
 
-          const inp = { width:"100%", background:"var(--card2)", border:"1px solid var(--border)", borderRadius:12, padding:"12px 14px", color:"#fff", marginBottom:10, outline:"none", fontSize:"15px" };
+          const inp = { width:"100%", background:"var(--card2)", border:"1px solid var(--border)", borderRadius:12, padding:"14px 16px", color:"#fff", marginBottom:10, outline:"none", fontSize:"15px" };
 
           return (
             <div style={{ padding:"0 12px" }}>
               <div style={{ display:"flex", gap:12, marginBottom:16, alignItems:"center" }}>
                 <button onClick={onCancel} style={{ background:"var(--card)", border:"none", color:"#fff", padding:"6px 12px", borderRadius:10 }}>← กลับ</button>
-                <div style={{ fontWeight:900, fontSize:18 }}>{isCardioMode ? "🏃 บันทึกความเร็ว/ระยะทาง" : "💪 จัดตารางเซตหลังบ้าน"}</div>
+                <div style={{ fontWeight:900, fontSize:18 }}>{isCardioMode ? "🏃 บันทึก Cardio" : "💪 บันทึก Strength"}</div>
               </div>
 
               {isCardioMode ? (
@@ -401,7 +366,7 @@
                   <input style={inp} type="number" placeholder="ระยะเวลาวิ่ง (นาที)" value={duration} onChange={e => setDuration(e.target.value)} />
                   <input style={inp} type="number" step="0.01" placeholder="ระยะทางรวม (กิโลเมตร)" value={distance} onChange={e => setDistance(e.target.value)} />
                   <input style={inp} type="number" placeholder="Heart Rate เฉลี่ย (bpm)" value={avgHR} onChange={e => setAvgHR(e.target.value)} />
-                  <input style={inp} placeholder="บันทึกเพิ่มเติมย่อยๆ" value={notes} onChange={e => setNotes(e.target.value)} />
+                  <input style={inp} placeholder="บันทึกเพิ่มเติม" value={notes} onChange={e => setNotes(e.target.value)} />
                 </>
               ) : (
                 <div style={{ maxHeight:"65vh", overflowY:"auto", paddingBottom:10 }}>
@@ -455,7 +420,7 @@
                     return (
                       <div className="fade-in" style={{ marginTop:12, padding:12, background:"var(--card2)", borderRadius:12, border:"1px solid rgba(255,255,255,0.05)" }}>
                         <div style={{ fontWeight:700, fontSize:12, color:"var(--cyan)", marginBottom:4 }}>📋 ประวัติเซสชันของวันที่ {selectedDate}</div>
-                        <LogSummary log={currentLog} schedule={currentLog} />
+                        <LogSummary log={currentLog} />
                       </div>
                     );
                   })()}
@@ -465,19 +430,18 @@
           );
         }
 
-        // ─── หน้าจอแสดงผลการวิเคราะห์ในเครื่อง (Insight Screen) แบบสมบูรณ์รันเสถียร ───
         function InsightScreen({ logs }) {
           const analysis = runLocalAIAnalysis(logs);
           return (
             <div style={{ padding: "0 12px" }} className="fade-in">
               <div style={{ background:"linear-gradient(135deg,#1a0d2e,#0d1a2e)", border:"1px solid #a855f740", borderRadius:20, padding:18, marginBottom:14 }}>
                 <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:20, marginBottom:2 }}>🧠 AI Progression Insights</div>
-                <div style={{ fontSize:12, color:"var(--text2)" }}>วิเคราะห์ความก้าวหน้า Zone 2 และสถิติบอดี้เวทรายสัปดาห์ของคุณอัตโนมัติ</div>
+                <div style={{ fontSize:12, color:"var(--text2)" }}>วิเคราะห์สถิติจิตวิทยาการซ้อมคาร์ดิโอรายสัปดาห์ของคุณอัตโนมัติ</div>
               </div>
 
               <div style={{ background:"var(--card)", border:"1px solid var(--border)", borderRadius:18, padding:16, marginBottom:12, display:"flex", flexDirection: "column", gap:12 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                  <div style={{ background: "rgba(0,230,118,0.1)", width: 56, height: 56, borderRadius: 14, display: "flex", flexDirection: "column", alignItems: "center", justify: "center", justifyContent:"center", border: "1px solid var(--green)" }}>
+                  <div style={{ background: "rgba(0,230,118,0.1)", width: 56, height: 56, borderRadius: 14, display: "flex", flexDirection: "column", alignItems: "center", justifyContent:"center", border: "1px solid var(--green)" }}>
                     <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:28, color:"var(--green)", lineHeight:1 }}>{analysis.rating}</div>
                   </div>
                   <div>
@@ -526,8 +490,6 @@
           );
         }
         
-        function SecLabel({ children }) { return <div style={{ fontSize:11, color:"var(--text2)" }}>{children}</div>; }
-        function FLabel({ children }) { return <div style={{ fontSize:11, color:"var(--text2)" }}>{children}</div>; }
         function BigStat({ label, value, color }) {
           return (
             <div style={{ background:"var(--card)", border:"1px solid var(--border)", borderRadius:14, padding:12, textAlign:"center" }}>
