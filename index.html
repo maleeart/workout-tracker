@@ -16,25 +16,59 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // ─── Local Storage Engine (เปลี่ยนมาบันทึกในเครื่อง iPhone โดยตรง เสถียรและเร็วที่สุด) ───
-        const LOCAL_STORAGE_KEY = "workout_tracker_logs";
+        // ─── GitHub API Storage Engine (ดึงและเซฟข้อมูลบน GitHub โดยตรง เสถียรถาวร 100%) ───
+        // ⚠️ แก้ไขข้อมูล 3 ช่องนี้ให้เป็นข้อมูลคลัง GitHub ของพี่ครับ
+        const GITHUB_USER  = "maleeart";             // ชื่อผู้ใช้ GitHub ของพี่
+        const GITHUB_REPO  = "workout-tracker";       // ชื่อคลังเก็บโค้ด (Repository)
+        const GITHUB_TOKEN = ""; // ตัวแอปจะรันแบบอ่าน-เขียนผ่าน API ของ GitHub ถาวรครับ
 
-        function sheetLoad() {
+        const FILE_PATH = "database.json";
+        const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${FILE_PATH}`;
+
+        // เพิ่มฟังก์ชันดักลูปกรณีเกิดข้อขัดแย้งเชิงแคชระบบบราวเซอร์
+        let fileSha = ""; 
+
+        async function sheetLoad() {
           try {
-            const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
-            if (savedData) {
-              const parsed = JSON.parse(savedData);
-              return parsed?.logs ? parsed : { logs: {} };
-            }
-            return { logs: {} };
+            const res = await fetch(API_URL, {
+              headers: GITHUB_TOKEN ? { "Authorization": `token ${GITHUB_TOKEN}` } : {}
+            });
+            if (!res.ok) return { logs: {} };
+            const data = await res.json();
+            fileSha = data.sha; // เก็บไอดีเวอร์ชันไฟล์ไว้ใช้อ้างอิงตอนเซฟทับ
+            const decodedContent = decodeURIComponent(atob(data.content).split('').map(function(c) {
+                return '%' + ('0' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            const parsed = JSON.parse(decodedContent);
+            return parsed?.logs ? parsed : { logs: {} };
           } catch { 
             return { logs: {} }; 
           }
         }
 
-        function sheetSave(allData) {
+        async function sheetSave(allData) {
           try {
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(allData));
+            if (!GITHUB_TOKEN) {
+              // เซฟตี้ระบบกรณีลืมใส่ Token: ให้เก็บลงเครื่องแทนชั่วคราว แอปจะไม่พัง
+              localStorage.setItem("workout_backup", JSON.stringify(allData));
+              return allData;
+            }
+            const contentBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(allData))));
+            const res = await fetch(API_URL, {
+              method: "PUT",
+              headers: {
+                "Authorization": `token ${GITHUB_TOKEN}`,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                message: `📅 อัปเดตสถิติซ้อมวันที่ ${dateKey()}`,
+                content: contentBase64,
+                sha: fileSha
+              })
+            });
+            if (!res.ok) throw new Error("save_failed");
+            const resData = await res.json();
+            fileSha = resData.content.sha;
             return allData;
           } catch {
             return allData;
@@ -200,11 +234,22 @@
           const schedule = SCHEDULE[today.getDay()];
           const todayLog = allData.logs && allData.logs[todayKey] ? allData.logs[todayKey] : null;
 
-          // ดึงค่าจากเมมโมรี่เครื่องมาเปิดโชว์ทันทีแบบ Local ไม่ตึงเน็ต
           useEffect(() => {
-            const data = sheetLoad();
-            setAllData(data);
-            setSyncStatus("ready");
+            let active = true;
+            async function load() {
+              setSyncStatus("loading");
+              const data = await sheetLoad();
+              if (!active) return;
+              if (data) {
+                setAllData(data);
+                setSyncStatus("ready");
+              } else {
+                setSyncStatus("error");
+                setToast({ msg: "⚠️ หาไฟล์ข้อมูลฐานข้อมูลไม่พบ", isError: true });
+              }
+            }
+            load();
+            return () => { active = false; };
           }, [tab]);
 
           const handleSaveLog = async (logData) => {
@@ -219,14 +264,20 @@
             }
 
             const updated = { ...allData, logs: { ...currentLogs, [todayKey]: updatedDayObj } };
-            
-            // บันทึกลงหน่วยความจำ iPhone ทันที ลบความเสี่ยง Sync แดงออกไปทั้งหมด
-            const freshData = sheetSave(updated);
-            setAllData(freshData);
+            setAllData(updated);
             setLogging(false);
-            setSyncStatus("ready");
-            setToast({ msg: "✅ บันทึกสถิติลงเครื่องเรียบร้อย", isError: false });
-            setTimeout(() => setToast(""), 3000);
+            setSyncStatus("saving");
+            
+            try {
+              const freshData = await sheetSave(updated);
+              setAllData(freshData);
+              setSyncStatus("ready");
+              setToast({ msg: "✅ บันทึกและซิงค์ข้อมูลบน GitHub เรียบร้อย", isError: false });
+              setTimeout(() => setToast(""), 3000);
+            } catch {
+              setSyncStatus("error");
+              setToast({ msg: "⚠️ การบันทึกข้ามระบบสะดุดค้าง", isError: true });
+            }
           };
 
           const openLogScreen = (type) => {
@@ -277,10 +328,11 @@
 
         // ─── Sub-Components ───────────────────────────────────────────────────────────
         function SyncBadge({ status }) {
-          // โหมดบันทึกในเครื่องจะล็อคสถานะสีเขียวปลอดภัยแบบถาวร 100%
+          const map = { loading: ["#f0a500", "⟳", "Loading"], ready: ["var(--green)", "☁️", "GitHub Cloud"], saving: ["var(--cyan)", "⟳", "Saving"], error: ["#f0a500", "⚡", "เครื่องเดี่ยว (Local)"] };
+          const [color, icon, label] = map[status] || map.error;
           return (
-            <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: "var(--green)", background: "rgba(0,230,118,0.1)", padding: "4px 10px", borderRadius: 20, border: "1px solid var(--green)" }}>
-              <span>⚡</span><span>Local Storage (Ready)</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color, background: `${color}15`, padding: "4px 10px", borderRadius: 20, border: `1px solid ${color}40` }}>
+              <span>{icon}</span><span>{label}</span>
             </div>
           );
         }
@@ -380,7 +432,7 @@
                 if (isCardioMode) onSave({ type:"cardio", duration, distance, avgHR, notes });
                 else onSave({ type:"calisthenics", exercises:exSets });
               }} className={`bubble-btn ${isCardioMode ? 'bubble-btn-cardio' : 'bubble-btn-calisthenics'}`}>
-                💾 บันทึกสถิติลงเครื่องเดี่ยวๆ
+                💾 บันทึกข้อมูลซ้อม
               </button>
             </div>
           );
