@@ -10,6 +10,18 @@
         "notes": "indoor",
         "id": "sess_1779172075242",
         "createdAt": "2026-05-18T19:28:55.242Z"
+      },
+      {
+        "id": "strava_18554088332",
+        "type": "cardio",
+        "duration": 35,
+        "distance": 3.61,
+        "avgHR": 142.6,
+        "calories": 0,
+        "notes": "Indoor run",
+        "source": "Strava",
+        "sourceId": "18554088332",
+        "createdAt": "2026-05-19T07:48:51.855Z"
       }
     ],
     "2026-05-19": [
