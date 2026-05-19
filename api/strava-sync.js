@@ -27,7 +27,7 @@ module.exports = async function handler(req, res) {
 
     // 2) get latest Strava activity
     const activityRes = await fetch(
-      "https://www.strava.com/api/v3/athlete/activities?per_page=300",
+      "https://www.strava.com/api/v3/athlete/activities?per_page=200",
       {
         headers: {
           Authorization: "Bearer " + tokenData.access_token
@@ -43,7 +43,57 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    const latest = activities[0];
+    for (const latest of activities) {
+
+  const logDate =
+    latest.start_date_local
+      ? latest.start_date_local.slice(0,10)
+      : latest.start_date.slice(0,10);
+
+  if (!current.logs[logDate]) {
+    current.logs[logDate] = [];
+  }
+
+  if (!Array.isArray(current.logs[logDate])) {
+    current.logs[logDate] = [
+      current.logs[logDate]
+    ];
+  }
+
+  const exists =
+    current.logs[logDate].some(
+      s =>
+        String(s.sourceId) ===
+        String(latest.id)
+    );
+
+  if (exists) {
+    continue;
+  }
+
+  current.logs[logDate].push({
+    id: "strava_" + latest.id,
+    type: "cardio",
+    duration: Math.round(
+      latest.moving_time / 60
+    ),
+    distance: Number(
+      (latest.distance / 1000).toFixed(2)
+    ),
+    avgHR:
+      latest.average_heartrate || 0,
+    calories:
+      latest.calories || 0,
+    notes:
+      latest.name ||
+      "Strava Workout",
+    source: "Strava",
+    sourceId: String(latest.id),
+    createdAt:
+      new Date().toISOString()
+  });
+
+}
     const logDate = latest.start_date_local
       ? latest.start_date_local.slice(0, 10)
       : latest.start_date.slice(0, 10);
@@ -125,12 +175,12 @@ module.exports = async function handler(req, res) {
     const updateData = await updateRes.json();
 
     return res.status(200).json({
-      success: true,
-      message: "Strava synced",
-      date: logDate,
-      workout: latest.name,
-      update: updateData
-    });
+  success: true,
+  message:
+    "Imported " +
+    activities.length +
+    " activities"
+});
 
   } catch (err) {
     return res.status(500).json({
