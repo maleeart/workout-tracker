@@ -1,932 +1,580 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport"
-content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Calisthenics & Zone 2</title>
 
-<title>Calisthenics & Zone 2 v2</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;900&family=Barlow+Condensed:wght@600;700;900&display=swap');
 
-<script src="https://unpkg.com/recharts/umd/Recharts.min.js"></script>
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body { background: #080c14; color: #e8edf5; font-family: 'Barlow', sans-serif; min-height: 100vh; }
+    :root {
+      --cyan:#00d4ff; --orange:#ff6b2b; --green:#00e676; --purple:#a855f7; --danger:#ff4757;
+      --card:#101824; --card2:#141e2c; --border:rgba(255,255,255,0.08); --text2:#7a8fa8;
+    }
+    button, input, textarea { font-family: inherit; }
+    input:focus, textarea:focus { outline: 2px solid var(--cyan); }
 
-<style>
-
-@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700;900&display=swap');
-
-*{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-  -webkit-tap-highlight-color:transparent;
-}
-
-body{
-  background:#080c14;
-  color:#fff;
-  font-family:'Barlow',sans-serif;
-}
-
-:root{
-  --cyan:#00d4ff;
-  --green:#00e676;
-  --orange:#ff6b2b;
-  --card:#101824;
-  --card2:#141e2c;
-  --border:rgba(255,255,255,.06);
-  --text2:#7a8fa8;
-}
-
-.app{
-  max-width:430px;
-  margin:auto;
-  min-height:100vh;
-  padding-bottom:110px;
-}
-
-.header{
-  padding:22px 16px;
-}
-
-.title{
-  font-family:'Barlow Condensed';
-  font-size:28px;
-  font-weight:900;
-}
-
-.section{
-  padding:0 14px;
-}
-
-.card{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:20px;
-  padding:16px;
-  margin-bottom:14px;
-}
-
-.row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-}
-
-.btn{
-  border:none;
-  border-radius:16px;
-  padding:14px;
-  width:100%;
-  color:#fff;
-  font-weight:700;
-  margin-bottom:10px;
-}
-
-.btn-blue{
-  background:linear-gradient(135deg,#00d4ff,#0077ff);
-}
-
-.btn-orange{
-  background:linear-gradient(135deg,#ff6b2b,#ff3d00);
-}
-
-.small{
-  font-size:12px;
-  color:var(--text2);
-}
-
-.big{
-  font-size:26px;
-  font-weight:900;
-  font-family:'Barlow Condensed';
-}
-
-.bottom{
-  position:fixed;
-  bottom:0;
-  left:50%;
-  transform:translateX(-50%);
-  width:100%;
-  max-width:430px;
-  background:rgba(10,16,32,.94);
-  backdrop-filter:blur(12px);
-  display:flex;
-  border-top:1px solid var(--border);
-}
-
-.tab{
-  flex:1;
-  padding:12px 0;
-  border:none;
-  background:none;
-  color:var(--text2);
-  font-size:11px;
-  font-weight:700;
-}
-
-.tab.active{
-  color:var(--cyan);
-}
-
-.input{
-  width:100%;
-  background:var(--card2);
-  border:1px solid var(--border);
-  color:#fff;
-  border-radius:14px;
-  padding:14px;
-  margin-bottom:10px;
-}
-
-.session{
-  background:var(--card2);
-  border-radius:16px;
-  padding:14px;
-  margin-bottom:10px;
-}
-
-.tag{
-  display:inline-block;
-  background:#00e67620;
-  color:var(--green);
-  border:1px solid #00e67640;
-  padding:4px 10px;
-  border-radius:20px;
-  font-size:11px;
-  margin-bottom:10px;
-}
-
-.ai{
-  background:linear-gradient(135deg,#1a0d2e,#0d1a2e);
-  border:1px solid #a855f740;
-}
-
-.recovery{
-  width:90px;
-  height:90px;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  margin:auto;
-  font-size:26px;
-  font-weight:900;
-  font-family:'Barlow Condensed';
-  background:rgba(0,230,118,.12);
-  border:2px solid var(--green);
-}
-
-</style>
+    .app { width: 100%; max-width: 430px; margin: 0 auto; min-height: 100vh; padding: env(safe-area-inset-top, 18px) 0 calc(env(safe-area-inset-bottom, 16px) + 82px); }
+    .header { padding: 16px 16px 10px; display: flex; justify-content: space-between; align-items: center; }
+    .title { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 900; letter-spacing: .3px; }
+    .badge { font-size: 11px; color: var(--green); background: rgba(0,230,118,.1); border: 1px solid rgba(0,230,118,.35); border-radius: 999px; padding: 5px 10px; }
+    .section { padding: 0 12px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 16px; margin-bottom: 14px; }
+    .card2 { background: var(--card2); border: 1px solid var(--border); border-radius: 15px; padding: 14px; margin-bottom: 10px; }
+    .muted { color: var(--text2); font-size: 12px; }
+    .label { color: var(--text2); font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; }
+    .big { font-family: 'Barlow Condensed', sans-serif; font-size: 30px; font-weight: 900; }
+    .row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .btn { width: 100%; border: 0; border-radius: 999px; padding: 14px 16px; color: #fff; font-weight: 900; font-size: 15px; letter-spacing: .5px; margin-bottom: 10px; }
+    .btn:active { transform: scale(.98); }
+    .btn-blue { background: linear-gradient(135deg, #00d4ff, #008cb3); box-shadow: 0 8px 24px rgba(0,212,255,.22); }
+    .btn-orange { background: linear-gradient(135deg, #ff6b2b, #cc3f00); box-shadow: 0 8px 24px rgba(255,107,43,.22); }
+    .btn-dark { background: #253044; }
+    .btn-red { background: #ff4757; }
+    .btn-small { border: 0; border-radius: 12px; padding: 8px 10px; color: #fff; background: #253044; font-size: 12px; font-weight: 800; }
+    .input { width: 100%; background: var(--card2); border: 1px solid var(--border); border-radius: 12px; padding: 13px 14px; color: #fff; margin-bottom: 10px; font-size: 15px; }
+    .tag { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 800; margin-bottom: 8px; }
+    .tag-cardio { color: var(--cyan); background: rgba(0,212,255,.1); border: 1px solid rgba(0,212,255,.35); }
+    .tag-strength { color: var(--orange); background: rgba(255,107,43,.1); border: 1px solid rgba(255,107,43,.35); }
+    .tag-strava { color: var(--purple); background: rgba(168,85,247,.1); border: 1px solid rgba(168,85,247,.35); }
+    .recovery-circle { width: 94px; height: 94px; margin: 12px auto; border-radius: 50%; border: 3px solid var(--green); background: rgba(0,230,118,.1); display:flex; align-items:center; justify-content:center; color: var(--green); font-family:'Barlow Condensed'; font-size: 30px; font-weight: 900; }
+    .ai-card { background: linear-gradient(135deg, #1a0d2e, #0d1a2e); border-color: rgba(168,85,247,.35); }
+    .bottom-nav { position: fixed; left: 50%; bottom: 0; transform: translateX(-50%); width: 100%; max-width: 430px; background: rgba(10,16,32,.95); backdrop-filter: blur(14px); border-top: 1px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom, 10px); z-index: 20; }
+    .tab { flex: 1; border: 0; background: none; color: var(--text2); padding: 10px 0 8px; display:flex; flex-direction:column; align-items:center; gap:2px; font-size: 10px; font-weight: 800; }
+    .tab span:first-child { font-size: 19px; }
+    .tab.active { color: var(--cyan); }
+    .chart { width: 100%; height: 190px; background: #0b111c; border-radius: 14px; overflow: hidden; border: 1px solid var(--border); }
+    .toast { margin: 0 12px 12px; border-radius: 12px; padding: 11px 13px; font-size: 13px; border: 1px solid rgba(0,230,118,.35); background: rgba(0,230,118,.08); color: var(--green); }
+    .toast.error { color: var(--danger); background: rgba(255,71,87,.08); border-color: rgba(255,71,87,.35); }
+  </style>
 </head>
-
 <body>
+  <div id="root"></div>
 
-<div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
 
-<script type="text/babel">
+    const EXERCISES = [
+      { id: "aus_pull", name: "Australian Pull-Ups", icon: "🏋️" },
+      { id: "neg_pull", name: "Negative Pull-Ups", icon: "⬇️" },
+      { id: "dec_push", name: "Decline Push-Ups", icon: "💪" },
+      { id: "pike_push", name: "Incline Pike Push-Ups", icon: "🔺" },
+      { id: "knee_raise", name: "Hanging Knee Raises", icon: "🦵" },
+      { id: "squats", name: "Bodyweight Squats", icon: "🦴" },
+    ];
 
-const {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer
-} = Recharts;
+    const DAYS_TH = ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"];
+    const FALLBACK_KEY = "workout_tracker_v2_fallback";
 
-const STORAGE_KEY = "fitness_v2";
-
-const EXERCISES = [
-  {
-    id:"aus_pull",
-    name:"Australian Pull-Ups"
-  },
-  {
-    id:"pushup",
-    name:"Push-Ups"
-  },
-  {
-    id:"squat",
-    name:"Squats"
-  }
-];
-
-function loadData(){
-
-  try{
-
-    const raw = localStorage.getItem(STORAGE_KEY);
-
-    if(!raw){
-      return { logs:{} };
+    function dateKey(d = new Date()) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
     }
 
-    return JSON.parse(raw);
-
-  }catch{
-
-    return { logs:{} };
-
-  }
-
-}
-
-function saveData(data){
-
-  localStorage.setItem(
-    STORAGE_KEY,
-    JSON.stringify(data)
-  );
-
-}
-
-function calculateRecovery(logs){
-
-  const all = Object.values(logs).flat();
-
-  if(all.length === 0){
-    return 100;
-  }
-
-  let score = 100;
-
-  const recent = all.slice(-5);
-
-  recent.forEach(session => {
-
-    if(session.type === "cardio"){
-
-      const hr = Number(session.avgHR || 0);
-
-      if(hr > 155){
-        score -= 14;
-      }else if(hr > 148){
-        score -= 7;
-      }
-
+    function normalizeDay(value) {
+      if (!value) return [];
+      if (Array.isArray(value)) return value.filter(Boolean);
+      if (typeof value === "object") return [{ ...value, id: value.id || "legacy_" + Date.now() }];
+      return [];
     }
 
-  });
+    function normalizeData(data) {
+      const out = { logs: {} };
+      const logs = data && data.logs ? data.logs : {};
+      Object.keys(logs).forEach(k => { out.logs[k] = normalizeDay(logs[k]); });
+      return out;
+    }
 
-  return Math.max(25,Math.min(100,score));
-
-}
-
-function generateCoachMessage(recovery){
-
-  if(recovery < 45){
-    return "Recovery ต่ำ แนะนำพักหรือเดินเบา";
-  }
-
-  if(recovery < 70){
-    return "เหมาะกับ Zone 2 เบาๆ";
-  }
-
-  return "ร่างกายพร้อมสำหรับ strength training";
-}
-
-function pace(duration,distance){
-
-  if(!duration || !distance){
-    return "--";
-  }
-
-  const sec = (duration * 60) / distance;
-
-  const m = Math.floor(sec / 60);
-
-  const s = Math.round(sec % 60);
-
-  return m + ":" + (s < 10 ? "0"+s : s);
-
-}
-
-function App(){
-
-  const [tab,setTab] = React.useState("today");
-
-  const [data,setData] = React.useState({
-    logs:{}
-  });
-
-  const [showForm,setShowForm] =
-    React.useState(false);
-
-  const [type,setType] =
-    React.useState("cardio");
-
-  React.useEffect(() => {
-
-    setData(loadData());
-
-  },[]);
-
-  const todayKey =
-    new Date().toISOString().slice(0,10);
-
-  const rawToday =
-    data.logs?.[todayKey];
-
-  const sessions =
-    Array.isArray(rawToday)
-      ? rawToday
-      : rawToday
-        ? [rawToday]
-        : [];
-
-  const recovery =
-    calculateRecovery(data.logs);
-
-  const coach =
-    generateCoachMessage(recovery);
-
-  function addSession(payload){
-
-    const current =
-      data.logs?.[todayKey] || [];
-
-    const next = {
-      ...data,
-      logs:{
-        ...data.logs,
-        [todayKey]:[
-          ...current,
-          {
-            ...payload,
-            id:"sess_"+Date.now(),
-            createdAt:new Date().toISOString()
-          }
-        ]
+    async function sheetLoad() {
+      try {
+        const res = await fetch("/api/load", { cache: "no-store" });
+        if (!res.ok) throw new Error("Load API failed");
+        const data = await res.json();
+        return normalizeData(data);
+      } catch (err) {
+        try {
+          const raw = localStorage.getItem(FALLBACK_KEY);
+          return normalizeData(raw ? JSON.parse(raw) : { logs: {} });
+        } catch {
+          return { logs: {} };
+        }
       }
-    };
+    }
 
-    setData(next);
-
-    saveData(next);
-
-    setShowForm(false);
-
-  }
-
-  function deleteSession(id){
-
-    const current =
-      data.logs?.[todayKey] || [];
-
-    const filtered =
-      current.filter(x => x.id !== id);
-
-    const next = {
-      ...data,
-      logs:{
-        ...data.logs,
-        [todayKey]:filtered
+    async function sheetSave(allData) {
+      const normalized = normalizeData(allData);
+      localStorage.setItem(FALLBACK_KEY, JSON.stringify(normalized));
+      try {
+        const res = await fetch("/api/save", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(normalized),
+        });
+        if (!res.ok) throw new Error("Save API failed");
+        return normalized;
+      } catch (err) {
+        console.warn("Cloud save failed, saved fallback only", err);
+        return normalized;
       }
-    };
+    }
 
-    setData(next);
+    async function syncStravaLatest() {
+      const res = await fetch("/api/strava-sync", { cache: "no-store" });
+      if (!res.ok) throw new Error("Strava sync failed");
+      return await res.json();
+    }
 
-    saveData(next);
+    function calculatePace(duration, distance) {
+      const d = Number(distance || 0);
+      const t = Number(duration || 0);
+      if (!d || !t) return "—";
+      const totalSeconds = (t * 60) / d;
+      const m = Math.floor(totalSeconds / 60);
+      const s = Math.round(totalSeconds % 60);
+      return `${m}:${String(s).padStart(2, "0")}`;
+    }
 
-  }
+    function paceDecimal(duration, distance) {
+      const d = Number(distance || 0);
+      const t = Number(duration || 0);
+      if (!d || !t) return null;
+      return t / d;
+    }
 
-  const cardioData =
-    Object.entries(data.logs)
-      .map(([date,sessions]) => {
+    function allSessions(logs) {
+      return Object.entries(logs || {})
+        .flatMap(([date, sessions]) => normalizeDay(sessions).map(s => ({ ...s, date })))
+        .sort((a, b) => String(a.date).localeCompare(String(b.date)) || String(a.createdAt || "").localeCompare(String(b.createdAt || "")));
+    }
 
-        const cardio =
-          sessions.find(
-            s => s.type === "cardio"
-          );
+    function calculateRecovery(logs) {
+      const sessions = allSessions(logs).slice(-8);
+      if (!sessions.length) return 100;
+      let score = 100;
+      const cardio = sessions.filter(s => s.type === "cardio");
+      const recentMinutes = sessions.reduce((sum, s) => sum + Number(s.duration || 0), 0);
+      cardio.forEach(s => {
+        const hr = Number(s.avgHR || 0);
+        if (hr >= 160) score -= 14;
+        else if (hr >= 151) score -= 8;
+        else if (hr >= 145) score -= 3;
+      });
+      if (recentMinutes > 260) score -= 14;
+      else if (recentMinutes > 180) score -= 7;
+      const today = dateKey();
+      const todaySessions = normalizeDay((logs || {})[today]);
+      if (todaySessions.length >= 2) score -= 8;
+      return Math.max(25, Math.min(100, Math.round(score)));
+    }
 
-        return {
-          date:date.slice(5),
-          pace:cardio
-            ? Number(
-                (
-                  cardio.duration /
-                  cardio.distance
-                ).toFixed(2)
-              )
-            : null
-        };
+    function coachMessage(logs) {
+      const recovery = calculateRecovery(logs);
+      const sessions = allSessions(logs);
+      const latest = sessions[sessions.length - 1];
+      if (!latest) return "เริ่มบันทึก session แรก แล้วระบบจะเริ่มวิเคราะห์ readiness และ progression ให้ครับ";
+      if (recovery < 45) return "Recovery ต่ำ วันนี้แนะนำพัก เดินเบา ๆ หรือ mobility 15–20 นาที เพื่อกันล้าสะสม";
+      if (latest.type === "cardio" && Number(latest.avgHR || 0) > 150) return "Cardio ล่าสุด HR สูงกว่า Zone 2 เล็กน้อย รอบหน้าลองลด pace ลง เพื่อให้ฐานแอโรบิกนิ่งขึ้น";
+      if (recovery < 70) return "วันนี้เหมาะกับ Zone 2 เบา ๆ หรือ strength volume กลาง ๆ ยังไม่ควรอัดหนักมาก";
+      return "ร่างกายพร้อมซ้อมดี วันนี้เล่น strength หรือ Zone 2 ตามตารางได้ครับ";
+    }
 
-      })
-      .filter(x => x.pace);
+    function paceAI(logs) {
+      const cardio = allSessions(logs).filter(s => s.type === "cardio" && Number(s.distance) > 0 && Number(s.duration) > 0);
+      if (cardio.length < 2) return "ยังมีข้อมูล cardio ไม่พอสำหรับวิเคราะห์ pace progression";
+      const first = paceDecimal(cardio[0].duration, cardio[0].distance);
+      const last = paceDecimal(cardio[cardio.length - 1].duration, cardio[cardio.length - 1].distance);
+      if (!first || !last) return "ข้อมูล pace ยังไม่สมบูรณ์";
+      const diff = ((first - last) / first) * 100;
+      if (diff > 3) return `Pace ดีขึ้นประมาณ ${diff.toFixed(1)}% จากข้อมูล cardio ที่มี ถือว่า aerobic efficiency กำลังดีขึ้น`;
+      if (diff < -3) return `Pace ช้าลงประมาณ ${Math.abs(diff).toFixed(1)}% อาจเกิดจากความล้าหรือคุม HR เข้มขึ้น`;
+      return "Pace ค่อนข้างนิ่ง เหมาะกับการสร้าง Zone 2 base ต่อเนื่อง";
+    }
 
-  return(
+    function chartPoints(items, key) {
+      const values = items.map(x => Number(x[key])).filter(v => Number.isFinite(v));
+      if (!values.length) return "";
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const range = max - min || 1;
+      return items.map((x, i) => {
+        const v = Number(x[key]);
+        const px = 18 + (i * (264 / Math.max(1, items.length - 1)));
+        const py = 150 - ((v - min) / range) * 115;
+        return `${px},${py}`;
+      }).join(" ");
+    }
 
-    <div className="app">
+    function App() {
+      const [tab, setTab] = useState("today");
+      const [data, setData] = useState({ logs: {} });
+      const [loading, setLoading] = useState(true);
+      const [toast, setToast] = useState(null);
+      const [form, setForm] = useState(null);
+      const [editing, setEditing] = useState(null);
 
-      <div className="header">
+      const today = dateKey();
+      const todaySessions = normalizeDay(data.logs[today]);
+      const recovery = calculateRecovery(data.logs);
 
-        <div className="title">
-          Calisthenics & Zone 2
-        </div>
+      useEffect(() => {
+        (async () => {
+          const loaded = await sheetLoad();
+          setData(loaded);
+          setLoading(false);
+        })();
+      }, []);
 
-      </div>
+      function notify(msg, error = false) {
+        setToast({ msg, error });
+        setTimeout(() => setToast(null), 3000);
+      }
 
-      <div className="section">
+      async function persist(next, msg) {
+        setData(next);
+        await sheetSave(next);
+        notify(msg || "บันทึกสำเร็จ");
+      }
 
-        {tab === "today" && (
+      async function saveSession(payload) {
+        const targetDate = editing?.date || today;
+        const current = normalizeDay(data.logs[targetDate]);
+        let nextSessions;
+        if (editing) {
+          nextSessions = current.map(s => s.id === editing.session.id ? { ...s, ...payload, id: s.id, updatedAt: new Date().toISOString() } : s);
+        } else {
+          nextSessions = [...current, { ...payload, id: "sess_" + Date.now(), createdAt: new Date().toISOString() }];
+        }
+        const next = { ...data, logs: { ...data.logs, [targetDate]: nextSessions } };
+        setForm(null);
+        setEditing(null);
+        await persist(next, editing ? "แก้ไข session แล้ว" : "เพิ่ม session แล้ว");
+      }
 
-          <>
+      async function deleteSession(date, id) {
+        const current = normalizeDay(data.logs[date]);
+        const next = { ...data, logs: { ...data.logs, [date]: current.filter(s => s.id !== id) } };
+        await persist(next, "ลบ session แล้ว");
+      }
 
-            <div className="card ai">
+      async function duplicateSession(date, session) {
+        const current = normalizeDay(data.logs[date]);
+        const copy = { ...session, id: "sess_" + Date.now(), createdAt: new Date().toISOString(), source: session.source ? session.source + " Copy" : "Copy" };
+        const next = { ...data, logs: { ...data.logs, [date]: [...current, copy] } };
+        await persist(next, "Duplicate session แล้ว");
+      }
 
-              <div className="small">
-                RECOVERY SCORE
-              </div>
+      async function importStrava() {
+        try {
+          const s = await syncStravaLatest();
+          if (s.error || s.message) throw new Error(s.error || s.message);
+          const date = s.date ? String(s.date).slice(0, 10) : today;
+          const current = normalizeDay(data.logs[date]);
+          const exists = current.some(x => x.sourceId && s.id && x.sourceId === s.id);
+          if (exists) return notify("Workout นี้เคย sync แล้ว", true);
+          const session = {
+            id: "strava_" + Date.now(),
+            type: "cardio",
+            duration: Number(s.duration || 0),
+            distance: Number(s.distance || 0),
+            avgHR: Number(s.avgHR || 0),
+            calories: Number(s.calories || 0),
+            notes: s.workout || "Strava Workout",
+            source: "Strava",
+            sourceId: s.id || "",
+            createdAt: new Date().toISOString(),
+          };
+          const next = { ...data, logs: { ...data.logs, [date]: [...current, session] } };
+          await persist(next, "Sync Strava สำเร็จ");
+        } catch (err) {
+          notify("Sync Strava ไม่สำเร็จ: " + err.message, true);
+        }
+      }
 
-              <div style={{height:14}}/>
+      if (loading) {
+        return <div className="app"><div className="header"><div className="title">Loading...</div></div></div>;
+      }
 
-              <div className="recovery">
-                {recovery}%
-              </div>
-
-              <div style={{height:14}}/>
-
-              <div
-                style={{
-                  textAlign:"center",
-                  fontWeight:700
-                }}
-              >
-                {coach}
-              </div>
-
+      return (
+        <div className="app">
+          <div className="header">
+            <div>
+              <div className="title">Calisthenics & Zone 2</div>
+              <div className="muted">Multi-session cloud tracker</div>
             </div>
+            <div className="badge">GitHub DB</div>
+          </div>
 
-            <div className="card">
+          {toast && <div className={"toast " + (toast.error ? "error" : "")}>{toast.msg}</div>}
 
-              <button
-                className="btn btn-blue"
-                onClick={() => {
-                  setType("cardio");
-                  setShowForm(true);
-                }}
-              >
-                🏃 Add Cardio
-              </button>
-
-              <button
-                className="btn btn-orange"
-                onClick={() => {
-                  setType("strength");
-                  setShowForm(true);
-                }}
-              >
-                💪 Add Strength
-              </button>
-
-            </div>
-
-            {showForm && (
-
-              <Form
-                type={type}
-                onSave={addSession}
-                onCancel={() => setShowForm(false)}
+          <div className="section">
+            {tab === "today" && (
+              <TodayScreen
+                sessions={todaySessions}
+                recovery={recovery}
+                coach={coachMessage(data.logs)}
+                paceText={paceAI(data.logs)}
+                onAddCardio={() => { setEditing(null); setForm("cardio"); }}
+                onAddStrength={() => { setEditing(null); setForm("strength"); }}
+                onSyncStrava={importStrava}
+                onEdit={(session) => { setEditing({ date: today, session }); setForm(session.type === "cardio" ? "cardio" : "strength"); }}
+                onDelete={(id) => deleteSession(today, id)}
+                onDuplicate={(session) => duplicateSession(today, session)}
               />
-
             )}
 
-            <div className="card">
+            {tab === "history" && <HistoryScreen logs={data.logs} onDelete={deleteSession} onDuplicate={duplicateSession} onEdit={(date, session) => { setEditing({ date, session }); setForm(session.type === "cardio" ? "cardio" : "strength"); setTab("today"); }} />}
+            {tab === "analytics" && <AnalyticsScreen logs={data.logs} />}
+            {tab === "coach" && <CoachScreen logs={data.logs} />}
+            {tab === "stats" && <StatsScreen logs={data.logs} />}
+          </div>
 
-              <div className="row">
+          {form && (
+            <Modal>
+              <SessionForm
+                type={form}
+                existing={editing?.session || null}
+                onSave={saveSession}
+                onCancel={() => { setForm(null); setEditing(null); }}
+              />
+            </Modal>
+          )}
 
-                <div
-                  style={{
-                    fontWeight:700
-                  }}
-                >
-                  Today's Sessions
-                </div>
-
-                <div className="small">
-                  {sessions.length} sessions
-                </div>
-
-              </div>
-
-            </div>
-
-            {sessions.map(session => (
-
-              <div
-                key={session.id}
-                className="section"
-              >
-
-                <div className="session">
-
-                  <div className="tag">
-                    {session.type}
-                  </div>
-
-                  {session.type === "cardio" ? (
-
-                    <>
-
-                      <div
-                        style={{
-                          fontWeight:700,
-                          marginBottom:10
-                        }}
-                      >
-                        🏃 Cardio Session
-                      </div>
-
-                      <div className="small">
-                        Duration:
-                        {" "}
-                        {session.duration}
-                        {" "}
-                        min
-                      </div>
-
-                      <div className="small">
-                        Distance:
-                        {" "}
-                        {session.distance}
-                        {" "}
-                        km
-                      </div>
-
-                      <div className="small">
-                        HR:
-                        {" "}
-                        {session.avgHR}
-                      </div>
-
-                      <div className="small">
-                        Pace:
-                        {" "}
-                        {pace(
-                          session.duration,
-                          session.distance
-                        )}
-                      </div>
-
-                    </>
-
-                  ) : (
-
-                    <>
-
-                      <div
-                        style={{
-                          fontWeight:700,
-                          marginBottom:10
-                        }}
-                      >
-                        💪 Strength Session
-                      </div>
-
-                      {Object.entries(
-                        session.exercises || {}
-                      ).map(([k,v]) => (
-
-                        <div
-                          key={k}
-                          className="small"
-                        >
-                          {k}
-                          :
-                          {" "}
-                          {v.join("/")}
-                        </div>
-
-                      ))}
-
-                    </>
-
-                  )}
-
-                  <div style={{height:10}}/>
-
-                  <button
-                    className="btn"
-                    style={{
-                      background:"#ff4757"
-                    }}
-                    onClick={() => {
-                      deleteSession(session.id);
-                    }}
-                  >
-                    Delete
-                  </button>
-
-                </div>
-
-              </div>
-
+          <div className="bottom-nav">
+            {[
+              ["today", "📅", "TODAY"],
+              ["history", "📊", "HISTORY"],
+              ["analytics", "📈", "CHARTS"],
+              ["coach", "🧠", "COACH"],
+              ["stats", "🏆", "STATS"],
+            ].map(([id, icon, label]) => (
+              <button key={id} className={"tab " + (tab === id ? "active" : "")} onClick={() => setTab(id)}><span>{icon}</span><span>{label}</span></button>
             ))}
+          </div>
+        </div>
+      );
+    }
 
-          </>
-
-        )}
-
-        {tab === "analytics" && (
+    function TodayScreen({ sessions, recovery, coach, paceText, onAddCardio, onAddStrength, onSyncStrava, onEdit, onDelete, onDuplicate }) {
+      return (
+        <>
+          <div className="card ai-card">
+            <div className="label">Readiness / Recovery</div>
+            <div className="recovery-circle">{recovery}%</div>
+            <div style={{ textAlign: "center", fontWeight: 800, lineHeight: 1.45 }}>{coach}</div>
+            <div className="muted" style={{ textAlign: "center", marginTop: 8 }}>{paceText}</div>
+          </div>
 
           <div className="card">
-
-            <div
-              style={{
-                fontWeight:700,
-                marginBottom:14
-              }}
-            >
-              📈 Pace Trend
-            </div>
-
-            <div style={{height:260}}>
-
-              <ResponsiveContainer
-                width="100%"
-                height="100%"
-              >
-
-                <LineChart data={cardioData}>
-
-                  <XAxis dataKey="date"/>
-
-                  <YAxis/>
-
-                  <Tooltip/>
-
-                  <Line
-                    type="monotone"
-                    dataKey="pace"
-                    stroke="#00d4ff"
-                    strokeWidth={3}
-                  />
-
-                </LineChart>
-
-              </ResponsiveContainer>
-
-            </div>
-
+            <button className="btn btn-blue" onClick={onSyncStrava}>🔄 Sync Latest Strava</button>
+            <button className="btn btn-blue" onClick={onAddCardio}>🏃 Add Cardio</button>
+            <button className="btn btn-orange" onClick={onAddStrength}>💪 Add Strength</button>
           </div>
 
-        )}
-
-        {tab === "coach" && (
-
-          <div className="card ai">
-
-            <div
-              style={{
-                fontWeight:700,
-                marginBottom:10
-              }}
-            >
-              🧠 AI Coach
-            </div>
-
-            <div
-              style={{
-                lineHeight:1.7,
-                color:"#d9e6f2"
-              }}
-            >
-              {coach}
-            </div>
-
+          <div className="card">
+            <div className="row"><b>Today's Sessions</b><span className="muted">{sessions.length} sessions</span></div>
           </div>
 
-        )}
-
-      </div>
-
-      <div className="bottom">
-
-        <button
-          className={
-            "tab " +
-            (tab === "today"
-              ? "active"
-              : "")
-          }
-          onClick={() => setTab("today")}
-        >
-          TODAY
-        </button>
-
-        <button
-          className={
-            "tab " +
-            (tab === "analytics"
-              ? "active"
-              : "")
-          }
-          onClick={() => setTab("analytics")}
-        >
-          ANALYTICS
-        </button>
-
-        <button
-          className={
-            "tab " +
-            (tab === "coach"
-              ? "active"
-              : "")
-          }
-          onClick={() => setTab("coach")}
-        >
-          AI COACH
-        </button>
-
-      </div>
-
-    </div>
-
-  );
-
-}
-
-function Form({
-  type,
-  onSave,
-  onCancel
-}){
-
-  const [duration,setDuration] =
-    React.useState("");
-
-  const [distance,setDistance] =
-    React.useState("");
-
-  const [avgHR,setAvgHR] =
-    React.useState("");
-
-  const [exercises,setExercises] =
-    React.useState({
-      aus_pull:["","",""],
-      pushup:["","",""],
-      squat:["","",""]
-    });
-
-  return(
-
-    <div className="card">
-
-      <div
-        style={{
-          fontWeight:700,
-          marginBottom:14
-        }}
-      >
-        Add Session
-      </div>
-
-      {type === "cardio" ? (
-
-        <>
-
-          <input
-            className="input"
-            placeholder="Duration"
-            value={duration}
-            onChange={e =>
-              setDuration(e.target.value)
-            }
-          />
-
-          <input
-            className="input"
-            placeholder="Distance"
-            value={distance}
-            onChange={e =>
-              setDistance(e.target.value)
-            }
-          />
-
-          <input
-            className="input"
-            placeholder="Average HR"
-            value={avgHR}
-            onChange={e =>
-              setAvgHR(e.target.value)
-            }
-          />
-
+          {sessions.length === 0 && <div className="card"><div className="muted">ยังไม่มี session วันนี้</div></div>}
+          {sessions.map(s => <SessionCard key={s.id} session={s} onEdit={() => onEdit(s)} onDelete={() => onDelete(s.id)} onDuplicate={() => onDuplicate(s)} />)}
         </>
+      );
+    }
 
-      ) : (
-
-        EXERCISES.map(ex => (
-
-          <div key={ex.id}>
-
-            <div
-              style={{
-                marginBottom:6,
-                fontWeight:700
-              }}
-            >
-              {ex.name}
-            </div>
-
-            <div
-              style={{
-                display:"grid",
-                gridTemplateColumns:
-                  "1fr 1fr 1fr",
-                gap:8
-              }}
-            >
-
-              {[0,1,2].map(i => (
-
-                <input
-                  key={i}
-                  className="input"
-                  placeholder={
-                    "Set " + (i+1)
-                  }
-                  value={
-                    exercises[ex.id][i]
-                  }
-                  onChange={e => {
-
-                    const next = {
-                      ...exercises
-                    };
-
-                    next[ex.id][i] =
-                      e.target.value;
-
-                    setExercises(next);
-
-                  }}
-                />
-
-              ))}
-
-            </div>
-
+    function SessionCard({ session, onEdit, onDelete, onDuplicate }) {
+      const isCardio = session.type === "cardio";
+      return (
+        <div className="card2">
+          <div className={"tag " + (session.source === "Strava" ? "tag-strava" : isCardio ? "tag-cardio" : "tag-strength")}>{session.source === "Strava" ? "⚡ Strava" : isCardio ? "🏃 Cardio" : "💪 Strength"}</div>
+          {isCardio ? (
+            <>
+              <div style={{ fontWeight: 900, marginBottom: 8 }}>{session.notes || "Cardio Session"}</div>
+              <div className="grid3">
+                <MiniStat label="MIN" value={session.duration || "—"} color="var(--cyan)" />
+                <MiniStat label="KM" value={session.distance || "—"} color="var(--green)" />
+                <MiniStat label="PACE" value={calculatePace(session.duration, session.distance)} color="var(--orange)" />
+              </div>
+              <div className="muted" style={{ marginTop: 8 }}>HR {session.avgHR || "—"} bpm • Calories {session.calories || "—"}</div>
+            </>
+          ) : (
+            <>
+              <div style={{ fontWeight: 900, marginBottom: 8 }}>Strength Session</div>
+              {EXERCISES.map(ex => {
+                const sets = session.exercises?.[ex.id];
+                if (!sets || sets.every(v => !v)) return null;
+                return <div key={ex.id} className="muted">{ex.icon} {ex.name}: <b style={{ color: "var(--orange)" }}>{sets.filter(Boolean).join("/")}</b></div>;
+              })}
+            </>
+          )}
+          <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+            <button className="btn-small" onClick={onEdit}>✏️ Edit</button>
+            <button className="btn-small" onClick={onDuplicate}>📄 Copy</button>
+            <button className="btn-small" style={{ background: "#ff4757" }} onClick={onDelete}>🗑 Delete</button>
           </div>
+        </div>
+      );
+    }
 
-        ))
+    function MiniStat({ label, value, color }) {
+      return <div style={{ textAlign: "center", background: "#0b111c", borderRadius: 12, padding: 10 }}><div className="big" style={{ color }}>{value}</div><div className="muted">{label}</div></div>;
+    }
 
-      )}
+    function HistoryScreen({ logs, onDelete, onDuplicate, onEdit }) {
+      const dates = Object.keys(logs || {}).sort().reverse();
+      return (
+        <>
+          {dates.length === 0 && <div className="card"><div className="muted">ยังไม่มีประวัติ</div></div>}
+          {dates.map(date => {
+            const sessions = normalizeDay(logs[date]);
+            return (
+              <div key={date} className="card">
+                <div className="row" style={{ marginBottom: 10 }}><b>{date}</b><span className="muted">{sessions.length} sessions</span></div>
+                {sessions.map(s => <SessionCard key={s.id} session={s} onEdit={() => onEdit(date, s)} onDelete={() => onDelete(date, s.id)} onDuplicate={() => onDuplicate(date, s)} />)}
+              </div>
+            );
+          })}
+        </>
+      );
+    }
 
-      <button
-        className="btn btn-blue"
-        onClick={() => {
+    function AnalyticsScreen({ logs }) {
+      const cardio = allSessions(logs).filter(s => s.type === "cardio" && Number(s.distance) > 0 && Number(s.duration) > 0).map(s => ({
+        date: s.date.slice(5),
+        pace: Number(paceDecimal(s.duration, s.distance).toFixed(2)),
+        hr: Number(s.avgHR || 0),
+        distance: Number(s.distance || 0),
+      }));
+      return (
+        <>
+          <ChartCard title="📈 Pace Trend (min/km)" data={cardio} valueKey="pace" color="var(--cyan)" />
+          <ChartCard title="❤️ HR Trend" data={cardio.filter(x => x.hr)} valueKey="hr" color="var(--orange)" />
+          <ChartCard title="🏃 Distance Trend" data={cardio} valueKey="distance" color="var(--green)" />
+        </>
+      );
+    }
 
-          if(type === "cardio"){
+    function ChartCard({ title, data, valueKey, color }) {
+      const pts = chartPoints(data, valueKey);
+      return (
+        <div className="card">
+          <div style={{ fontWeight: 900, marginBottom: 12 }}>{title}</div>
+          {!data.length ? <div className="muted">ยังไม่มีข้อมูลพอสำหรับกราฟ</div> : (
+            <svg className="chart" viewBox="0 0 300 170">
+              <line x1="18" y1="150" x2="285" y2="150" stroke="rgba(255,255,255,.12)" />
+              <line x1="18" y1="30" x2="18" y2="150" stroke="rgba(255,255,255,.12)" />
+              <polyline points={pts} fill="none" stroke={color} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+              {pts.split(" ").map((p, i) => {
+                const [x, y] = p.split(",");
+                return <circle key={i} cx={x} cy={y} r="4" fill={color} />;
+              })}
+            </svg>
+          )}
+        </div>
+      );
+    }
 
-            onSave({
-              type:"cardio",
-              duration:Number(duration),
-              distance:Number(distance),
-              avgHR:Number(avgHR)
-            });
+    function CoachScreen({ logs }) {
+      return (
+        <>
+          <div className="card ai-card">
+            <div className="label">AI Coach รายวัน</div>
+            <div style={{ marginTop: 10, lineHeight: 1.7, fontWeight: 700 }}>{coachMessage(logs)}</div>
+          </div>
+          <div className="card">
+            <div className="label">Pace Progression AI</div>
+            <div style={{ marginTop: 10, lineHeight: 1.7 }}>{paceAI(logs)}</div>
+          </div>
+        </>
+      );
+    }
 
-          }else{
+    function StatsScreen({ logs }) {
+      const sessions = allSessions(logs);
+      const cardio = sessions.filter(s => s.type === "cardio");
+      const totalMin = sessions.reduce((sum, s) => sum + Number(s.duration || 0), 0);
+      const totalKm = cardio.reduce((sum, s) => sum + Number(s.distance || 0), 0);
+      return (
+        <div className="grid2">
+          <div className="card"><MiniStat label="SESSIONS" value={sessions.length} color="var(--orange)" /></div>
+          <div className="card"><MiniStat label="KM" value={totalKm.toFixed(1)} color="var(--green)" /></div>
+          <div className="card"><MiniStat label="MIN" value={totalMin} color="var(--cyan)" /></div>
+          <div className="card"><MiniStat label="RECOVERY" value={calculateRecovery(logs) + "%"} color="var(--purple)" /></div>
+        </div>
+      );
+    }
 
-            onSave({
-              type:"strength",
-              exercises
-            });
+    function Modal({ children }) {
+      return <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.72)", zIndex: 50, overflowY: "auto", padding: "28px 12px 120px" }}><div style={{ maxWidth: 430, margin: "0 auto" }}>{children}</div></div>;
+    }
 
-          }
+    function SessionForm({ type, existing, onSave, onCancel }) {
+      const isCardio = type === "cardio";
+      const [duration, setDuration] = useState(existing?.duration || "");
+      const [distance, setDistance] = useState(existing?.distance || "");
+      const [avgHR, setAvgHR] = useState(existing?.avgHR || "");
+      const [calories, setCalories] = useState(existing?.calories || "");
+      const [notes, setNotes] = useState(existing?.notes || "");
+      const [exercises, setExercises] = useState(() => {
+        const init = {};
+        EXERCISES.forEach(ex => { init[ex.id] = existing?.exercises?.[ex.id] || ["", "", ""]; });
+        return init;
+      });
 
-        }}
-      >
-        Save Session
-      </button>
+      return (
+        <div className="card">
+          <div style={{ fontWeight: 900, marginBottom: 12 }}>{existing ? "Edit" : "Add"} {isCardio ? "Cardio" : "Strength"}</div>
+          {isCardio ? (
+            <>
+              <input className="input" type="number" placeholder="Duration (min)" value={duration} onChange={e => setDuration(e.target.value)} />
+              <input className="input" type="number" step="0.01" placeholder="Distance (km)" value={distance} onChange={e => setDistance(e.target.value)} />
+              <input className="input" type="number" placeholder="Average HR" value={avgHR} onChange={e => setAvgHR(e.target.value)} />
+              <input className="input" type="number" placeholder="Calories" value={calories} onChange={e => setCalories(e.target.value)} />
+              <textarea className="input" placeholder="Notes" value={notes} onChange={e => setNotes(e.target.value)} />
+            </>
+          ) : (
+            EXERCISES.map(ex => (
+              <div key={ex.id} className="card2">
+                <div style={{ fontWeight: 800, marginBottom: 8 }}>{ex.icon} {ex.name}</div>
+                <div className="grid3">
+                  {[0, 1, 2].map(i => (
+                    <input key={i} className="input" style={{ marginBottom: 0, textAlign: "center" }} type="number" placeholder={`Set ${i + 1}`} value={exercises[ex.id][i]} onChange={e => {
+                      const copy = { ...exercises, [ex.id]: [...exercises[ex.id]] };
+                      copy[ex.id][i] = e.target.value;
+                      setExercises(copy);
+                    }} />
+                  ))}
+                </div>
+              </div>
+            ))
+          )}
+          <button className={"btn " + (isCardio ? "btn-blue" : "btn-orange")} onClick={() => onSave(isCardio ? {
+            type: "cardio",
+            duration: Number(duration || 0),
+            distance: Number(distance || 0),
+            avgHR: Number(avgHR || 0),
+            calories: Number(calories || 0),
+            notes,
+          } : {
+            type: "strength",
+            exercises,
+            notes,
+          })}>💾 Save</button>
+          <button className="btn btn-dark" onClick={onCancel}>Cancel</button>
+        </div>
+      );
+    }
 
-      <button
-        className="btn"
-        style={{
-          background:"#2a3446"
-        }}
-        onClick={onCancel}
-      >
-        Cancel
-      </button>
-
-    </div>
-
-  );
-
-}
-
-ReactDOM
-  .createRoot(
-    document.getElementById("root")
-  )
-  .render(<App/>);
-
-</script>
-
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
 </body>
 </html>
-
