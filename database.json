@@ -1,11 +1,11 @@
 {
   "logs": {
-    "2026-05-19": {
+    "2026-05-18": {
       "type": "cardio",
-      "duration": "",
-      "distance": "78",
-      "avgHR": "",
-      "notes": "",
+      "duration": "35.21",
+      "distance": "3.61",
+      "avgHR": "142",
+      "notes": "ลู่วิ่ง",
       "exercises": {
         "aus_pull": [
           "",
