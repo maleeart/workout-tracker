@@ -1,4 +1,4 @@
-```javascript id="ios8"
+javascript id="ios8"
 export default async function handler(req, res) {
 
   try {
@@ -36,4 +36,4 @@ export default async function handler(req, res) {
   }
 
 }
-```
+
