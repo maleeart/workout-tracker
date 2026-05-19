@@ -839,11 +839,19 @@ const month =
             <polyline points={poly} fill="none" stroke={color} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
 
             {points.map((p, i) => (
-              <g key={i}>
-                <circle cx={p.x} cy={p.y} r="4" fill={color} />
-                
-              </g>
-            ))}
+
+  <g key={i}>
+
+    <circle
+      cx={p.x}
+      cy={p.y}
+      r="2.5"
+      fill={color}
+    />
+
+  </g>
+
+))}
 
             {data.map((item, i) => {
               if (data.length > 8 && i % Math.ceil(data.length / 6) !== 0 && i !== data.length - 1) return null;
