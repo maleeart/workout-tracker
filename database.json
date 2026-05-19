@@ -1,6 +1,6 @@
 {
   "logs": {
-    "2026-05-18": ["type": "cardio",
+    "2026-05-18": [{"type": "cardio",
         "duration": 35.21,
         "distance": 3.61,
         "avgHR": 142,
