@@ -430,84 +430,282 @@
     }
 
     function HistoryScreen({ logs, onDelete, onDuplicate, onEdit }) {
-      const [selectedDate, setSelectedDate] = useState(dateKey());
-      const today = new Date();
-      const weeks = Array.from({ length: 4 }, (_, wi) =>
-        Array.from({ length: 7 }, (_, di) => {
-          const d = new Date(today);
-          d.setDate(today.getDate() - (wi * 7 + (6 - di)));
-          return d;
-        })
-      );
 
-      const selectedSessions = normalizeDay(logs?.[selectedDate]);
+  const [selectedDate, setSelectedDate] =
+    useState(dateKey());
 
-      return (
-        <>
-          <div className="card">
-            <div style={{ fontWeight: 900, marginBottom: 10 }}>📅 Workout Calendar</div>
-            <div className="muted" style={{ marginBottom: 12 }}>แตะวันที่เพื่อดูรายละเอียด session ของวันนั้น</div>
+  const now = new Date();
 
-            {weeks.map((week, wi) => (
-              <div key={wi} style={{ marginBottom: 12 }}>
-                <div className="label" style={{ marginBottom: 7 }}>
-                  {wi === 0 ? "สัปดาห์ปัจจุบัน" : `${wi} สัปดาห์ที่แล้ว`}
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6 }}>
-                  {week.map(d => {
-                    const k = dateKey(d);
-                    const daySessions = normalizeDay(logs?.[k]);
-                    const hasCardio = daySessions.some(s => s.type === "cardio");
-                    const hasStrength = daySessions.some(s => s.type === "strength");
-                    const isSelected = selectedDate === k;
-                    const isToday = k === dateKey();
-                    return (
-                      <button
-                        key={k}
-                        onClick={() => setSelectedDate(k)}
-                        style={{
-                          border: isSelected ? "1px solid var(--cyan)" : isToday ? "1px solid rgba(0,212,255,.45)" : "1px solid transparent",
-                          background: isSelected ? "rgba(0,212,255,.16)" : "#141c26",
-                          color: "#fff",
-                          borderRadius: 10,
-                          padding: "8px 2px",
-                          textAlign: "center"
-                        }}
-                      >
-                        <div style={{ fontSize: 10, color: "var(--text2)" }}>{DAYS_TH[d.getDay()]}</div>
-                        <div style={{ fontSize: 13, fontWeight: 900 }}>{d.getDate()}</div>
-                        <div style={{ display: "flex", justifyContent: "center", gap: 3, marginTop: 5, minHeight: 6 }}>
-                          {hasCardio && <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--cyan)" }} />}
-                          {hasStrength && <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--orange)" }} />}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
+  const year = now.getFullYear();
 
-          <div className="card">
-            <div className="row" style={{ marginBottom: 10 }}>
-              <b>รายละเอียดวันที่ {selectedDate}</b>
-              <span className="muted">{selectedSessions.length} sessions</span>
+  const month = now.getMonth();
+
+  const firstDay =
+    new Date(year, month, 1);
+
+  const lastDay =
+    new Date(year, month + 1, 0);
+
+  const startWeekday =
+    firstDay.getDay();
+
+  const totalDays =
+    lastDay.getDate();
+
+  const calendar = [];
+
+  for(let i=0;i<startWeekday;i++){
+    calendar.push(null);
+  }
+
+  for(let d=1; d<=totalDays; d++){
+
+    calendar.push(
+      new Date(year, month, d)
+    );
+
+  }
+
+  const selectedSessions =
+    normalizeDay(
+      logs?.[selectedDate]
+    );
+
+  return(
+
+    <>
+
+      <div className="card">
+
+        <div
+          style={{
+            fontWeight:900,
+            marginBottom:12
+          }}
+        >
+          📅 Calendar
+        </div>
+
+        <div
+          style={{
+            display:"grid",
+            gridTemplateColumns:
+              "repeat(7,1fr)",
+            gap:6,
+            marginBottom:10
+          }}
+        >
+
+          {DAYS_TH.map(day => (
+
+            <div
+              key={day}
+              style={{
+                textAlign:"center",
+                fontSize:11,
+                color:"var(--text2)",
+                fontWeight:700
+              }}
+            >
+              {day}
             </div>
 
-            {selectedSessions.length === 0 && <div className="muted">ไม่มีข้อมูลออกกำลังในวันนี้</div>}
-            {selectedSessions.map(s => (
-              <SessionCard
-                key={s.id}
-                session={s}
-                onEdit={() => onEdit(selectedDate, s)}
-                onDelete={() => onDelete(selectedDate, s.id)}
-                onDuplicate={() => onDuplicate(selectedDate, s)}
-              />
-            ))}
+          ))}
+
+        </div>
+
+        <div
+          style={{
+            display:"grid",
+            gridTemplateColumns:
+              "repeat(7,1fr)",
+            gap:6
+          }}
+        >
+
+          {calendar.map((date,i) => {
+
+            if(!date){
+
+              return (
+                <div
+                  key={i}
+                  style={{height:64}}
+                />
+              );
+
+            }
+
+            const k = dateKey(date);
+
+            const sessions =
+              normalizeDay(logs?.[k]);
+
+            const hasCardio =
+              sessions.some(
+                s => s.type === "cardio"
+              );
+
+            const hasStrength =
+              sessions.some(
+                s => s.type === "strength"
+              );
+
+            const isSelected =
+              selectedDate === k;
+
+            const isToday =
+              k === dateKey();
+
+            return(
+
+              <button
+                key={k}
+                onClick={() =>
+                  setSelectedDate(k)
+                }
+                style={{
+                  height:64,
+                  border:
+                    isSelected
+                      ? "1px solid var(--cyan)"
+                      : isToday
+                        ? "1px solid rgba(0,212,255,.4)"
+                        : "1px solid transparent",
+                  background:
+                    isSelected
+                      ? "rgba(0,212,255,.15)"
+                      : "#141c26",
+                  borderRadius:12,
+                  color:"#fff",
+                  position:"relative"
+                }}
+              >
+
+                <div
+                  style={{
+                    fontWeight:900,
+                    fontSize:13
+                  }}
+                >
+                  {date.getDate()}
+                </div>
+
+                <div
+                  style={{
+                    position:"absolute",
+                    bottom:8,
+                    left:0,
+                    right:0,
+                    display:"flex",
+                    justifyContent:"center",
+                    gap:3
+                  }}
+                >
+
+                  {hasCardio && (
+
+                    <span
+                      style={{
+                        width:6,
+                        height:6,
+                        borderRadius:"50%",
+                        background:
+                          "var(--cyan)"
+                      }}
+                    />
+
+                  )}
+
+                  {hasStrength && (
+
+                    <span
+                      style={{
+                        width:6,
+                        height:6,
+                        borderRadius:"50%",
+                        background:
+                          "var(--orange)"
+                      }}
+                    />
+
+                  )}
+
+                </div>
+
+              </button>
+
+            );
+
+          })}
+
+        </div>
+
+      </div>
+
+      <div className="card">
+
+        <div
+          className="row"
+          style={{
+            marginBottom:12
+          }}
+        >
+
+          <b>
+            {selectedDate}
+          </b>
+
+          <span className="muted">
+            {selectedSessions.length}
+            {" "}
+            sessions
+          </span>
+
+        </div>
+
+        {selectedSessions.length === 0 && (
+
+          <div className="muted">
+            ไม่มีข้อมูลวันนี้
           </div>
-        </>
-      );
-    }
+
+        )}
+
+        {selectedSessions.map(session => (
+
+          <SessionCard
+            key={session.id}
+            session={session}
+            onEdit={() =>
+              onEdit(
+                selectedDate,
+                session
+              )
+            }
+            onDelete={() =>
+              onDelete(
+                selectedDate,
+                session.id
+              )
+            }
+            onDuplicate={() =>
+              onDuplicate(
+                selectedDate,
+                session
+              )
+            }
+          />
+
+        ))}
+
+      </div>
+
+    </>
+
+  );
+
+}
 
     function AnalyticsScreen({ logs }) {
       const cardio = allSessions(logs).filter(s => s.type === "cardio" && Number(s.distance) > 0 && Number(s.duration) > 0).map(s => ({
