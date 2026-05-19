@@ -209,7 +209,7 @@ async function sheetSave(allData) {
           const today    = new Date();
           const todayKey = dateKey(today);
           const schedule = SCHEDULE[today.getDay()];
-          const todayLog = allData.logs && allData.logs[todayKey] ? allData.logs[todayKey] : null;
+          const todaySessions = allData.logs?.[todayKey] || [];
 
           // ดึงค่าจากapi
           useEffect(() => {
@@ -222,27 +222,46 @@ async function sheetSave(allData) {
   loadData();
 }, [tab]);
 
-          const handleSaveLog = async (logData) => {
-            const currentLogs = allData.logs || {};
-            const currentDayObj = currentLogs[todayKey] || {};
-            let updatedDayObj = {};
+         
+const handleSaveLog = async (logData) => {
 
-            if (logData.type === "cardio") {
-              updatedDayObj = { ...currentDayObj, type: "cardio", duration: logData.duration, distance: logData.distance, avgHR: logData.avgHR, notes: logData.notes };
-            } else {
-              updatedDayObj = { ...currentDayObj, type: "calisthenics", exercises: logData.exercises };
-            }
+  const currentLogs = allData.logs || {};
 
-            const updated = { ...allData, logs: { ...currentLogs, [todayKey]: updatedDayObj } };
-            
-            // บันทึกเข้า database
-            const freshData = await sheetSave(updated);
-            setAllData(freshData);
-            setLogging(false);
-            setSyncStatus("ready");
-            setToast({ msg: "✅ บันทึกสถิติลงเครื่องเรียบร้อย", isError: false });
-            setTimeout(() => setToast(""), 3000);
-          };
+  const todaySessions = currentLogs[todayKey] || [];
+
+  const newSession = {
+    ...logData,
+    id: "sess_" + Date.now(),
+    createdAt: new Date().toISOString()
+  };
+
+  const updated = {
+    ...allData,
+    logs: {
+      ...currentLogs,
+      [todayKey]: [
+        ...todaySessions,
+        newSession
+      ]
+    }
+  };
+
+  const freshData = sheetSave(updated);
+
+  setAllData(freshData);
+
+  setLogging(false);
+
+  setToast({
+    msg: "✅ เพิ่ม workout สำเร็จ",
+    isError: false
+  });
+
+  setTimeout(() => setToast(""), 3000);
+
+};
+
+
 
           const openLogScreen = (type) => {
             setLogType(type);
@@ -269,7 +288,7 @@ async function sheetSave(allData) {
 
                 <div style={{ flex: 1, padding: "0 4px" }}>
                   {logging ? <LogScreen logType={logType} onSave={handleSaveLog} onCancel={() => setLogging(false)} existingLog={todayLog} saving={syncStatus === "saving"} /> :
-                   tab === "today"   ? <TodayScreen schedule={schedule} today={today} todayLog={todayLog} onLogCardio={() => openLogScreen("cardio")} onLogCals={() => openLogScreen("calisthenics")} /> :
+                   tab === "today"   ? <TodayScreen schedule={schedule} today={today} todaySessions={todaySessions} onLogCardio={() => openLogScreen("cardio")} onLogCals={() => openLogScreen("calisthenics")} /> :
                    tab === "history" ? <HistoryScreen today={today} logs={allData.logs || {}} /> :
                    tab === "insight" ? <InsightScreen logs={allData.logs || {}} /> :
                                        <StatsScreen logs={allData.logs || {}} />}
@@ -299,7 +318,7 @@ async function sheetSave(allData) {
           );
         }
 
-        function TodayScreen({ schedule, today, todayLog, onLogCardio, onLogCals }) {
+        function TodayScreen({schedule, today, todaySessions, onLogCardio, onLogCals }) {
           const dateStr = today.toLocaleDateString("th-TH", { day:"numeric", month:"long", year:"numeric" });
           return (
             <div style={{ padding: "0 12px" }}>
@@ -309,12 +328,50 @@ async function sheetSave(allData) {
                 <div style={{ marginTop:6, fontSize:13, color:"var(--text2)" }}>{schedule.sub}</div>
               </div>
 
-              {todayLog && (
-                <div style={{ background:"#001a0e", border:"1px solid #00e67640", borderRadius:16, padding:16, marginBottom:16 }}>
-                  <span style={{ color:"var(--green)", fontWeight:700, fontSize:14 }}>✓ บันทึกข้อมูลวันนี้สำเร็จ</span>
-                  <LogSummary log={todayLog} />
-                </div>
-              )}
+            {todaySessions.length > 0 && (
+
+  <div
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      gap: 10,
+      marginBottom: 16
+    }}
+  >
+
+    {todaySessions.map(session => (
+
+      <div
+        key={session.id}
+        style={{
+          background:"#001a0e",
+          border:"1px solid #00e67640",
+          borderRadius:16,
+          padding:16
+        }}
+      >
+
+        <span
+          style={{
+            color:"var(--green)",
+            fontWeight:700,
+            fontSize:14
+          }}
+        >
+          ✓ Session Saved
+        </span>
+
+        <LogSummary log={session} />
+
+      </div>
+
+    ))}
+
+  </div>
+
+)}
+
+              
 
               <div style={{ background: "rgba(255,255,255,0.02)", padding: "16px", borderRadius: 20, border: "1px solid var(--border)" }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
