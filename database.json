@@ -49,17 +49,6 @@
         "notes": "",
         "id": "sess_1779172081798",
         "createdAt": "2026-05-19T06:28:01.798Z"
-      },
-      {
-        "type": "cardio",
-        "duration": 456,
-        "distance": 54,
-        "avgHR": 456,
-        "calories": 456,
-        "notes": "",
-        "id": "sess_1779172151143",
-        "createdAt": "2026-05-19T06:29:11.143Z",
-        "source": "Copy"
       }
     ]
   }
