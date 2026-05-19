@@ -287,7 +287,7 @@ const handleSaveLog = async (logData) => {
                 )}
 
                 <div style={{ flex: 1, padding: "0 4px" }}>
-                  {logging ? <LogScreen logType={logType} onSave={handleSaveLog} onCancel={() => setLogging(false)} existingLog={todayLog} saving={syncStatus === "saving"} /> :
+                  {logging ? logType={logType} onSave={handleSaveLog} onCancel={() => setLogging(false)} existingLog={null} saving={syncStatus === "saving"} /> :
                    tab === "today"   ? <TodayScreen schedule={schedule} today={today} todaySessions={todaySessions} onLogCardio={() => openLogScreen("cardio")} onLogCals={() => openLogScreen("calisthenics")} /> :
                    tab === "history" ? <HistoryScreen today={today} logs={allData.logs || {}} /> :
                    tab === "insight" ? <InsightScreen logs={allData.logs || {}} /> :
