@@ -4,9 +4,15 @@ export default async function handler(req, res) {
     const owner = process.env.GITHUB_OWNER;
     const repo = process.env.GITHUB_REPO;
 
-    const newContent = JSON.stringify(req.body, null, 2);
+    // parse body ให้ชัวร์
+    const body =
+      typeof req.body === "string"
+        ? JSON.parse(req.body)
+        : req.body;
 
-    // โหลด sha เดิมของ database.json
+    const newContent = JSON.stringify(body, null, 2);
+
+    // โหลด database.json เดิม
     const getRes = await fetch(
       `https://api.github.com/repos/${owner}/${repo}/contents/database.json`,
       {
@@ -21,7 +27,7 @@ export default async function handler(req, res) {
 
     const sha = getData.sha;
 
-    // อัปเดตไฟล์
+    // update github file
     const updateRes = await fetch(
       `https://api.github.com/repos/${owner}/${repo}/contents/database.json`,
       {
