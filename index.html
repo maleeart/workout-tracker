@@ -28,21 +28,16 @@
   }
 }
 
-async function sheetSave(allData) {
-  try {
-    await fetch("/api/save", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(allData),
-    });
-
-    return allData;
-  } catch {
-    return allData;
-  }
+async function sheetSave(allData) { 
+    try { 
+        await fetch("/api/save", { method: "POST", headers: { "Content-Type": "application/json", }, body: JSON.stringify(allData), });
+        return allData;
+    } 
+    catch { 
+        return allData;
+    }
 }
+
 
         // ─── Data ─────────────────────────────────────────────────────────────────────
         const SCHEDULE = {
