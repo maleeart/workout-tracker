@@ -274,32 +274,24 @@
         await persist(next, "Duplicate session แล้ว");
       }
 
-      async function importStrava() {
-        try {
-          const s = await syncStravaLatest();
-          if (s.error || s.message) throw new Error(s.error || s.message);
-          const date = s.date ? String(s.date).slice(0, 10) : today;
-          const current = normalizeDay(data.logs[date]);
-          const exists = current.some(x => x.sourceId && s.id && x.sourceId === s.id);
-          if (exists) return notify("Workout นี้เคย sync แล้ว", true);
-          const session = {
-            id: "strava_" + Date.now(),
-            type: "cardio",
-            duration: Number(s.duration || 0),
-            distance: Number(s.distance || 0),
-            avgHR: Number(s.avgHR || 0),
-            calories: Number(s.calories || 0),
-            notes: s.workout || "Strava Workout",
-            source: "Strava",
-            sourceId: s.id || "",
-            createdAt: new Date().toISOString(),
-          };
-          const next = { ...data, logs: { ...data.logs, [date]: [...current, session] } };
-          await persist(next, "Sync Strava สำเร็จ");
-        } catch (err) {
-          notify("Sync Strava ไม่สำเร็จ: " + err.message, true);
-        }
-      }
+async function importStrava() {
+  try {
+    const result = await syncStravaLatest();
+
+    if (result.error) {
+      throw new Error(result.error);
+    }
+
+    const fresh = await sheetLoad();
+    setData(fresh);
+
+    notify(result.message || "Sync Strava สำเร็จ");
+  } catch (err) {
+    notify("Sync Strava ไม่สำเร็จ: " + err.message, true);
+  }
+}
+
+
 
       if (loading) {
         return <div className="app"><div className="header"><div className="title">Loading...</div></div></div>;
