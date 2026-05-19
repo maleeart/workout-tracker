@@ -1,11 +1,43 @@
 {
   "logs": {
     "2026-05-19": {
-      "type": "cardio",
+      "type": "calisthenics",
       "duration": "55",
       "distance": "",
       "avgHR": "",
-      "notes": ""
+      "notes": "",
+      "exercises": {
+        "aus_pull": [
+          "",
+          "",
+          ""
+        ],
+        "neg_pull": [
+          "",
+          "",
+          ""
+        ],
+        "dec_push": [
+          "2",
+          "",
+          ""
+        ],
+        "pike_push": [
+          "",
+          "",
+          ""
+        ],
+        "knee_raise": [
+          "",
+          "",
+          ""
+        ],
+        "squats": [
+          "",
+          "",
+          ""
+        ]
+      }
     }
   }
 }
