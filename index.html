@@ -430,19 +430,81 @@
     }
 
     function HistoryScreen({ logs, onDelete, onDuplicate, onEdit }) {
-      const dates = Object.keys(logs || {}).sort().reverse();
+      const [selectedDate, setSelectedDate] = useState(dateKey());
+      const today = new Date();
+      const weeks = Array.from({ length: 4 }, (_, wi) =>
+        Array.from({ length: 7 }, (_, di) => {
+          const d = new Date(today);
+          d.setDate(today.getDate() - (wi * 7 + (6 - di)));
+          return d;
+        })
+      );
+
+      const selectedSessions = normalizeDay(logs?.[selectedDate]);
+
       return (
         <>
-          {dates.length === 0 && <div className="card"><div className="muted">ยังไม่มีประวัติ</div></div>}
-          {dates.map(date => {
-            const sessions = normalizeDay(logs[date]);
-            return (
-              <div key={date} className="card">
-                <div className="row" style={{ marginBottom: 10 }}><b>{date}</b><span className="muted">{sessions.length} sessions</span></div>
-                {sessions.map(s => <SessionCard key={s.id} session={s} onEdit={() => onEdit(date, s)} onDelete={() => onDelete(date, s.id)} onDuplicate={() => onDuplicate(date, s)} />)}
+          <div className="card">
+            <div style={{ fontWeight: 900, marginBottom: 10 }}>📅 Workout Calendar</div>
+            <div className="muted" style={{ marginBottom: 12 }}>แตะวันที่เพื่อดูรายละเอียด session ของวันนั้น</div>
+
+            {weeks.map((week, wi) => (
+              <div key={wi} style={{ marginBottom: 12 }}>
+                <div className="label" style={{ marginBottom: 7 }}>
+                  {wi === 0 ? "สัปดาห์ปัจจุบัน" : `${wi} สัปดาห์ที่แล้ว`}
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6 }}>
+                  {week.map(d => {
+                    const k = dateKey(d);
+                    const daySessions = normalizeDay(logs?.[k]);
+                    const hasCardio = daySessions.some(s => s.type === "cardio");
+                    const hasStrength = daySessions.some(s => s.type === "strength");
+                    const isSelected = selectedDate === k;
+                    const isToday = k === dateKey();
+                    return (
+                      <button
+                        key={k}
+                        onClick={() => setSelectedDate(k)}
+                        style={{
+                          border: isSelected ? "1px solid var(--cyan)" : isToday ? "1px solid rgba(0,212,255,.45)" : "1px solid transparent",
+                          background: isSelected ? "rgba(0,212,255,.16)" : "#141c26",
+                          color: "#fff",
+                          borderRadius: 10,
+                          padding: "8px 2px",
+                          textAlign: "center"
+                        }}
+                      >
+                        <div style={{ fontSize: 10, color: "var(--text2)" }}>{DAYS_TH[d.getDay()]}</div>
+                        <div style={{ fontSize: 13, fontWeight: 900 }}>{d.getDate()}</div>
+                        <div style={{ display: "flex", justifyContent: "center", gap: 3, marginTop: 5, minHeight: 6 }}>
+                          {hasCardio && <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--cyan)" }} />}
+                          {hasStrength && <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--orange)" }} />}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            );
-          })}
+            ))}
+          </div>
+
+          <div className="card">
+            <div className="row" style={{ marginBottom: 10 }}>
+              <b>รายละเอียดวันที่ {selectedDate}</b>
+              <span className="muted">{selectedSessions.length} sessions</span>
+            </div>
+
+            {selectedSessions.length === 0 && <div className="muted">ไม่มีข้อมูลออกกำลังในวันนี้</div>}
+            {selectedSessions.map(s => (
+              <SessionCard
+                key={s.id}
+                session={s}
+                onEdit={() => onEdit(selectedDate, s)}
+                onDelete={() => onDelete(selectedDate, s.id)}
+                onDuplicate={() => onDuplicate(selectedDate, s)}
+              />
+            ))}
+          </div>
         </>
       );
     }
@@ -464,21 +526,90 @@
     }
 
     function ChartCard({ title, data, valueKey, color }) {
-      const pts = chartPoints(data, valueKey);
+      const values = data.map(x => Number(x[valueKey])).filter(v => Number.isFinite(v));
+
+      if (!data.length || !values.length) {
+        return (
+          <div className="card">
+            <div style={{ fontWeight: 900, marginBottom: 12 }}>{title}</div>
+            <div className="muted">ยังไม่มีข้อมูลพอสำหรับกราฟ</div>
+          </div>
+        );
+      }
+
+      const minRaw = Math.min(...values);
+      const maxRaw = Math.max(...values);
+      const padding = (maxRaw - minRaw || 1) * 0.12;
+      const min = Math.max(0, minRaw - padding);
+      const max = maxRaw + padding;
+      const range = max - min || 1;
+
+      const w = 300;
+      const h = 190;
+      const left = 42;
+      const right = 12;
+      const top = 18;
+      const bottom = 34;
+      const chartW = w - left - right;
+      const chartH = h - top - bottom;
+
+      const pointFor = (item, i) => {
+        const x = left + (i * (chartW / Math.max(1, data.length - 1)));
+        const y = top + chartH - ((Number(item[valueKey]) - min) / range) * chartH;
+        return { x, y, value: Number(item[valueKey]) };
+      };
+
+      const points = data.map(pointFor);
+      const poly = points.map(p => `${p.x},${p.y}`).join(" ");
+      const yTicks = [max, (max + min) / 2, min];
+
       return (
         <div className="card">
           <div style={{ fontWeight: 900, marginBottom: 12 }}>{title}</div>
-          {!data.length ? <div className="muted">ยังไม่มีข้อมูลพอสำหรับกราฟ</div> : (
-            <svg className="chart" viewBox="0 0 300 170">
-              <line x1="18" y1="150" x2="285" y2="150" stroke="rgba(255,255,255,.12)" />
-              <line x1="18" y1="30" x2="18" y2="150" stroke="rgba(255,255,255,.12)" />
-              <polyline points={pts} fill="none" stroke={color} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-              {pts.split(" ").map((p, i) => {
-                const [x, y] = p.split(",");
-                return <circle key={i} cx={x} cy={y} r="4" fill={color} />;
-              })}
-            </svg>
-          )}
+
+          <svg className="chart" viewBox={`0 0 ${w} ${h}`}>
+            <rect x="0" y="0" width={w} height={h} fill="#0b111c" />
+
+            {yTicks.map((tick, i) => {
+              const y = top + (i * chartH / 2);
+              return (
+                <g key={i}>
+                  <line x1={left} y1={y} x2={w - right} y2={y} stroke="rgba(255,255,255,.10)" />
+                  <text x="8" y={y + 4} fill="rgba(232,237,245,.62)" fontSize="10">
+                    {tick.toFixed(valueKey === "distance" ? 1 : 0)}
+                  </text>
+                </g>
+              );
+            })}
+
+            <line x1={left} y1={top} x2={left} y2={top + chartH} stroke="rgba(255,255,255,.18)" />
+            <line x1={left} y1={top + chartH} x2={w - right} y2={top + chartH} stroke="rgba(255,255,255,.18)" />
+
+            <polyline points={poly} fill="none" stroke={color} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+
+            {points.map((p, i) => (
+              <g key={i}>
+                <circle cx={p.x} cy={p.y} r="4" fill={color} />
+                <text x={p.x} y={p.y - 8} fill="#e8edf5" fontSize="9" textAnchor="middle">
+                  {p.value.toFixed(valueKey === "distance" || valueKey === "pace" ? 1 : 0)}
+                </text>
+              </g>
+            ))}
+
+            {data.map((item, i) => {
+              if (data.length > 8 && i % Math.ceil(data.length / 6) !== 0 && i !== data.length - 1) return null;
+              const p = pointFor(item, i);
+              return (
+                <text key={i} x={p.x} y={h - 12} fill="rgba(232,237,245,.62)" fontSize="9" textAnchor="middle">
+                  {item.date}
+                </text>
+              );
+            })}
+          </svg>
+
+          <div className="muted" style={{ marginTop: 8 }}>
+            แกน X = วันที่ • แกน Y = ค่า {valueKey}
+          </div>
         </div>
       );
     }
