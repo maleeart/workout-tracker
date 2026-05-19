@@ -1,17 +1,7 @@
 {
   "logs": {
     "2026-05-18": [
-      {
-        "type": "cardio",
-        "duration": 35.21,
-        "distance": 3.61,
-        "avgHR": 142,
-        "calories": 283,
-        "notes": "indoor",
-        "id": "sess_1779172075242",
-        "createdAt": "2026-05-18T19:28:55.242Z"
-      },
-      {
+       {
         "id": "strava_18554088332",
         "type": "cardio",
         "duration": 35,
