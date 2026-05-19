@@ -1,4 +1,4 @@
-```javascript id="s3"
+
 export default async function handler(req, res) {
   try {
     const token = process.env.GITHUB_TOKEN;
@@ -79,4 +79,4 @@ export default async function handler(req, res) {
 
   }
 }
-```
+
