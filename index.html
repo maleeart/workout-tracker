@@ -19,27 +19,30 @@
         // ─── Local Storage Engine (บันทึกในเครื่อง iPhone โดยตรง เสถียรและเร็วที่สุด) ───
         const LOCAL_STORAGE_KEY = "workout_tracker_logs";
 
-        function sheetLoad() {
-          try {
-            const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
-            if (savedData) {
-              const parsed = JSON.parse(savedData);
-              return parsed?.logs ? parsed : { logs: {} };
-            }
-            return { logs: {} };
-          } catch { 
-            return { logs: {} }; 
-          }
-        }
+        async function sheetLoad() {
+  try {
+    const res = await fetch("/api/load");
+    return await res.json();
+  } catch {
+    return { logs: {} };
+  }
+}
 
-        function sheetSave(allData) {
-          try {
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(allData));
-            return allData;
-          } catch {
-            return allData;
-          }
-        }
+async function sheetSave(allData) {
+  try {
+    await fetch("/api/save", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(allData),
+    });
+
+    return allData;
+  } catch {
+    return allData;
+  }
+}
 
         // ─── Data ─────────────────────────────────────────────────────────────────────
         const SCHEDULE = {
@@ -200,12 +203,16 @@
           const schedule = SCHEDULE[today.getDay()];
           const todayLog = allData.logs && allData.logs[todayKey] ? allData.logs[todayKey] : null;
 
-          // ดึงค่าจากความจำของบราวเซอร์โดยตรง ทันทีที่เปลี่ยนหน้าจอ
+          // ดึงค่าจากapi
           useEffect(() => {
-            const data = sheetLoad();
-            setAllData(data);
-            setSyncStatus("ready");
-          }, [tab]);
+  async function loadData() {
+    const data = await sheetLoad();
+    setAllData(data);
+    setSyncStatus("ready");
+  }
+
+  loadData();
+}, [tab]);
 
           const handleSaveLog = async (logData) => {
             const currentLogs = allData.logs || {};
@@ -220,8 +227,8 @@
 
             const updated = { ...allData, logs: { ...currentLogs, [todayKey]: updatedDayObj } };
             
-            // บันทึกเข้าเครื่องเดี่ยวๆ ทันที ไร้ความเสี่ยงบล็อกระบบ
-            const freshData = sheetSave(updated);
+            // บันทึกเข้า database
+            const freshData = await sheetSave(updated);
             setAllData(freshData);
             setLogging(false);
             setSyncStatus("ready");
