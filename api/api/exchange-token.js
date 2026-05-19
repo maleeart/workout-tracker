@@ -1,5 +1,4 @@
-```javascript id="t2"
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
 
   try {
 
@@ -34,4 +33,4 @@ export default async function handler(req, res) {
   }
 
 }
-```
+
