@@ -1,1 +1,11 @@
-{ "logs": {} }
+{
+  "logs": {
+    "2026-05-19": {
+      "type": "cardio",
+      "duration": "55",
+      "distance": "",
+      "avgHR": "",
+      "notes": ""
+    }
+  }
+}
