@@ -717,8 +717,8 @@
       return (
         <>
           <ChartCard title="📈 Pace Trend (min/km)" data={cardio} valueKey="pace" color="var(--cyan)" />
-          <ChartCard title="❤️ HR Trend" data={cardio.filter(x => x.hr)} valueKey="hr" color="var(--orange)" />
-          <ChartCard title="🏃 Distance Trend" data={cardio} valueKey="distance" color="var(--green)" />
+          <ChartCard title="❤️ HR Trend (ฺBPM)" data={cardio.filter(x => x.hr)} valueKey="hr" color="var(--orange)" />
+          <ChartCard title="🏃 Distance Trend (km)" data={cardio} valueKey="distance" color="var(--green)" />
         </>
       );
     }
