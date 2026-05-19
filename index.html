@@ -63,6 +63,21 @@
   <script type="text/babel">
     const { useState, useEffect } = React;
 
+    const MONTHS_TH = [
+  "มกราคม",
+  "กุมภาพันธ์",
+  "มีนาคม",
+  "เมษายน",
+  "พฤษภาคม",
+  "มิถุนายน",
+  "กรกฎาคม",
+  "สิงหาคม",
+  "กันยายน",
+  "ตุลาคม",
+  "พฤศจิกายน",
+  "ธันวาคม"
+];
+
     const EXERCISES = [
       { id: "aus_pull", name: "Australian Pull-Ups", icon: "🏋️" },
       { id: "neg_pull", name: "Negative Pull-Ups", icon: "⬇️" },
@@ -422,15 +437,18 @@ async function importStrava() {
     }
 
     function HistoryScreen({ logs, onDelete, onDuplicate, onEdit }) {
-
+      
   const [selectedDate, setSelectedDate] =
-    useState(dateKey());
+  useState(dateKey());
 
-  const now = new Date();
+const [viewMonth, setViewMonth] =
+  useState(new Date());
 
-  const year = now.getFullYear();
+const year =
+  viewMonth.getFullYear();
 
-  const month = now.getMonth();
+const month =
+  viewMonth.getMonth();
 
   const firstDay =
     new Date(year, month, 1);
@@ -467,16 +485,59 @@ async function importStrava() {
 
     <>
 
-      <div className="card">
+      <div
+  className="row"
+  style={{
+    marginBottom:16
+  }}
+>
 
-        <div
-          style={{
-            fontWeight:900,
-            marginBottom:12
-          }}
-        >
-          📅 Calendar
-        </div>
+  <button
+    className="ghost"
+    onClick={() => {
+
+      const d = new Date(viewMonth);
+
+      d.setMonth(
+        d.getMonth() - 1
+      );
+
+      setViewMonth(d);
+
+    }}
+  >
+    ←
+  </button>
+
+  <div
+    style={{
+      fontWeight:900,
+      fontSize:18
+    }}
+  >
+    {MONTHS_TH[month]}
+    {" "}
+    {year}
+  </div>
+
+  <button
+    className="ghost"
+    onClick={() => {
+
+      const d = new Date(viewMonth);
+
+      d.setMonth(
+        d.getMonth() + 1
+      );
+
+      setViewMonth(d);
+
+    }}
+  >
+    →
+  </button>
+
+</div>
 
         <div
           style={{
@@ -780,9 +841,7 @@ async function importStrava() {
             {points.map((p, i) => (
               <g key={i}>
                 <circle cx={p.x} cy={p.y} r="4" fill={color} />
-                <text x={p.x} y={p.y - 8} fill="#e8edf5" fontSize="9" textAnchor="middle">
-                  {p.value.toFixed(valueKey === "distance" || valueKey === "pace" ? 1 : 0)}
-                </text>
+                
               </g>
             ))}
 
