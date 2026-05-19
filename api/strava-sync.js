@@ -25,7 +25,7 @@ module.exports = async function handler(req, res) {
     }
 
     const activityRes = await fetch(
-      "https://www.strava.com/api/v3/athlete/activities?per_page=500",
+      "https://www.strava.com/api/v3/athlete/activities?per_page=150",
       {
         headers: {
           Authorization: "Bearer " + tokenData.access_token
