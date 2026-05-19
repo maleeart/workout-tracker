@@ -28,15 +28,28 @@
   }
 }
 
-async function sheetSave(allData) { 
-    try { 
-        await fetch("/api/save", { method: "POST", headers: { "Content-Type": "application/json", }, body: JSON.stringify(allData), });
-        return allData;
-    } 
-    catch { 
-        return allData;
-    }
+async function sheetSave(allData) {
+  try {
+    const res = await fetch("/api/save", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(allData),
+    });
+
+    const data = await res.json();
+
+    console.log("SAVE RESULT:", data);
+
+    return allData;
+  } catch (err) {
+    console.log(err);
+    return allData;
+  }
 }
+
+
 
 
         // ─── Data ─────────────────────────────────────────────────────────────────────
