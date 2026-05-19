@@ -1,6 +1,8 @@
 {
   "logs": {
-    "2026-05-18": [{"type": "cardio",
+    "2026-05-18": [
+      {
+        "type": "cardio",
         "duration": 35.21,
         "distance": 3.61,
         "avgHR": 142,
@@ -8,18 +10,9 @@
         "notes": "indoor",
         "id": "sess_1779172075242",
         "createdAt": "2026-05-18T19:28:55.242Z"
-      }],
+      }
+    ],
     "2026-05-19": [
-      {
-        "type": "cardio",
-        "duration": 456,
-        "distance": 54,
-        "avgHR": 456,
-        "calories": 456,
-        "notes": "",
-        "id": "sess_1779172075242",
-        "createdAt": "2026-05-19T06:27:55.242Z"
-      },
       {
         "type": "strength",
         "exercises": {
