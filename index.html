@@ -209,7 +209,7 @@ async function sheetSave(allData) {
           const today    = new Date();
           const todayKey = dateKey(today);
           const schedule = SCHEDULE[today.getDay()];
-          const todaySessions = allData.logs?.[todayKey] || [];
+          const rawTodayData = allData.logs?.[todayKey]; const todaySessions = Array.isArray(rawTodayData) ? rawTodayData : rawTodayData ? [rawTodayData] : [];
 
           // ดึงค่าจากapi
           useEffect(() => {
