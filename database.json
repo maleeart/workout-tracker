@@ -7,11 +7,15 @@
         "duration": 64,
         "distance": 0,
         "avgHR": 117.4,
-        "calories": 0,
+        "calories": 400,
         "notes": "Strength",
         "source": "Strava",
         "sourceId": "18567598714",
-        "createdAt": "2026-05-20T05:59:26.437Z"
+        "createdAt": "2026-05-20T05:59:26.437Z",
+        "totalCalories": 400,
+        "caloriesSource": "detail.calories",
+        "sportType": "WeightTraining",
+        "updatedAt": "2026-05-20T06:04:44.002Z"
       }
     ],
     "2026-05-18": [
