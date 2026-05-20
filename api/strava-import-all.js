@@ -4,6 +4,10 @@ module.exports = async function handler(req, res) {
     const repo = process.env.GITHUB_REPO;
     const githubToken = process.env.GITHUB_TOKEN;
 
+    const page = Math.max(1, Number(req.query.page || 1));
+    const perPage = Math.min(100, Math.max(1, Number(req.query.perPage || 20)));
+    const limit = Math.min(50, Math.max(1, Number(req.query.limit || 20)));
+
     const tokenRes = await fetch("https://www.strava.com/oauth/token", {
       method: "POST",
       headers: {
@@ -26,35 +30,35 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    let allActivities = [];
-    const perPage = Number(req.query.perPage || 30);
-const maxPages = Number(req.query.pages || 1);
-
-    for (let page = 1; page <= maxPages; page++) {
-      const activityRes = await fetch(
-        `https://www.strava.com/api/v3/athlete/activities?per_page=${perPage}&page=${page}`,
-        {
-          headers: {
-            Authorization: "Bearer " + tokenData.access_token
-          }
+    const listRes = await fetch(
+      `https://www.strava.com/api/v3/athlete/activities?per_page=${perPage}&page=${page}`,
+      {
+        headers: {
+          Authorization: "Bearer " + tokenData.access_token
         }
-      );
-
-      const activities = await activityRes.json();
-
-      if (!Array.isArray(activities)) {
-        return res.status(500).json({
-          error: "Strava activities failed",
-          page,
-          detail: activities
-        });
       }
+    );
 
-      if (activities.length === 0) break;
+    const activities = await listRes.json();
 
-      allActivities = allActivities.concat(activities);
+    if (!Array.isArray(activities)) {
+      return res.status(500).json({
+        error: "Strava activities failed",
+        page,
+        detail: activities
+      });
+    }
 
-      if (activities.length < perPage) break;
+    const selectedActivities = activities.slice(0, limit);
+
+    if (selectedActivities.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: "No activities found on this page",
+        page,
+        perPage,
+        limit
+      });
     }
 
     const dbRes = await fetch(
@@ -88,20 +92,36 @@ const maxPages = Number(req.query.pages || 1);
     let caloriesFixed = 0;
     let detailFailed = 0;
 
-    for (const activity of allActivities) {
-      const detailRes = await fetch(
-        "https://www.strava.com/api/v3/activities/" + activity.id,
-        {
-          headers: {
-            Authorization: "Bearer " + tokenData.access_token
+    for (const activity of selectedActivities) {
+      const fallbackDate = activity.start_date_local
+        ? activity.start_date_local.slice(0, 10)
+        : activity.start_date
+          ? activity.start_date.slice(0, 10)
+          : "";
+
+      let detail = null;
+
+      try {
+        const detailRes = await fetch(
+          "https://www.strava.com/api/v3/activities/" + activity.id,
+          {
+            headers: {
+              Authorization: "Bearer " + tokenData.access_token
+            }
           }
+        );
+
+        detail = await detailRes.json();
+
+        if (!detail || detail.message || detail.errors) {
+          detailFailed++;
+          skipped++;
+          continue;
         }
-      );
 
-      const detail = await detailRes.json();
-
-      if (!detail || detail.message || detail.errors) {
+      } catch (e) {
         detailFailed++;
+        skipped++;
         continue;
       }
 
@@ -124,9 +144,12 @@ const maxPages = Number(req.query.pages || 1);
 
       const logDate = detail.start_date_local
         ? detail.start_date_local.slice(0, 10)
-        : activity.start_date_local
-          ? activity.start_date_local.slice(0, 10)
-          : activity.start_date.slice(0, 10);
+        : fallbackDate;
+
+      if (!logDate) {
+        skipped++;
+        continue;
+      }
 
       if (!Array.isArray(current.logs[logDate])) {
         current.logs[logDate] = current.logs[logDate]
@@ -154,8 +177,9 @@ const maxPages = Number(req.query.pages || 1);
       };
 
       if (existingIndex !== -1) {
-        const oldCalories =
-          Number(current.logs[logDate][existingIndex].calories || 0);
+        const oldCalories = Number(
+          current.logs[logDate][existingIndex].calories || 0
+        );
 
         current.logs[logDate][existingIndex] = {
           ...current.logs[logDate][existingIndex],
@@ -193,7 +217,7 @@ const maxPages = Number(req.query.pages || 1);
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          message: `One-time Strava import with detail calories`,
+          message: `Strava batch import page ${page}`,
           content: newContent,
           sha: dbData.sha
         })
@@ -211,13 +235,18 @@ const maxPages = Number(req.query.pages || 1);
 
     return res.status(200).json({
       success: true,
-      message: "One-time import complete with detail calories",
-      checked: allActivities.length,
+      message: "Batch import complete",
+      page,
+      perPage,
+      limit,
+      checked: selectedActivities.length,
       imported,
       updated,
       skipped,
       caloriesFixed,
-      detailFailed
+      detailFailed,
+      nextPageUrl:
+        `https://workout-tracker-88.vercel.app/api/strava-import-all?page=${page + 1}&perPage=${perPage}&limit=${limit}`
     });
 
   } catch (err) {
