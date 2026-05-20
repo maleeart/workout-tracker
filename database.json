@@ -14,7 +14,7 @@
         "source": "Strava",
         "sourceId": "18567598714",
         "sportType": "WeightTraining",
-        "updatedAt": "2026-05-20T06:34:06.916Z",
+        "updatedAt": "2026-05-20T06:34:33.662Z",
         "createdAt": "2026-05-20T06:13:47.346Z"
       },
       {
@@ -71,7 +71,7 @@
         "source": "Strava",
         "sourceId": "18554088332",
         "sportType": "Run",
-        "updatedAt": "2026-05-20T06:34:07.091Z",
+        "updatedAt": "2026-05-20T06:34:33.861Z",
         "createdAt": "2026-05-20T06:13:47.523Z"
       },
       {
@@ -87,7 +87,7 @@
         "source": "Strava",
         "sourceId": "18550708748",
         "sportType": "WeightTraining",
-        "updatedAt": "2026-05-20T06:34:07.248Z",
+        "updatedAt": "2026-05-20T06:34:34.027Z",
         "createdAt": "2026-05-20T06:13:47.684Z"
       }
     ],
@@ -105,7 +105,7 @@
         "source": "Strava",
         "sourceId": "18529758192",
         "sportType": "WeightTraining",
-        "updatedAt": "2026-05-20T06:34:07.411Z",
+        "updatedAt": "2026-05-20T06:34:34.198Z",
         "createdAt": "2026-05-20T06:13:47.871Z"
       }
     ],
@@ -123,7 +123,7 @@
         "source": "Strava",
         "sourceId": "18515956571",
         "sportType": "Run",
-        "updatedAt": "2026-05-20T06:34:07.770Z",
+        "updatedAt": "2026-05-20T06:34:34.540Z",
         "createdAt": "2026-05-20T06:13:48.234Z"
       }
     ],
@@ -141,7 +141,7 @@
         "source": "Strava",
         "sourceId": "18503254022",
         "sportType": "Walk",
-        "updatedAt": "2026-05-20T06:34:08.003Z",
+        "updatedAt": "2026-05-20T06:34:34.736Z",
         "createdAt": "2026-05-20T06:13:48.417Z"
       }
     ],
@@ -159,7 +159,7 @@
         "source": "Strava",
         "sourceId": "18489871332",
         "sportType": "Run",
-        "updatedAt": "2026-05-20T06:34:08.447Z",
+        "updatedAt": "2026-05-20T06:34:35.079Z",
         "createdAt": "2026-05-20T06:13:48.810Z"
       }
     ],
@@ -177,7 +177,7 @@
         "source": "Strava",
         "sourceId": "18477023786",
         "sportType": "Badminton",
-        "updatedAt": "2026-05-20T06:34:08.618Z",
+        "updatedAt": "2026-05-20T06:34:35.250Z",
         "createdAt": "2026-05-20T06:13:48.978Z"
       }
     ],
@@ -195,7 +195,7 @@
         "source": "Strava",
         "sourceId": "18463770277",
         "sportType": "Run",
-        "updatedAt": "2026-05-20T06:34:08.899Z",
+        "updatedAt": "2026-05-20T06:34:35.520Z",
         "createdAt": "2026-05-20T06:13:49.314Z"
       },
       {
@@ -211,7 +211,7 @@
         "source": "Strava",
         "sourceId": "18459990104",
         "sportType": "WeightTraining",
-        "updatedAt": "2026-05-20T06:34:09.093Z",
+        "updatedAt": "2026-05-20T06:34:35.699Z",
         "createdAt": "2026-05-20T06:13:49.482Z"
       }
     ],
@@ -229,7 +229,7 @@
         "source": "Strava",
         "sourceId": "18424871918",
         "sportType": "Run",
-        "updatedAt": "2026-05-20T06:34:09.457Z",
+        "updatedAt": "2026-05-20T06:34:36.086Z",
         "createdAt": "2026-05-20T06:13:49.811Z"
       }
     ],
@@ -247,7 +247,7 @@
         "source": "Strava",
         "sourceId": "18307159027",
         "sportType": "WeightTraining",
-        "updatedAt": "2026-05-20T06:34:09.600Z",
+        "updatedAt": "2026-05-20T06:34:36.233Z",
         "createdAt": "2026-05-20T06:13:49.991Z"
       }
     ],
@@ -265,7 +265,7 @@
         "source": "Strava",
         "sourceId": "18291550498",
         "sportType": "Walk",
-        "updatedAt": "2026-05-20T06:34:09.754Z",
+        "updatedAt": "2026-05-20T06:34:36.394Z",
         "createdAt": "2026-05-20T06:13:50.165Z"
       }
     ],
@@ -283,7 +283,7 @@
         "source": "Strava",
         "sourceId": "18278276328",
         "sportType": "Run",
-        "updatedAt": "2026-05-20T06:34:10.668Z",
+        "updatedAt": "2026-05-20T06:34:36.809Z",
         "createdAt": "2026-05-20T06:13:50.516Z"
       }
     ],
@@ -301,7 +301,7 @@
         "source": "Strava",
         "sourceId": "18238552800",
         "sportType": "Badminton",
-        "updatedAt": "2026-05-20T06:34:10.873Z",
+        "updatedAt": "2026-05-20T06:34:36.974Z",
         "createdAt": "2026-05-20T06:13:50.693Z"
       }
     ],
