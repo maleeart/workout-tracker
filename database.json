@@ -14,7 +14,7 @@
         "source": "Strava",
         "sourceId": "18567598714",
         "sportType": "WeightTraining",
-        "updatedAt": "2026-05-20T06:15:31.491Z",
+        "updatedAt": "2026-05-20T06:33:11.318Z",
         "createdAt": "2026-05-20T06:13:47.346Z"
       },
       {
@@ -71,7 +71,7 @@
         "source": "Strava",
         "sourceId": "18554088332",
         "sportType": "Run",
-        "updatedAt": "2026-05-20T06:15:31.716Z",
+        "updatedAt": "2026-05-20T06:33:11.507Z",
         "createdAt": "2026-05-20T06:13:47.523Z"
       },
       {
@@ -87,7 +87,7 @@
         "source": "Strava",
         "sourceId": "18550708748",
         "sportType": "WeightTraining",
-        "updatedAt": "2026-05-20T06:15:31.869Z",
+        "updatedAt": "2026-05-20T06:33:11.689Z",
         "createdAt": "2026-05-20T06:13:47.684Z"
       }
     ],
@@ -105,7 +105,7 @@
         "source": "Strava",
         "sourceId": "18529758192",
         "sportType": "WeightTraining",
-        "updatedAt": "2026-05-20T06:15:32.020Z",
+        "updatedAt": "2026-05-20T06:33:11.865Z",
         "createdAt": "2026-05-20T06:13:47.871Z"
       }
     ],
@@ -123,7 +123,7 @@
         "source": "Strava",
         "sourceId": "18515956571",
         "sportType": "Run",
-        "updatedAt": "2026-05-20T06:15:32.393Z",
+        "updatedAt": "2026-05-20T06:33:12.264Z",
         "createdAt": "2026-05-20T06:13:48.234Z"
       }
     ],
@@ -141,7 +141,7 @@
         "source": "Strava",
         "sourceId": "18503254022",
         "sportType": "Walk",
-        "updatedAt": "2026-05-20T06:15:32.583Z",
+        "updatedAt": "2026-05-20T06:33:12.526Z",
         "createdAt": "2026-05-20T06:13:48.417Z"
       }
     ],
@@ -159,7 +159,7 @@
         "source": "Strava",
         "sourceId": "18489871332",
         "sportType": "Run",
-        "updatedAt": "2026-05-20T06:15:32.967Z",
+        "updatedAt": "2026-05-20T06:33:12.951Z",
         "createdAt": "2026-05-20T06:13:48.810Z"
       }
     ],
@@ -177,7 +177,7 @@
         "source": "Strava",
         "sourceId": "18477023786",
         "sportType": "Badminton",
-        "updatedAt": "2026-05-20T06:15:33.120Z",
+        "updatedAt": "2026-05-20T06:33:13.110Z",
         "createdAt": "2026-05-20T06:13:48.978Z"
       }
     ],
@@ -195,7 +195,7 @@
         "source": "Strava",
         "sourceId": "18463770277",
         "sportType": "Run",
-        "updatedAt": "2026-05-20T06:15:33.419Z",
+        "updatedAt": "2026-05-20T06:33:13.422Z",
         "createdAt": "2026-05-20T06:13:49.314Z"
       },
       {
@@ -211,7 +211,7 @@
         "source": "Strava",
         "sourceId": "18459990104",
         "sportType": "WeightTraining",
-        "updatedAt": "2026-05-20T06:15:33.629Z",
+        "updatedAt": "2026-05-20T06:33:13.612Z",
         "createdAt": "2026-05-20T06:13:49.482Z"
       }
     ],
@@ -229,7 +229,7 @@
         "source": "Strava",
         "sourceId": "18424871918",
         "sportType": "Run",
-        "updatedAt": "2026-05-20T06:15:33.984Z",
+        "updatedAt": "2026-05-20T06:33:13.902Z",
         "createdAt": "2026-05-20T06:13:49.811Z"
       }
     ],
@@ -247,7 +247,7 @@
         "source": "Strava",
         "sourceId": "18307159027",
         "sportType": "WeightTraining",
-        "updatedAt": "2026-05-20T06:15:34.168Z",
+        "updatedAt": "2026-05-20T06:33:14.080Z",
         "createdAt": "2026-05-20T06:13:49.991Z"
       }
     ],
@@ -265,7 +265,7 @@
         "source": "Strava",
         "sourceId": "18291550498",
         "sportType": "Walk",
-        "updatedAt": "2026-05-20T06:15:34.364Z",
+        "updatedAt": "2026-05-20T06:33:14.273Z",
         "createdAt": "2026-05-20T06:13:50.165Z"
       }
     ],
@@ -283,7 +283,7 @@
         "source": "Strava",
         "sourceId": "18278276328",
         "sportType": "Run",
-        "updatedAt": "2026-05-20T06:15:34.669Z",
+        "updatedAt": "2026-05-20T06:33:14.638Z",
         "createdAt": "2026-05-20T06:13:50.516Z"
       }
     ],
@@ -301,7 +301,7 @@
         "source": "Strava",
         "sourceId": "18238552800",
         "sportType": "Badminton",
-        "updatedAt": "2026-05-20T06:15:34.862Z",
+        "updatedAt": "2026-05-20T06:33:14.807Z",
         "createdAt": "2026-05-20T06:13:50.693Z"
       }
     ],
@@ -319,7 +319,7 @@
         "source": "Strava",
         "sourceId": "18224920957",
         "sportType": "WeightTraining",
-        "updatedAt": "2026-05-20T06:15:35.080Z",
+        "updatedAt": "2026-05-20T06:33:14.990Z",
         "createdAt": "2026-05-20T06:13:50.871Z"
       }
     ],
@@ -337,7 +337,7 @@
         "source": "Strava",
         "sourceId": "18212116354",
         "sportType": "Run",
-        "updatedAt": "2026-05-20T06:15:35.469Z",
+        "updatedAt": "2026-05-20T06:33:15.374Z",
         "createdAt": "2026-05-20T06:13:51.219Z"
       }
     ],
@@ -355,7 +355,7 @@
         "source": "Strava",
         "sourceId": "18183815004",
         "sportType": "Run",
-        "updatedAt": "2026-05-20T06:15:35.834Z",
+        "updatedAt": "2026-05-20T06:33:15.958Z",
         "createdAt": "2026-05-20T06:13:51.870Z"
       },
       {
@@ -371,7 +371,7 @@
         "source": "Strava",
         "sourceId": "18180169468",
         "sportType": "WeightTraining",
-        "updatedAt": "2026-05-20T06:15:36.061Z",
+        "updatedAt": "2026-05-20T06:33:16.132Z",
         "createdAt": "2026-05-20T06:13:52.046Z"
       }
     ],
@@ -389,7 +389,7 @@
         "source": "Strava",
         "sourceId": "18145241979",
         "sportType": "Run",
-        "updatedAt": "2026-05-20T06:15:36.378Z",
+        "updatedAt": "2026-05-20T06:33:16.439Z",
         "createdAt": "2026-05-20T06:13:52.327Z"
       }
     ],
