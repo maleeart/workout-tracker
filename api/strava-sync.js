@@ -89,6 +89,11 @@ module.exports = async function handler(req, res) {
 
 const detail = await detailRes.json();
 
+      console.log(
+  "DETAIL:",
+  JSON.stringify(detail, null, 2)
+);
+
 const calories =
   detail.calories ||
   activity.calories ||
