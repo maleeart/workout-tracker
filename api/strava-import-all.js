@@ -27,8 +27,8 @@ module.exports = async function handler(req, res) {
     }
 
     let allActivities = [];
-    const perPage = 200;
-    const maxPages = Number(req.query.pages || 5);
+    const perPage = Number(req.query.perPage || 30);
+const maxPages = Number(req.query.pages || 1);
 
     for (let page = 1; page <= maxPages; page++) {
       const activityRes = await fetch(
