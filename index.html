@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Calisthenics & Zone 2</title>
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;900&family=Barlow+Condensed:wght@600;700;900&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body { background: #080c14; color: #e8edf5; font-family: 'Barlow', sans-serif; min-height: 100vh; overflow-x: hidden; }
+
+    :root {
+      --cyan:#00d4ff;
+      --cyan2:#008cb3;
+      --orange:#ff6b2b;
+      --orange2:#cc3f00;
+      --green:#00e676;
+      --purple:#a855f7;
+      --danger:#ff4757;
+      --card:#101824;
+      --card2:#141e2c;
+      --card3:#0b111c;
+      --border:rgba(255,255,255,0.08);
+      --text2:#7a8fa8;
+      --text3:#9eb1c7;
+    }
+
+    button, input, textarea { font-family: inherit; }
+    input:focus, textarea:focus { outline: 2px solid var(--cyan); }
+
+    .app {
+      width: 100%;
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: env(safe-area-inset-top, 18px) 0 calc(env(safe-area-inset-bottom, 16px) + 88px);
+    }
+
+    .header {
+      padding: 16px 16px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: .3px;
+      line-height: 1;
+    }
+
+    .badge {
+      white-space: nowrap;
+      font-size: 11px;
+      color: var(--green);
+      background: rgba(0,230,118,.1);
+      border: 1px solid rgba(0,230,118,.35);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-weight: 800;
+    }
+
+    .section { padding: 0 12px; }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,.01)), var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.18);
+    }
+
+    .card2 {
+      background: linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,.01)), var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 17px;
+      padding: 14px;
+      margin-bottom: 10px;
+    }
+
+    .ai-card {
+      background:
+        radial-gradient(circle at top right, rgba(168,85,247,.22), transparent 42%),
+        linear-gradient(135deg, #1a0d2e, #0d1a2e);
+      border-color: rgba(168,85,247,.35);
+    }
+
+    .muted { color: var(--text2); font-size: 12px; }
+    .label { color: var(--text2); font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: .8px; }
+    .row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+    .btn {
+      width: 100%;
+      border: 0;
+      border-radius: 999px;
+      padding: 14px 16px;
+      color: #fff;
+      font-weight: 900;
+      font-size: 15px;
+      letter-spacing: .5px;
+      margin-bottom: 10px;
+      text-shadow: 0 1px 3px rgba(0,0,0,.35);
+    }
+
+    .btn:active, .btn-small:active { transform: scale(.98); }
+    .btn-blue { background: linear-gradient(135deg, var(--cyan), var(--cyan2)); box-shadow: 0 8px 24px rgba(0,212,255,.22); }
+    .btn-orange { background: linear-gradient(135deg, var(--orange), var(--orange2)); box-shadow: 0 8px 24px rgba(255,107,43,.22); }
+    .btn-dark { background: #253044; }
+    .btn-red { background: var(--danger); }
+
+    .btn-small {
+      border: 0;
+      border-radius: 12px;
+      padding: 8px 10px;
+      color: #fff;
+      background: #253044;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 5px;
+      margin-bottom: 12px;
+    }
+
+    .seg-btn {
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 8px;
+      background: transparent;
+      color: var(--text2);
+      font-weight: 900;
+      font-size: 12px;
+    }
+
+    .seg-btn.active {
+      background: rgba(0,212,255,.15);
+      color: var(--cyan);
+      box-shadow: inset 0 0 0 1px rgba(0,212,255,.28);
+    }
+
+    .input {
+      width: 100%;
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 14px;
+      color: #fff;
+      margin-bottom: 10px;
+      font-size: 15px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .tag-cardio { color: var(--cyan); background: rgba(0,212,255,.1); border: 1px solid rgba(0,212,255,.35); }
+    .tag-strength { color: var(--orange); background: rgba(255,107,43,.1); border: 1px solid rgba(255,107,43,.35); }
+    .tag-strava { color: var(--purple); background: rgba(168,85,247,.1); border: 1px solid rgba(168,85,247,.35); }
+
+    .recovery-circle {
+      width: 96px;
+      height: 96px;
+      margin: 12px auto;
+      border-radius: 50%;
+      border: 3px solid var(--green);
+      background: rgba(0,230,118,.1);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color: var(--green);
+      font-family:'Barlow Condensed';
+      font-size: 32px;
+      font-weight: 900;
+      box-shadow: 0 0 28px rgba(0,230,118,.12);
+    }
+
+    .metric-bubble {
+      background:
+        radial-gradient(circle at top left, rgba(255,255,255,.08), transparent 50%),
+        rgba(11,17,28,.88);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 16px;
+      padding: 12px 10px;
+      min-height: 72px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .metric-value {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 25px;
+      line-height: 1;
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
+
+    .metric-label {
+      font-size: 10px;
+      color: var(--text2);
+      font-weight: 900;
+      letter-spacing: .8px;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 430px;
+      background: rgba(10,16,32,.95);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border);
+      display: flex;
+      padding-bottom: env(safe-area-inset-bottom, 10px);
+      z-index: 20;
+    }
+
+    .tab {
+      flex: 1;
+      border: 0;
+      background: none;
+      color: var(--text2);
+      padding: 10px 0 8px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:2px;
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .tab span:first-child { font-size: 19px; }
+    .tab.active { color: var(--cyan); }
+
+    .chart {
+      width: 100%;
+      height: 190px;
+      background: #0b111c;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .toast {
+      margin: 0 12px 12px;
+      border-radius: 12px;
+      padding: 11px 13px;
+      font-size: 13px;
+      border: 1px solid rgba(0,230,118,.35);
+      background: rgba(0,230,118,.08);
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .toast.error {
+      color: var(--danger);
+      background: rgba(255,71,87,.08);
+      border-color: rgba(255,71,87,.35);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const EXERCISES = [
+      { id: "aus_pull", name: "Australian Pull-Ups", icon: "🏋️" },
+      { id: "neg_pull", name: "Negative Pull-Ups", icon: "⬇️" },
+      { id: "dec_push", name: "Decline Push-Ups", icon: "💪" },
+      { id: "pike_push", name: "Incline Pike Push-Ups", icon: "🔺" },
+      { id: "knee_raise", name: "Hanging Knee Raises", icon: "🦵" },
+      { id: "squats", name: "Bodyweight Squats", icon: "🦴" },
+    ];
+
+    const DAYS_TH = ["อา", "จ", "อ", "พ", "พฤ", "ศ", "ส"];
+    const MONTHS_TH = [
+      "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+      "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+    ];
+    const FALLBACK_KEY = "workout_tracker_v2_fallback";
+
+    function dateKey(d = new Date()) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return y + "-" + m + "-" + day;
+    }
+
+    function normalizeDay(value) {
+      if (!value) return [];
+      if (Array.isArray(value)) return value.filter(Boolean);
+      if (typeof value === "object") return [{ ...value, id: value.id || "legacy_" + Date.now() }];
+      return [];
+    }
+
+    function normalizeData(data) {
+      const out = { logs: {} };
+      const logs = data && data.logs ? data.logs : {};
+      Object.keys(logs).forEach(k => {
+        out.logs[k] = normalizeDay(logs[k]);
+      });
+      return out;
+    }
+
+    async function sheetLoad() {
+      try {
+        const res = await fetch("/api/load", { cache: "no-store" });
+        if (!res.ok) throw new Error("Load API failed");
+        const data = await res.json();
+        return normalizeData(data);
+      } catch (err) {
+        try {
+          const raw = localStorage.getItem(FALLBACK_KEY);
+          return normalizeData(raw ? JSON.parse(raw) : { logs: {} });
+        } catch {
+          return { logs: {} };
+        }
+      }
+    }
+
+    async function sheetSave(allData) {
+      const normalized = normalizeData(allData);
+      localStorage.setItem(FALLBACK_KEY, JSON.stringify(normalized));
+
+      try {
+        const res = await fetch("/api/save", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(normalized),
+        });
+        if (!res.ok) throw new Error("Save API failed");
+        return normalized;
+      } catch (err) {
+        console.warn("Cloud save failed, saved fallback only", err);
+        return normalized;
+      }
+    }
+
+    async function syncStravaLatest() {
+      const res = await fetch("/api/strava-sync", { cache: "no-store" });
+      if (!res.ok) throw new Error("Strava sync failed");
+      return await res.json();
+    }
+
+    function calculatePace(duration, distance) {
+      const d = Number(distance || 0);
+      const t = Number(duration || 0);
+      if (!d || !t) return "—";
+      const totalSeconds = (t * 60) / d;
+      const m = Math.floor(totalSeconds / 60);
+      const s = Math.round(totalSeconds % 60);
+      return m + ":" + String(s).padStart(2, "0");
+    }
+
+    function paceDecimal(duration, distance) {
+      const d = Number(distance || 0);
+      const t = Number(duration || 0);
+      if (!d || !t) return null;
+      return t / d;
+    }
+
+    function allSessions(logs) {
+      return Object.entries(logs || {})
+        .flatMap(([date, sessions]) => normalizeDay(sessions).map(s => ({ ...s, date })))
+        .sort((a, b) => String(a.date).localeCompare(String(b.date)) || String(a.createdAt || "").localeCompare(String(b.createdAt || "")));
+    }
+
+    function getActivityKind(session) {
+      const text = String(session.notes || session.workout || session.name || "").toLowerCase();
+
+      if (session.type === "strength") return "strength";
+
+      if (
+        text.includes("walk") ||
+        text.includes("walking") ||
+        text.includes("hike")
+      ) {
+        return "walk";
+      }
+
+      if (
+        text.includes("run") ||
+        text.includes("running") ||
+        text.includes("treadmill") ||
+        text.includes("indoor run")
+      ) {
+        return "run";
+      }
+
+      if (
+        text.includes("ride") ||
+        text.includes("cycling") ||
+        text.includes("bike") ||
+        text.includes("yoga") ||
+        text.includes("workout") ||
+        text.includes("weight") ||
+        text.includes("training") ||
+        text.includes("gym") ||
+        text.includes("strength") ||
+        text.includes("elliptical") ||
+        text.includes("row") ||
+        text.includes("swim")
+      ) {
+        return "general";
+      }
+
+      return session.source === "Strava" ? "general" : (session.type || "cardio");
+    }
+
+    function isRunWalkCardio(session) {
+      const kind = getActivityKind(session);
+      return kind === "run" || kind === "walk" || (kind === "cardio" && session.source !== "Strava");
+    }
+
+    function isStrengthSession(session) {
+      return !isRunWalkCardio(session);
+    }
+
+    function calculateRecovery(logs) {
+      const sessions = allSessions(logs).slice(-8);
+      if (!sessions.length) return 100;
+
+      let score = 100;
+      const cardio = sessions.filter(s => !isStrengthSession(s));
+      const recentMinutes = sessions.reduce((sum, s) => sum + Number(s.duration || 0), 0);
+
+      cardio.forEach(s => {
+        const hr = Number(s.avgHR || 0);
+        if (hr >= 160) score -= 14;
+        else if (hr >= 151) score -= 8;
+        else if (hr >= 145) score -= 3;
+      });
+
+      if (recentMinutes > 260) score -= 14;
+      else if (recentMinutes > 180) score -= 7;
+
+      const todaySessions = normalizeDay((logs || {})[dateKey()]);
+      if (todaySessions.length >= 2) score -= 8;
+
+      return Math.max(25, Math.min(100, Math.round(score)));
+    }
+
+    function coachMessage(logs) {
+      const recovery = calculateRecovery(logs);
+      const sessions = allSessions(logs);
+      const latest = sessions[sessions.length - 1];
+
+      if (!latest) return "เริ่มบันทึก session แรก แล้วระบบจะเริ่มวิเคราะห์ readiness และ progression ให้ครับ";
+      if (recovery < 45) return "Recovery ต่ำ วันนี้แนะนำพัก เดินเบา ๆ หรือ mobility 15–20 นาที เพื่อกันล้าสะสม";
+      if (!isStrengthSession(latest) && Number(latest.avgHR || 0) > 150) return "Cardio ล่าสุด HR สูงกว่า Zone 2 เล็กน้อย รอบหน้าลองลด pace ลง เพื่อให้ฐานแอโรบิกนิ่งขึ้น";
+      if (recovery < 70) return "วันนี้เหมาะกับ Zone 2 เบา ๆ หรือ strength volume กลาง ๆ ยังไม่ควรอัดหนักมาก";
+      return "ร่างกายพร้อมซ้อมดี วันนี้เล่น strength หรือ Zone 2 ตามตารางได้ครับ";
+    }
+
+    function paceAI(logs) {
+      const cardio = allSessions(logs).filter(s => !isStrengthSession(s) && Number(s.distance) > 0 && Number(s.duration) > 0);
+      if (cardio.length < 2) return "ยังมีข้อมูล cardio ไม่พอสำหรับวิเคราะห์ pace progression";
+
+      const first = paceDecimal(cardio[0].duration, cardio[0].distance);
+      const last = paceDecimal(cardio[cardio.length - 1].duration, cardio[cardio.length - 1].distance);
+
+      if (!first || !last) return "ข้อมูล pace ยังไม่สมบูรณ์";
+
+      const diff = ((first - last) / first) * 100;
+
+      if (diff > 3) return "Pace ดีขึ้นประมาณ " + diff.toFixed(1) + "% จากข้อมูล cardio ที่มี ถือว่า aerobic efficiency กำลังดีขึ้น";
+      if (diff < -3) return "Pace ช้าลงประมาณ " + Math.abs(diff).toFixed(1) + "% อาจเกิดจากความล้าหรือคุม HR เข้มขึ้น";
+      return "Pace ค่อนข้างนิ่ง เหมาะกับการสร้าง Zone 2 base ต่อเนื่อง";
+    }
+
+    function formatDateThaiShort(dateStr) {
+      if (!dateStr) return "—";
+      const parts = dateStr.split("-");
+      if (parts.length !== 3) return dateStr;
+      return Number(parts[2]) + " " + MONTHS_TH[Number(parts[1]) - 1].slice(0, 3);
+    }
+
+    function getPeriodRange(mode) {
+      const now = new Date();
+      const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+
+      if (mode === "week") {
+        const start = new Date(now);
+        start.setDate(now.getDate() - now.getDay());
+        start.setHours(0, 0, 0, 0);
+        return { start, end, label: "สัปดาห์นี้" };
+      }
+
+      if (mode === "month") {
+        const start = new Date(now.getFullYear(), now.getMonth(), 1);
+        return { start, end, label: MONTHS_TH[now.getMonth()] + " " + (now.getFullYear() + 543) };
+      }
+
+      const start = new Date(now.getFullYear(), 0, 1);
+      return { start, end, label: "ปี " + (now.getFullYear() + 543) };
+    }
+
+    function inRange(dateStr, start, end) {
+      const d = new Date(dateStr + "T12:00:00");
+      return d >= start && d <= end;
+    }
+
+    function App() {
+      const [tab, setTab] = useState("today");
+      const [data, setData] = useState({ logs: {} });
+      const [loading, setLoading] = useState(true);
+      const [toast, setToast] = useState(null);
+      const [form, setForm] = useState(null);
+      const [editing, setEditing] = useState(null);
+
+      const today = dateKey();
+      const todaySessions = normalizeDay(data.logs[today]);
+      const recovery = calculateRecovery(data.logs);
+
+      useEffect(() => {
+        (async () => {
+          const loaded = await sheetLoad();
+          setData(loaded);
+          setLoading(false);
+        })();
+      }, []);
+
+      function notify(msg, error = false) {
+        setToast({ msg, error });
+        setTimeout(() => setToast(null), 3000);
+      }
+
+      async function persist(next, msg) {
+        setData(next);
+        await sheetSave(next);
+        notify(msg || "บันทึกสำเร็จ");
+      }
+
+      async function saveSession(payload) {
+        const targetDate = editing?.date || today;
+        const current = normalizeDay(data.logs[targetDate]);
+        let nextSessions;
+
+        if (editing) {
+          nextSessions = current.map(s => s.id === editing.session.id ? { ...s, ...payload, id: s.id, updatedAt: new Date().toISOString() } : s);
+        } else {
+          nextSessions = [...current, { ...payload, id: "sess_" + Date.now(), createdAt: new Date().toISOString() }];
+        }
+
+        const next = { ...data, logs: { ...data.logs, [targetDate]: nextSessions } };
+
+        setForm(null);
+        setEditing(null);
+        await persist(next, editing ? "แก้ไข session แล้ว" : "เพิ่ม session แล้ว");
+      }
+
+      async function deleteSession(date, id) {
+        const current = normalizeDay(data.logs[date]);
+        const next = { ...data, logs: { ...data.logs, [date]: current.filter(s => s.id !== id) } };
+        await persist(next, "ลบ session แล้ว");
+      }
+
+      async function duplicateSession(date, session) {
+        const current = normalizeDay(data.logs[date]);
+        const copy = {
+          ...session,
+          id: "sess_" + Date.now(),
+          createdAt: new Date().toISOString(),
+          source: session.source ? session.source + " Copy" : "Copy"
+        };
+        const next = { ...data, logs: { ...data.logs, [date]: [...current, copy] } };
+        await persist(next, "Duplicate session แล้ว");
+      }
+
+      async function importStrava() {
+        try {
+          const result = await syncStravaLatest();
+
+          if (result.error) {
+            throw new Error(result.error);
+          }
+
+          const fresh = await sheetLoad();
+          setData(fresh);
+
+          notify(result.message || "Sync Strava สำเร็จ");
+        } catch (err) {
+          notify("Sync Strava ไม่สำเร็จ: " + err.message, true);
+        }
+      }
+
+      if (loading) {
+        return (
+          <div className="app">
+            <div className="header">
+              <div className="title">Loading...</div>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="app">
+          <div className="header">
+            <div>
+              <div className="title">Calisthenics & Zone 2</div>
+              <div className="muted">Multi-session cloud tracker</div>
+            </div>
+            <div className="badge">GitHub DB</div>
+          </div>
+
+          {toast && <div className={"toast " + (toast.error ? "error" : "")}>{toast.msg}</div>}
+
+          <div className="section">
+            {tab === "today" && (
+              <TodayScreen
+                sessions={todaySessions}
+                recovery={recovery}
+                coach={coachMessage(data.logs)}
+                paceText={paceAI(data.logs)}
+                onAddCardio={() => { setEditing(null); setForm("cardio"); }}
+                onAddStrength={() => { setEditing(null); setForm("strength"); }}
+                onSyncStrava={importStrava}
+                onEdit={(session) => {
+                  setEditing({ date: today, session });
+                  setForm(isStrengthSession(session) ? "strength" : "cardio");
+                }}
+                onDelete={(id) => deleteSession(today, id)}
+                onDuplicate={(session) => duplicateSession(today, session)}
+              />
+            )}
+
+            {tab === "history" && (
+              <HistoryScreen
+                logs={data.logs}
+                onDelete={deleteSession}
+                onDuplicate={duplicateSession}
+                onEdit={(date, session) => {
+                  setEditing({ date, session });
+                  setForm(isStrengthSession(session) ? "strength" : "cardio");
+                  setTab("today");
+                }}
+              />
+            )}
+
+            {tab === "analytics" && <AnalyticsScreen logs={data.logs} />}
+            {tab === "coach" && <CoachScreen logs={data.logs} />}
+            {tab === "stats" && <StatsScreen logs={data.logs} />}
+          </div>
+
+          {form && (
+            <Modal>
+              <SessionForm
+                type={form}
+                existing={editing?.session || null}
+                onSave={saveSession}
+                onCancel={() => { setForm(null); setEditing(null); }}
+              />
+            </Modal>
+          )}
+
+          <div className="bottom-nav">
+            {[
+              ["today", "📅", "TODAY"],
+              ["history", "📊", "HISTORY"],
+              ["analytics", "📈", "CHARTS"],
+              ["coach", "🧠", "COACH"],
+              ["stats", "🏆", "STATS"],
+            ].map(([id, icon, label]) => (
+              <button key={id} className={"tab " + (tab === id ? "active" : "")} onClick={() => setTab(id)}>
+                <span>{icon}</span>
+                <span>{label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    function TodayScreen({ sessions, recovery, coach, paceText, onAddCardio, onAddStrength, onSyncStrava, onEdit, onDelete, onDuplicate }) {
+      return (
+        <>
+          <div className="card ai-card">
+            <div className="label">Readiness / Recovery</div>
+            <div className="recovery-circle">{recovery}%</div>
+            <div style={{ textAlign: "center", fontWeight: 800, lineHeight: 1.45 }}>{coach}</div>
+            <div className="muted" style={{ textAlign: "center", marginTop: 8 }}>{paceText}</div>
+          </div>
+
+          <div className="card">
+            <button className="btn btn-blue" onClick={onSyncStrava}>🔄 Sync Latest Strava</button>
+            <button className="btn btn-blue" onClick={onAddCardio}>🏃 Add Cardio</button>
+            <button className="btn btn-orange" onClick={onAddStrength}>💪 Add Strength</button>
+          </div>
+
+          <div className="card">
+            <div className="row">
+              <b>Today's Sessions</b>
+              <span className="muted">{sessions.length} sessions</span>
+            </div>
+          </div>
+
+          {sessions.length === 0 && <div className="card"><div className="muted">ยังไม่มี session วันนี้</div></div>}
+
+          {sessions.map(s => (
+            <SessionCard
+              key={s.id}
+              session={s}
+              onEdit={() => onEdit(s)}
+              onDelete={() => onDelete(s.id)}
+              onDuplicate={() => onDuplicate(s)}
+            />
+          ))}
+        </>
+      );
+    }
+
+    function SessionCard({ session, onEdit, onDelete, onDuplicate }) {
+      const strength = isStrengthSession(session);
+      const kind = getActivityKind(session);
+      const title = session.notes || (strength ? "Strength Session" : "Cardio Session");
+      const sourceTag = session.source === "Strava";
+
+      return (
+        <div className="card2">
+          <div className={"tag " + (sourceTag ? "tag-strava" : strength ? "tag-strength" : "tag-cardio")}>
+            {sourceTag ? "⚡ Strava" : strength ? "💪 Strength" : kind === "walk" ? "🚶 Walk" : "🏃 Cardio"}
+          </div>
+
+          <div style={{ fontWeight: 900, marginBottom: 10 }}>{title}</div>
+
+          {strength ? <StrengthMetrics session={session} /> : <CardioMetrics session={session} />}
+
+          {!strength && (
+            <div className="muted" style={{ marginTop: 9 }}>
+              Calories {session.calories || "—"} • Source {session.source || "Manual"}
+            </div>
+          )}
+
+          {strength && session.exercises && (
+            <div style={{ marginTop: 10 }}>
+              {EXERCISES.map(ex => {
+                const sets = session.exercises?.[ex.id];
+                if (!sets || sets.every(v => !v)) return null;
+                return (
+                  <div key={ex.id} className="muted">
+                    {ex.icon} {ex.name}: <b style={{ color: "var(--orange)" }}>{sets.filter(Boolean).join("/")}</b>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {strength && !session.exercises && (
+            <div className="muted" style={{ marginTop: 9 }}>
+              Activity Type: {getActivityKind(session)} • Source {session.source || "Manual"}
+            </div>
+          )}
+
+          <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+            <button className="btn-small" onClick={onEdit}>✏️ Edit</button>
+            <button className="btn-small" onClick={onDuplicate}>📄 Copy</button>
+            <button className="btn-small" style={{ background: "#ff4757" }} onClick={onDelete}>🗑 Delete</button>
+          </div>
+        </div>
+      );
+    }
+
+    function CardioMetrics({ session }) {
+      return (
+        <div className="grid2">
+          <MetricBubble label="DISTANCE" value={(Number(session.distance || 0)).toFixed(2)} suffix="km" color="var(--green)" />
+          <MetricBubble label="PACE" value={calculatePace(session.duration, session.distance)} suffix="/km" color="var(--orange)" />
+          <MetricBubble label="TIME" value={Number(session.duration || 0)} suffix="min" color="var(--cyan)" />
+          <MetricBubble label="AVG HR" value={session.avgHR || "—"} suffix="bpm" color="var(--purple)" />
+        </div>
+      );
+    }
+
+    function StrengthMetrics({ session }) {
+      const exerciseCount = session.exercises
+        ? Object.values(session.exercises).filter(sets => Array.isArray(sets) && sets.some(Boolean)).length
+        : 0;
+
+      return (
+        <div className="grid3">
+          <MetricBubble label="TIME" value={Number(session.duration || 0) || "—"} suffix="min" color="var(--cyan)" compact />
+          <MetricBubble label="AVG HR" value={session.avgHR || "—"} suffix="bpm" color="var(--purple)" compact />
+          <MetricBubble label={exerciseCount ? "EXERCISES" : "CAL"} value={exerciseCount || session.calories || "—"} suffix={exerciseCount ? "" : "cal"} color="var(--orange)" compact />
+        </div>
+      );
+    }
+
+    function MetricBubble({ label, value, suffix, color, compact }) {
+      return (
+        <div className="metric-bubble" style={{ minHeight: compact ? 68 : 76 }}>
+          <div className="metric-value" style={{ color, fontSize: compact ? 22 : 26 }}>
+            {value}
+          </div>
+          <div className="metric-label">{label}{suffix ? " • " + suffix : ""}</div>
+        </div>
+      );
+    }
+
+    function MiniStat({ label, value, color }) {
+      return (
+        <div style={{ textAlign: "center", background: "#0b111c", borderRadius: 14, padding: 12 }}>
+          <div className="metric-value" style={{ color }}>{value}</div>
+          <div className="metric-label">{label}</div>
+        </div>
+      );
+    }
+
+    function HistoryScreen({ logs, onDelete, onDuplicate, onEdit }) {
+      const [selectedDate, setSelectedDate] = useState(dateKey());
+      const [viewMonth, setViewMonth] = useState(new Date());
+
+      const year = viewMonth.getFullYear();
+      const month = viewMonth.getMonth();
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const startWeekday = firstDay.getDay();
+      const totalDays = lastDay.getDate();
+
+      const calendar = [];
+      for (let i = 0; i < startWeekday; i++) calendar.push(null);
+      for (let d = 1; d <= totalDays; d++) calendar.push(new Date(year, month, d));
+
+      const selectedSessions = normalizeDay(logs?.[selectedDate]);
+
+      function changeMonth(offset) {
+        const next = new Date(viewMonth);
+        next.setDate(1);
+        next.setMonth(next.getMonth() + offset);
+        setViewMonth(next);
+
+        const nextSelected = new Date(next.getFullYear(), next.getMonth(), 1);
+        setSelectedDate(dateKey(nextSelected));
+      }
+
+      function jumpToday() {
+        const now = new Date();
+        setViewMonth(now);
+        setSelectedDate(dateKey(now));
+      }
+
+      return (
+        <>
+          <div className="card">
+            <div className="row" style={{ marginBottom: 14 }}>
+              <button className="btn-small" onClick={() => changeMonth(-1)}>←</button>
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontWeight: 900, fontSize: 18 }}>📅 {MONTHS_TH[month]} {year + 543}</div>
+                <div className="muted">แตะวันที่เพื่อดูรายละเอียด</div>
+              </div>
+              <button className="btn-small" onClick={() => changeMonth(1)}>→</button>
+            </div>
+
+            <button className="btn btn-dark" style={{ padding: "10px 12px", marginBottom: 14 }} onClick={jumpToday}>วันนี้</button>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6, marginBottom: 8 }}>
+              {DAYS_TH.map(day => (
+                <div key={day} style={{ textAlign: "center", fontSize: 11, color: "var(--text2)", fontWeight: 900 }}>{day}</div>
+              ))}
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6 }}>
+              {calendar.map((d, i) => {
+                if (!d) return <div key={"empty_" + i} style={{ height: 58 }} />;
+
+                const k = dateKey(d);
+                const daySessions = normalizeDay(logs?.[k]);
+                const hasCardio = daySessions.some(s => !isStrengthSession(s));
+                const hasStrength = daySessions.some(s => isStrengthSession(s));
+                const isSelected = selectedDate === k;
+                const isToday = k === dateKey();
+
+                return (
+                  <button
+                    key={k}
+                    onClick={() => setSelectedDate(k)}
+                    style={{
+                      height: 58,
+                      border: isSelected ? "1px solid var(--cyan)" : isToday ? "1px solid rgba(0,212,255,.45)" : "1px solid transparent",
+                      background: isSelected ? "rgba(0,212,255,.16)" : "#141c26",
+                      color: "#fff",
+                      borderRadius: 12,
+                      position: "relative",
+                      padding: 0
+                    }}
+                  >
+                    <div style={{ fontSize: 13, fontWeight: 900 }}>{d.getDate()}</div>
+                    <div style={{ position: "absolute", left: 0, right: 0, bottom: 8, display: "flex", justifyContent: "center", gap: 3, minHeight: 6 }}>
+                      {hasCardio && <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--cyan)" }} />}
+                      {hasStrength && <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--orange)" }} />}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="row" style={{ marginBottom: 10 }}>
+              <b>รายละเอียดวันที่ {selectedDate}</b>
+              <span className="muted">{selectedSessions.length} sessions</span>
+            </div>
+
+            {selectedSessions.length === 0 && <div className="muted">ไม่มีข้อมูลออกกำลังในวันนี้</div>}
+
+            {selectedSessions.map(s => (
+              <SessionCard
+                key={s.id}
+                session={s}
+                onEdit={() => onEdit(selectedDate, s)}
+                onDelete={() => onDelete(selectedDate, s.id)}
+                onDuplicate={() => onDuplicate(selectedDate, s)}
+              />
+            ))}
+          </div>
+        </>
+      );
+    }
+
+    function AnalyticsScreen({ logs }) {
+      const cardio = allSessions(logs)
+        .filter(s => !isStrengthSession(s) && Number(s.distance) > 0 && Number(s.duration) > 0)
+        .map(s => ({
+          date: s.date.slice(5),
+          pace: Number(paceDecimal(s.duration, s.distance).toFixed(2)),
+          hr: Number(s.avgHR || 0),
+          distance: Number(s.distance || 0),
+        }));
+
+      return (
+        <>
+          <ChartCard title="📈 Pace Trend (min/km)" data={cardio} valueKey="pace" color="var(--cyan)" />
+          <ChartCard title="❤️ HR Trend" data={cardio.filter(x => x.hr)} valueKey="hr" color="var(--orange)" />
+          <ChartCard title="🏃 Distance Trend" data={cardio} valueKey="distance" color="var(--green)" />
+        </>
+      );
+    }
+
+    function ChartCard({ title, data, valueKey, color }) {
+      const values = data.map(x => Number(x[valueKey])).filter(v => Number.isFinite(v));
+
+      if (!data.length || !values.length) {
+        return (
+          <div className="card">
+            <div style={{ fontWeight: 900, marginBottom: 12 }}>{title}</div>
+            <div className="muted">ยังไม่มีข้อมูลพอสำหรับกราฟ</div>
+          </div>
+        );
+      }
+
+      const minRaw = Math.min(...values);
+      const maxRaw = Math.max(...values);
+      const padding = (maxRaw - minRaw || 1) * 0.16;
+      const min = Math.max(0, minRaw - padding);
+      const max = maxRaw + padding;
+      const range = max - min || 1;
+
+      const w = 300;
+      const h = 190;
+      const left = 42;
+      const right = 14;
+      const top = 18;
+      const bottom = 34;
+      const chartW = w - left - right;
+      const chartH = h - top - bottom;
+
+      const pointFor = (item, i) => {
+        const x = left + (i * (chartW / Math.max(1, data.length - 1)));
+        const y = top + chartH - ((Number(item[valueKey]) - min) / range) * chartH;
+        return { x, y, value: Number(item[valueKey]) };
+      };
+
+      const points = data.map(pointFor);
+      const poly = points.map(p => p.x + "," + p.y).join(" ");
+      const yTicks = [max, (max + min) / 2, min];
+      const avg = values.reduce((a, b) => a + b, 0) / values.length;
+      const avgY = top + chartH - ((avg - min) / range) * chartH;
+
+      return (
+        <div className="card">
+          <div className="row" style={{ marginBottom: 12 }}>
+            <div style={{ fontWeight: 900 }}>{title}</div>
+            <div className="muted">Avg {avg.toFixed(valueKey === "distance" || valueKey === "pace" ? 1 : 0)}</div>
+          </div>
+
+          <svg className="chart" viewBox={"0 0 " + w + " " + h}>
+            <rect x="0" y="0" width={w} height={h} fill="#0b111c" />
+
+            {yTicks.map((tick, i) => {
+              const y = top + (i * chartH / 2);
+              return (
+                <g key={i}>
+                  <line x1={left} y1={y} x2={w - right} y2={y} stroke="rgba(255,255,255,.09)" />
+                  <text x="8" y={y + 4} fill="rgba(232,237,245,.58)" fontSize="10">
+                    {tick.toFixed(valueKey === "distance" || valueKey === "pace" ? 1 : 0)}
+                  </text>
+                </g>
+              );
+            })}
+
+            <line x1={left} y1={top} x2={left} y2={top + chartH} stroke="rgba(255,255,255,.18)" />
+            <line x1={left} y1={top + chartH} x2={w - right} y2={top + chartH} stroke="rgba(255,255,255,.18)" />
+            <line x1={left} y1={avgY} x2={w - right} y2={avgY} stroke="rgba(255,255,255,.22)" strokeDasharray="4 5" />
+
+            <polyline points={poly} fill="none" stroke={color} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" opacity="0.94" />
+
+            {points.map((p, i) => (
+              <circle key={i} cx={p.x} cy={p.y} r="2.5" fill={color} opacity="0.9" />
+            ))}
+
+            {data.map((item, i) => {
+              const step = data.length > 14 ? Math.ceil(data.length / 5) : data.length > 7 ? 2 : 1;
+              if (i % step !== 0 && i !== data.length - 1) return null;
+              const p = pointFor(item, i);
+
+              return (
+                <text key={i} x={p.x} y={h - 12} fill="rgba(232,237,245,.58)" fontSize="9" textAnchor="middle">
+                  {item.date}
+                </text>
+              );
+            })}
+          </svg>
+
+          <div className="muted" style={{ marginTop: 8 }}>
+            แสดงแนวโน้มภาพรวม • เส้นประคือค่าเฉลี่ย
+          </div>
+        </div>
+      );
+    }
+
+    function CoachScreen({ logs }) {
+      return (
+        <>
+          <div className="card ai-card">
+            <div className="label">AI Coach รายวัน</div>
+            <div style={{ marginTop: 10, lineHeight: 1.7, fontWeight: 700 }}>{coachMessage(logs)}</div>
+          </div>
+
+          <div className="card">
+            <div className="label">Pace Progression AI</div>
+            <div style={{ marginTop: 10, lineHeight: 1.7 }}>{paceAI(logs)}</div>
+          </div>
+        </>
+      );
+    }
+
+    function StatsScreen({ logs }) {
+      const [range, setRange] = useState("week");
+      const period = getPeriodRange(range);
+      const sessions = allSessions(logs).filter(s => inRange(s.date, period.start, period.end));
+      const cardio = sessions.filter(s => !isStrengthSession(s));
+      const strength = sessions.filter(s => isStrengthSession(s));
+
+      const totalMin = sessions.reduce((sum, s) => sum + Number(s.duration || 0), 0);
+      const totalKm = cardio.reduce((sum, s) => sum + Number(s.distance || 0), 0);
+      const hrSessions = sessions.filter(s => Number(s.avgHR || 0) > 0);
+      const avgHR = hrSessions.length
+        ? Math.round(hrSessions.reduce((sum, s) => sum + Number(s.avgHR || 0), 0) / hrSessions.length)
+        : "—";
+
+      const totalCalories = sessions.reduce((sum, s) => sum + Number(s.calories || 0), 0);
+
+      return (
+        <>
+          <div className="card">
+            <div className="label" style={{ marginBottom: 10 }}>Stats Range</div>
+            <div className="segmented">
+              <button className={"seg-btn " + (range === "week" ? "active" : "")} onClick={() => setRange("week")}>Week</button>
+              <button className={"seg-btn " + (range === "month" ? "active" : "")} onClick={() => setRange("month")}>Month</button>
+              <button className={"seg-btn " + (range === "year" ? "active" : "")} onClick={() => setRange("year")}>Year</button>
+            </div>
+            <div className="muted">{period.label}</div>
+          </div>
+
+          <div className="grid2">
+            <div className="card"><MiniStat label="SESSIONS" value={sessions.length} color="var(--orange)" /></div>
+            <div className="card"><MiniStat label="CARDIO" value={cardio.length} color="var(--cyan)" /></div>
+            <div className="card"><MiniStat label="STRENGTH" value={strength.length} color="var(--orange)" /></div>
+            <div className="card"><MiniStat label="KM" value={totalKm.toFixed(1)} color="var(--green)" /></div>
+            <div className="card"><MiniStat label="MIN" value={totalMin} color="var(--cyan)" /></div>
+            <div className="card"><MiniStat label="AVG HR" value={avgHR} color="var(--purple)" /></div>
+            <div className="card"><MiniStat label="CAL" value={Math.round(totalCalories)} color="var(--orange)" /></div>
+            <div className="card"><MiniStat label="RECOVERY" value={calculateRecovery(logs) + "%"} color="var(--green)" /></div>
+          </div>
+        </>
+      );
+    }
+
+    function Modal({ children }) {
+      return (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.72)", zIndex: 50, overflowY: "auto", padding: "28px 12px 120px" }}>
+          <div style={{ maxWidth: 430, margin: "0 auto" }}>{children}</div>
+        </div>
+      );
+    }
+
+    function SessionForm({ type, existing, onSave, onCancel }) {
+      const isCardio = type === "cardio";
+      const [duration, setDuration] = useState(existing?.duration || "");
+      const [distance, setDistance] = useState(existing?.distance || "");
+      const [avgHR, setAvgHR] = useState(existing?.avgHR || "");
+      const [calories, setCalories] = useState(existing?.calories || "");
+      const [notes, setNotes] = useState(existing?.notes || "");
+      const [exercises, setExercises] = useState(() => {
+        const init = {};
+        EXERCISES.forEach(ex => {
+          init[ex.id] = existing?.exercises?.[ex.id] || ["", "", ""];
+        });
+        return init;
+      });
+
+      return (
+        <div className="card">
+          <div style={{ fontWeight: 900, marginBottom: 12 }}>{existing ? "Edit" : "Add"} {isCardio ? "Cardio" : "Strength"}</div>
+
+          {isCardio ? (
+            <>
+              <input className="input" type="number" placeholder="Duration (min)" value={duration} onChange={e => setDuration(e.target.value)} />
+              <input className="input" type="number" step="0.01" placeholder="Distance (km)" value={distance} onChange={e => setDistance(e.target.value)} />
+              <input className="input" type="number" placeholder="Average HR" value={avgHR} onChange={e => setAvgHR(e.target.value)} />
+              <input className="input" type="number" placeholder="Calories" value={calories} onChange={e => setCalories(e.target.value)} />
+              <textarea className="input" placeholder="Notes" value={notes} onChange={e => setNotes(e.target.value)} />
+            </>
+          ) : (
+            <>
+              <input className="input" type="number" placeholder="Duration (min)" value={duration} onChange={e => setDuration(e.target.value)} />
+              <input className="input" type="number" placeholder="Average HR" value={avgHR} onChange={e => setAvgHR(e.target.value)} />
+              <input className="input" type="number" placeholder="Calories" value={calories} onChange={e => setCalories(e.target.value)} />
+              <textarea className="input" placeholder="Notes" value={notes} onChange={e => setNotes(e.target.value)} />
+
+              {EXERCISES.map(ex => (
+                <div key={ex.id} className="card2">
+                  <div style={{ fontWeight: 800, marginBottom: 8 }}>{ex.icon} {ex.name}</div>
+                  <div className="grid3">
+                    {[0, 1, 2].map(i => (
+                      <input
+                        key={i}
+                        className="input"
+                        style={{ marginBottom: 0, textAlign: "center" }}
+                        type="number"
+                        placeholder={"Set " + (i + 1)}
+                        value={exercises[ex.id][i]}
+                        onChange={e => {
+                          const copy = { ...exercises, [ex.id]: [...exercises[ex.id]] };
+                          copy[ex.id][i] = e.target.value;
+                          setExercises(copy);
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
+
+          <button
+            className={"btn " + (isCardio ? "btn-blue" : "btn-orange")}
+            onClick={() => onSave(isCardio ? {
+              type: "cardio",
+              duration: Number(duration || 0),
+              distance: Number(distance || 0),
+              avgHR: Number(avgHR || 0),
+              calories: Number(calories || 0),
+              notes,
+            } : {
+              type: "strength",
+              duration: Number(duration || 0),
+              avgHR: Number(avgHR || 0),
+              calories: Number(calories || 0),
+              exercises,
+              notes,
+            })}
+          >
+            💾 Save
+          </button>
+
+          <button className="btn btn-dark" onClick={onCancel}>Cancel</button>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
