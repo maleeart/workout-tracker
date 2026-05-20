@@ -94,6 +94,18 @@
         "id": "sess_1779193226496",
         "createdAt": "2026-05-19T12:20:26.496Z",
         "updatedAt": "2026-05-19T12:43:35.880Z"
+      },
+      {
+        "id": "strava_18567598714",
+        "type": "cardio",
+        "duration": 64,
+        "distance": 0,
+        "avgHR": 117.4,
+        "calories": 0,
+        "notes": "Strength",
+        "source": "Strava",
+        "sourceId": "18567598714",
+        "createdAt": "2026-05-20T04:04:04.756Z"
       }
     ],
     "2026-05-14": [
