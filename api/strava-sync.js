@@ -78,6 +78,23 @@ module.exports = async function handler(req, res) {
     let skipped = 0;
 
     for (const activity of activities) {
+      const detailRes = await fetch(
+  "https://www.strava.com/api/v3/activities/" + activity.id,
+  {
+    headers: {
+      Authorization: "Bearer " + tokenData.access_token
+    }
+  }
+);
+
+const detail = await detailRes.json();
+
+const calories =
+  detail.calories ||
+  activity.calories ||
+  detail.total_calories ||
+  activity.total_calories ||
+  0;
       const logDate = activity.start_date_local
         ? activity.start_date_local.slice(0, 10)
         : activity.start_date.slice(0, 10);
@@ -103,7 +120,8 @@ module.exports = async function handler(req, res) {
         duration: Math.round(activity.moving_time / 60),
         distance: Number((activity.distance / 1000).toFixed(2)),
         avgHR: activity.average_heartrate || 0,
-        calories: activity.calories || 0,
+        calories: calories,
+        totalCalories: calories,
         notes: activity.name || "Strava Workout",
         source: "Strava",
         sourceId: String(activity.id),
