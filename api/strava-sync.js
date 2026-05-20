@@ -78,14 +78,44 @@ module.exports = async function handler(req, res) {
     let skipped = 0;
 
     for (const activity of activities) {
+
+  let calories =
+    activity.calories ||
+    activity.total_calories ||
+    0;
+
+  // fetch detail ONLY if needed
+  if (!calories || calories <= 0) {
+
+    try {
+
       const detailRes = await fetch(
-  "https://www.strava.com/api/v3/activities/" + activity.id,
-  {
-    headers: {
-      Authorization: "Bearer " + tokenData.access_token
+        "https://www.strava.com/api/v3/activities/" + activity.id,
+        {
+          headers: {
+            Authorization:
+              "Bearer " +
+              tokenData.access_token
+          }
+        }
+      );
+
+      const detail =
+        await detailRes.json();
+
+      calories =
+        detail.calories ||
+        detail.kilojoules ||
+        detail.total_calories ||
+        0;
+
+    } catch (e) {
+      console.log(
+        "detail fetch failed",
+        activity.id
+      );
     }
   }
-);
 
 const detail = await detailRes.json();
 
