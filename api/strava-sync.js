@@ -124,7 +124,7 @@ const detail = await detailRes.json();
   JSON.stringify(detail, null, 2)
 );
 
-const calories =
+let calories =
   detail.calories ||
   activity.calories ||
   detail.total_calories ||
