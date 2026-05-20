@@ -1776,6 +1776,266 @@
         "updatedAt": "2026-05-20T06:57:23.717Z",
         "createdAt": "2026-05-20T06:57:23.717Z"
       }
+    ],
+    "2026-01-27": [
+      {
+        "id": "strava_17193015937",
+        "type": "cardio",
+        "duration": 30,
+        "distance": 1.91,
+        "avgHR": 133.9,
+        "calories": 247,
+        "totalCalories": 247,
+        "caloriesSource": "detail.calories",
+        "notes": "Evening Walk",
+        "source": "Strava",
+        "sourceId": "17193015937",
+        "sportType": "Walk",
+        "updatedAt": "2026-05-20T06:57:32.671Z",
+        "createdAt": "2026-05-20T06:57:32.671Z"
+      }
+    ],
+    "2026-01-26": [
+      {
+        "id": "strava_17181218913",
+        "type": "cardio",
+        "duration": 58,
+        "distance": 5.02,
+        "avgHR": 140.8,
+        "calories": 260,
+        "totalCalories": 260,
+        "caloriesSource": "detail.calories",
+        "notes": "Afternoon Run",
+        "source": "Strava",
+        "sourceId": "17181218913",
+        "sportType": "Run",
+        "updatedAt": "2026-05-20T06:57:33.106Z",
+        "createdAt": "2026-05-20T06:57:33.106Z"
+      },
+      {
+        "id": "strava_17180653016",
+        "type": "cardio",
+        "duration": 6,
+        "distance": 0.47,
+        "avgHR": 107.7,
+        "calories": 23,
+        "totalCalories": 23,
+        "caloriesSource": "detail.calories",
+        "notes": "Afternoon Walk",
+        "source": "Strava",
+        "sourceId": "17180653016",
+        "sportType": "Walk",
+        "updatedAt": "2026-05-20T06:57:33.415Z",
+        "createdAt": "2026-05-20T06:57:33.415Z"
+      },
+      {
+        "id": "strava_17179100443",
+        "type": "cardio",
+        "duration": 41,
+        "distance": 0,
+        "avgHR": 128.7,
+        "calories": 242,
+        "totalCalories": 242,
+        "caloriesSource": "detail.calories",
+        "notes": "Lunch Weight Training",
+        "source": "Strava",
+        "sourceId": "17179100443",
+        "sportType": "WeightTraining",
+        "updatedAt": "2026-05-20T06:57:33.621Z",
+        "createdAt": "2026-05-20T06:57:33.621Z"
+      }
+    ],
+    "2026-01-24": [
+      {
+        "id": "strava_17159537429",
+        "type": "cardio",
+        "duration": 31,
+        "distance": 2.67,
+        "avgHR": 137,
+        "calories": 147,
+        "totalCalories": 147,
+        "caloriesSource": "detail.calories",
+        "notes": "Evening Run",
+        "source": "Strava",
+        "sourceId": "17159537429",
+        "sportType": "Run",
+        "updatedAt": "2026-05-20T06:57:34.059Z",
+        "createdAt": "2026-05-20T06:57:34.059Z"
+      },
+      {
+        "id": "strava_17159155435",
+        "type": "cardio",
+        "duration": 5,
+        "distance": 0.39,
+        "avgHR": 117.4,
+        "calories": 18,
+        "totalCalories": 18,
+        "caloriesSource": "detail.calories",
+        "notes": "Evening Walk",
+        "source": "Strava",
+        "sourceId": "17159155435",
+        "sportType": "Walk",
+        "updatedAt": "2026-05-20T06:57:34.305Z",
+        "createdAt": "2026-05-20T06:57:34.305Z"
+      }
+    ],
+    "2026-01-23": [
+      {
+        "id": "strava_17149223658",
+        "type": "cardio",
+        "duration": 15,
+        "distance": 0,
+        "avgHR": 102,
+        "calories": 64,
+        "totalCalories": 64,
+        "caloriesSource": "detail.calories",
+        "notes": "Evening Weight Training",
+        "source": "Strava",
+        "sourceId": "17149223658",
+        "sportType": "WeightTraining",
+        "updatedAt": "2026-05-20T06:57:34.533Z",
+        "createdAt": "2026-05-20T06:57:34.533Z"
+      },
+      {
+        "id": "strava_17148947301",
+        "type": "cardio",
+        "duration": 31,
+        "distance": 2.57,
+        "avgHR": 130.8,
+        "calories": 203,
+        "totalCalories": 203,
+        "caloriesSource": "detail.calories",
+        "notes": "Evening Run",
+        "source": "Strava",
+        "sourceId": "17148947301",
+        "sportType": "Run",
+        "updatedAt": "2026-05-20T06:57:34.771Z",
+        "createdAt": "2026-05-20T06:57:34.771Z"
+      }
+    ],
+    "2026-01-22": [
+      {
+        "id": "strava_17137651022",
+        "type": "cardio",
+        "duration": 11,
+        "distance": 0,
+        "avgHR": 142,
+        "calories": 97,
+        "totalCalories": 97,
+        "caloriesSource": "detail.calories",
+        "notes": "Evening Badminton",
+        "source": "Strava",
+        "sourceId": "17137651022",
+        "sportType": "Badminton",
+        "updatedAt": "2026-05-20T06:57:35.045Z",
+        "createdAt": "2026-05-20T06:57:35.045Z"
+      }
+    ],
+    "2026-01-21": [
+      {
+        "id": "strava_17126409717",
+        "type": "cardio",
+        "duration": 29,
+        "distance": 2.03,
+        "avgHR": 131.6,
+        "calories": 217,
+        "totalCalories": 217,
+        "caloriesSource": "detail.calories",
+        "notes": "Evening Run",
+        "source": "Strava",
+        "sourceId": "17126409717",
+        "sportType": "Run",
+        "updatedAt": "2026-05-20T06:57:35.304Z",
+        "createdAt": "2026-05-20T06:57:35.304Z"
+      }
+    ],
+    "2026-01-20": [
+      {
+        "id": "strava_17126282663",
+        "type": "cardio",
+        "duration": 84,
+        "distance": 0,
+        "avgHR": 151.9,
+        "calories": 781,
+        "totalCalories": 781,
+        "caloriesSource": "detail.calories",
+        "notes": "Afternoon Badminton",
+        "source": "Strava",
+        "sourceId": "17126282663",
+        "sportType": "Badminton",
+        "updatedAt": "2026-05-20T06:57:35.521Z",
+        "createdAt": "2026-05-20T06:57:35.521Z"
+      }
+    ],
+    "2026-01-19": [
+      {
+        "id": "strava_17102599104",
+        "type": "cardio",
+        "duration": 16,
+        "distance": 1.21,
+        "avgHR": 130.2,
+        "calories": 103,
+        "totalCalories": 103,
+        "caloriesSource": "detail.calories",
+        "notes": "Evening Run",
+        "source": "Strava",
+        "sourceId": "17102599104",
+        "sportType": "Run",
+        "updatedAt": "2026-05-20T06:57:35.806Z",
+        "createdAt": "2026-05-20T06:57:35.806Z"
+      },
+      {
+        "id": "strava_17102599101",
+        "type": "cardio",
+        "duration": 33,
+        "distance": 0,
+        "avgHR": 122.2,
+        "calories": 164,
+        "totalCalories": 164,
+        "caloriesSource": "detail.calories",
+        "notes": "Lunch Weight Training",
+        "source": "Strava",
+        "sourceId": "17102599101",
+        "sportType": "WeightTraining",
+        "updatedAt": "2026-05-20T06:57:36.026Z",
+        "createdAt": "2026-05-20T06:57:36.026Z"
+      }
+    ],
+    "2026-01-17": [
+      {
+        "id": "strava_17080313187",
+        "type": "cardio",
+        "duration": 51,
+        "distance": 0,
+        "avgHR": 123.2,
+        "calories": 276,
+        "totalCalories": 276,
+        "caloriesSource": "detail.calories",
+        "notes": "Evening Weight Training",
+        "source": "Strava",
+        "sourceId": "17080313187",
+        "sportType": "WeightTraining",
+        "updatedAt": "2026-05-20T06:57:36.276Z",
+        "createdAt": "2026-05-20T06:57:36.276Z"
+      }
+    ],
+    "2026-01-16": [
+      {
+        "id": "strava_17068871226",
+        "type": "cardio",
+        "duration": 0,
+        "distance": 0.02,
+        "avgHR": 0,
+        "calories": 0,
+        "totalCalories": 0,
+        "caloriesSource": "none",
+        "notes": "Evening Run",
+        "source": "Strava",
+        "sourceId": "17068871226",
+        "sportType": "Run",
+        "updatedAt": "2026-05-20T06:57:36.672Z",
+        "createdAt": "2026-05-20T06:57:36.672Z"
+      }
     ]
   }
 }
