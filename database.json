@@ -3952,6 +3952,22 @@
         "notes": "Home workout",
         "id": "sess_1779369135318",
         "createdAt": "2026-05-21T13:12:15.318Z"
+      },
+      {
+        "id": "strava_18595058661",
+        "type": "cardio",
+        "duration": 70,
+        "distance": 0,
+        "avgHR": 103.7,
+        "calories": 341,
+        "totalCalories": 341,
+        "caloriesSource": "detail.calories",
+        "notes": "Strength",
+        "source": "Strava",
+        "sourceId": "18595058661",
+        "sportType": "WeightTraining",
+        "updatedAt": "2026-05-21T13:29:20.287Z",
+        "createdAt": "2026-05-21T13:29:20.287Z"
       }
     ]
   }
