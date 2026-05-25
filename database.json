@@ -4047,6 +4047,24 @@
         "updatedAt": "2026-05-23T12:13:14.400Z",
         "createdAt": "2026-05-23T12:13:14.400Z"
       }
+    ],
+    "2026-05-24": [
+      {
+        "id": "strava_18635593480",
+        "type": "cardio",
+        "duration": 16,
+        "distance": 0,
+        "avgHR": 111.6,
+        "calories": 89,
+        "totalCalories": 89,
+        "caloriesSource": "detail.calories",
+        "notes": "Strength",
+        "source": "Strava",
+        "sourceId": "18635593480",
+        "sportType": "WeightTraining",
+        "updatedAt": "2026-05-25T06:28:10.736Z",
+        "createdAt": "2026-05-25T06:28:10.736Z"
+      }
     ]
   }
 }
