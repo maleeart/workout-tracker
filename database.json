@@ -14,7 +14,7 @@
         "source": "Strava",
         "sourceId": "18567598714",
         "sportType": "WeightTraining",
-        "updatedAt": "2026-05-20T12:11:03.408Z",
+        "updatedAt": "2026-06-04T07:32:41.373Z",
         "createdAt": "2026-05-20T06:13:47.346Z"
       },
       {
@@ -71,7 +71,7 @@
         "source": "Strava",
         "sourceId": "18554088332",
         "sportType": "Run",
-        "updatedAt": "2026-05-20T06:34:33.861Z",
+        "updatedAt": "2026-06-04T07:32:41.594Z",
         "createdAt": "2026-05-20T06:13:47.523Z"
       },
       {
@@ -87,7 +87,7 @@
         "source": "Strava",
         "sourceId": "18550708748",
         "sportType": "WeightTraining",
-        "updatedAt": "2026-05-20T06:34:34.027Z",
+        "updatedAt": "2026-06-04T07:32:41.768Z",
         "createdAt": "2026-05-20T06:13:47.684Z"
       }
     ],
@@ -105,7 +105,7 @@
         "source": "Strava",
         "sourceId": "18529758192",
         "sportType": "WeightTraining",
-        "updatedAt": "2026-05-20T06:34:34.198Z",
+        "updatedAt": "2026-06-04T07:32:41.967Z",
         "createdAt": "2026-05-20T06:13:47.871Z"
       }
     ],
@@ -123,7 +123,7 @@
         "source": "Strava",
         "sourceId": "18515956571",
         "sportType": "Run",
-        "updatedAt": "2026-05-20T06:34:34.540Z",
+        "updatedAt": "2026-06-04T07:32:42.387Z",
         "createdAt": "2026-05-20T06:13:48.234Z"
       }
     ],
@@ -141,7 +141,7 @@
         "source": "Strava",
         "sourceId": "18503254022",
         "sportType": "Walk",
-        "updatedAt": "2026-05-20T06:34:34.736Z",
+        "updatedAt": "2026-06-04T07:32:42.646Z",
         "createdAt": "2026-05-20T06:13:48.417Z"
       }
     ],
@@ -159,7 +159,7 @@
         "source": "Strava",
         "sourceId": "18489871332",
         "sportType": "Run",
-        "updatedAt": "2026-05-20T06:34:35.079Z",
+        "updatedAt": "2026-06-04T07:32:43.106Z",
         "createdAt": "2026-05-20T06:13:48.810Z"
       }
     ],
@@ -3907,7 +3907,7 @@
         "source": "Strava",
         "sourceId": "18580876830",
         "sportType": "Run",
-        "updatedAt": "2026-05-20T12:11:48.743Z",
+        "updatedAt": "2026-06-04T07:32:41.171Z",
         "createdAt": "2026-05-20T12:11:48.743Z"
       }
     ],
@@ -3966,7 +3966,7 @@
         "source": "Strava",
         "sourceId": "18595058661",
         "sportType": "WeightTraining",
-        "updatedAt": "2026-05-21T13:29:20.287Z",
+        "updatedAt": "2026-06-04T07:32:40.952Z",
         "createdAt": "2026-05-21T13:29:20.287Z"
       }
     ],
@@ -3984,7 +3984,7 @@
         "source": "Strava",
         "sourceId": "18607572302",
         "sportType": "Run",
-        "updatedAt": "2026-05-23T03:42:22.699Z",
+        "updatedAt": "2026-06-04T07:32:40.768Z",
         "createdAt": "2026-05-22T12:17:19.367Z"
       }
     ],
@@ -4044,7 +4044,7 @@
         "source": "Strava",
         "sourceId": "18620640318",
         "sportType": "WeightTraining",
-        "updatedAt": "2026-05-23T12:13:14.400Z",
+        "updatedAt": "2026-06-04T07:32:40.367Z",
         "createdAt": "2026-05-23T12:13:14.400Z"
       }
     ],
@@ -4062,7 +4062,7 @@
         "source": "Strava",
         "sourceId": "18635593480",
         "sportType": "WeightTraining",
-        "updatedAt": "2026-05-25T06:28:10.736Z",
+        "updatedAt": "2026-06-04T07:32:40.149Z",
         "createdAt": "2026-05-25T06:28:10.736Z"
       }
     ],
@@ -4080,7 +4080,7 @@
         "source": "Strava",
         "sourceId": "18648082606",
         "sportType": "Run",
-        "updatedAt": "2026-05-26T12:47:21.832Z",
+        "updatedAt": "2026-06-04T07:32:39.929Z",
         "createdAt": "2026-05-26T00:25:33.644Z"
       }
     ],
@@ -4126,6 +4126,22 @@
         "id": "sess_1779796343819",
         "createdAt": "2026-05-26T11:52:23.819Z",
         "updatedAt": "2026-05-26T12:47:16.784Z"
+      },
+      {
+        "id": "strava_18660797188",
+        "type": "cardio",
+        "duration": 69,
+        "distance": 0,
+        "avgHR": 116.4,
+        "calories": 417,
+        "totalCalories": 417,
+        "caloriesSource": "detail.calories",
+        "notes": "Strength",
+        "source": "Strava",
+        "sourceId": "18660797188",
+        "sportType": "WeightTraining",
+        "updatedAt": "2026-06-04T07:32:39.493Z",
+        "createdAt": "2026-06-04T07:32:39.493Z"
       }
     ],
     "2026-05-29": [
@@ -4184,7 +4200,7 @@
         "source": "Strava",
         "sourceId": "18702058261",
         "sportType": "WeightTraining",
-        "updatedAt": "2026-06-01T12:28:01.549Z",
+        "updatedAt": "2026-06-04T07:32:38.510Z",
         "createdAt": "2026-05-29T13:03:58.435Z"
       }
     ],
@@ -4243,7 +4259,7 @@
         "source": "Strava",
         "sourceId": "18755798910",
         "sportType": "WeightTraining",
-        "updatedAt": "2026-06-02T13:33:38.503Z",
+        "updatedAt": "2026-06-04T07:32:38.117Z",
         "createdAt": "2026-06-02T13:33:38.503Z"
       }
     ],
@@ -4261,8 +4277,62 @@
         "source": "Strava",
         "sourceId": "18769619283",
         "sportType": "Run",
-        "updatedAt": "2026-06-03T13:04:25.386Z",
+        "updatedAt": "2026-06-04T07:32:37.894Z",
         "createdAt": "2026-06-03T13:04:25.386Z"
+      }
+    ],
+    "2026-06-01": [
+      {
+        "id": "strava_18741758335",
+        "type": "cardio",
+        "duration": 31,
+        "distance": 3.25,
+        "avgHR": 136.6,
+        "calories": 231,
+        "totalCalories": 231,
+        "caloriesSource": "detail.calories",
+        "notes": "Indoor run",
+        "source": "Strava",
+        "sourceId": "18741758335",
+        "sportType": "Run",
+        "updatedAt": "2026-06-04T07:32:38.318Z",
+        "createdAt": "2026-06-04T07:32:38.318Z"
+      }
+    ],
+    "2026-05-28": [
+      {
+        "id": "strava_18688810091",
+        "type": "cardio",
+        "duration": 75,
+        "distance": 0,
+        "avgHR": 136.2,
+        "calories": 608,
+        "totalCalories": 608,
+        "caloriesSource": "detail.calories",
+        "notes": "Badminton",
+        "source": "Strava",
+        "sourceId": "18688810091",
+        "sportType": "Badminton",
+        "updatedAt": "2026-06-04T07:32:38.694Z",
+        "createdAt": "2026-06-04T07:32:38.694Z"
+      }
+    ],
+    "2026-05-27": [
+      {
+        "id": "strava_18675315165",
+        "type": "cardio",
+        "duration": 31,
+        "distance": 3.26,
+        "avgHR": 152.6,
+        "calories": 252,
+        "totalCalories": 252,
+        "caloriesSource": "detail.calories",
+        "notes": "Outdoor run",
+        "source": "Strava",
+        "sourceId": "18675315165",
+        "sportType": "Run",
+        "updatedAt": "2026-06-04T07:32:39.267Z",
+        "createdAt": "2026-06-04T07:32:39.268Z"
       }
     ]
   }
