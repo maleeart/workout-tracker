@@ -4334,6 +4334,24 @@
         "updatedAt": "2026-06-04T07:32:39.267Z",
         "createdAt": "2026-06-04T07:32:39.268Z"
       }
+    ],
+    "2026-06-05": [
+      {
+        "id": "strava_18796737883",
+        "type": "cardio",
+        "duration": 34,
+        "distance": 3.52,
+        "avgHR": 147.7,
+        "calories": 269,
+        "totalCalories": 269,
+        "caloriesSource": "detail.calories",
+        "notes": "Outdoor run",
+        "source": "Strava",
+        "sourceId": "18796737883",
+        "sportType": "Run",
+        "updatedAt": "2026-06-06T06:04:55.545Z",
+        "createdAt": "2026-06-06T06:04:55.545Z"
+      }
     ]
   }
 }
