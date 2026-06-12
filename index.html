@@ -32,6 +32,7 @@
     .btn-orange{background:linear-gradient(135deg,var(--orange),var(--orange2));box-shadow:0 8px 24px rgba(255,107,43,.22)}.btn-dark{background:#253044}.btn-red{background:var(--danger)}
     .btn-small{border:0;border-radius:12px;padding:8px 10px;color:#fff;background:#253044;font-size:12px;font-weight:900}
     .segmented{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:16px;padding:5px;margin-bottom:12px}
+    .segmented4{grid-template-columns:repeat(4,1fr)}
     .seg-btn{border:0;border-radius:12px;padding:10px 8px;background:transparent;color:var(--text2);font-weight:900;font-size:12px}
     .seg-btn.active{background:rgba(0,212,255,.15);color:var(--cyan);box-shadow:inset 0 0 0 1px rgba(0,212,255,.28)}
     .input{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:13px 14px;color:#fff;margin-bottom:10px;font-size:15px}
@@ -47,6 +48,7 @@
     .toast{margin:0 12px 12px;border-radius:12px;padding:11px 13px;font-size:13px;border:1px solid rgba(0,230,118,.35);background:rgba(0,230,118,.08);color:var(--green);font-weight:700}.toast.error{color:var(--danger);background:rgba(255,71,87,.08);border-color:rgba(255,71,87,.35)}
     .timer{border-radius:18px;border:1px solid rgba(0,212,255,.25);background:rgba(0,212,255,.08);padding:14px;text-align:center;margin-bottom:12px}
     .timer-value{font-family:'Barlow Condensed';font-size:42px;font-weight:900;color:var(--cyan);line-height:1}
+    .warn{color:#ffd166}.green{color:var(--green)}.cyan{color:var(--cyan)}.orange{color:var(--orange)}
   </style>
 </head>
 
@@ -56,26 +58,37 @@
 <script type="text/babel">
 const { useState, useEffect } = React;
 
-const EXERCISES = [
-  { id:"aus_pull", name:"Australian Pull-Ups", icon:"🏋️", muscle:"Back", equipment:"Bodyweight" },
-  { id:"neg_pull", name:"Negative Pull-Ups", icon:"⬇️", muscle:"Back", equipment:"Bodyweight" },
-  { id:"pullup", name:"Pull-Up", icon:"🧗", muscle:"Back", equipment:"Bodyweight" },
-  { id:"dec_push", name:"Decline Push-Ups", icon:"💪", muscle:"Chest", equipment:"Bodyweight" },
-  { id:"pushup", name:"Push-Up", icon:"💪", muscle:"Chest", equipment:"Bodyweight" },
-  { id:"pike_push", name:"Incline Pike Push-Ups", icon:"🔺", muscle:"Shoulder", equipment:"Bodyweight" },
-  { id:"db_shoulder_press", name:"DB Shoulder Press", icon:"🏋️", muscle:"Shoulder", equipment:"Dumbbell" },
-  { id:"lateral_raise", name:"Lateral Raise", icon:"↔️", muscle:"Shoulder", equipment:"Dumbbell" },
-  { id:"reverse_fly", name:"Reverse Fly", icon:"🪽", muscle:"Shoulder", equipment:"Dumbbell" },
-  { id:"knee_raise", name:"Hanging Knee Raises", icon:"🦵", muscle:"Core", equipment:"Bodyweight" },
-  { id:"plank", name:"Plank", icon:"🧱", muscle:"Core", equipment:"Bodyweight" },
-  { id:"squats", name:"Bodyweight Squats", icon:"🦴", muscle:"Legs", equipment:"Bodyweight" },
-  { id:"goblet_squat", name:"Goblet Squat", icon:"🏋️", muscle:"Legs", equipment:"Dumbbell" },
-  { id:"split_squat", name:"Split Squat", icon:"🦵", muscle:"Legs", equipment:"Bodyweight" },
+const DEFAULT_EXERCISES = [
+  { id:"aus_pull", name:"Australian Pull-Ups", icon:"🏋️", muscle:"Back", equipment:"Bodyweight", custom:false, hidden:false },
+  { id:"neg_pull", name:"Negative Pull-Ups", icon:"⬇️", muscle:"Back", equipment:"Bodyweight", custom:false, hidden:false },
+  { id:"pullup", name:"Pull-Up", icon:"🧗", muscle:"Back", equipment:"Bodyweight", custom:false, hidden:false },
+  { id:"dec_push", name:"Decline Push-Ups", icon:"💪", muscle:"Chest", equipment:"Bodyweight", custom:false, hidden:false },
+  { id:"pushup", name:"Push-Up", icon:"💪", muscle:"Chest", equipment:"Bodyweight", custom:false, hidden:false },
+  { id:"pike_push", name:"Incline Pike Push-Ups", icon:"🔺", muscle:"Shoulder", equipment:"Bodyweight", custom:false, hidden:false },
+  { id:"db_shoulder_press", name:"DB Shoulder Press", icon:"🏋️", muscle:"Shoulder", equipment:"Dumbbell", custom:false, hidden:false },
+  { id:"lateral_raise", name:"Lateral Raise", icon:"↔️", muscle:"Shoulder", equipment:"Dumbbell", custom:false, hidden:false },
+  { id:"reverse_fly", name:"Reverse Fly", icon:"🪽", muscle:"Shoulder", equipment:"Dumbbell", custom:false, hidden:false },
+  { id:"knee_raise", name:"Hanging Knee Raises", icon:"🦵", muscle:"Core", equipment:"Bodyweight", custom:false, hidden:false },
+  { id:"plank", name:"Plank", icon:"🧱", muscle:"Core", equipment:"Bodyweight", custom:false, hidden:false },
+  { id:"squats", name:"Bodyweight Squats", icon:"🦴", muscle:"Legs", equipment:"Bodyweight", custom:false, hidden:false },
+  { id:"goblet_squat", name:"Goblet Squat", icon:"🏋️", muscle:"Legs", equipment:"Dumbbell", custom:false, hidden:false },
+  { id:"split_squat", name:"Split Squat", icon:"🦵", muscle:"Legs", equipment:"Bodyweight", custom:false, hidden:false },
 ];
+
+let ACTIVE_EXERCISES = DEFAULT_EXERCISES;
 
 const DAYS_TH = ["อา","จ","อ","พ","พฤ","ศ","ส"];
 const MONTHS_TH = ["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
 const FALLBACK_KEY = "workout_tracker_v2_fallback";
+
+const DEFAULT_GOALS = {
+  pullupReps: 5,
+  zone2MinWeek: 120,
+  weeklyStrengthSessions: 3,
+  weeklyCardioSessions: 3,
+  targetPace: "8:00",
+  bodyWeight: 60
+};
 
 function dateKey(d = new Date()) {
   return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
@@ -89,10 +102,24 @@ function normalizeDay(value) {
 }
 
 function normalizeData(data) {
-  const out = { logs:{} };
+  const out = { logs:{}, exerciseLibrary:[], hiddenExercises:[], goals:{...DEFAULT_GOALS} };
   const logs = data && data.logs ? data.logs : {};
   Object.keys(logs).forEach(k => out.logs[k] = normalizeDay(logs[k]));
+  if (Array.isArray(data?.exerciseLibrary)) out.exerciseLibrary = data.exerciseLibrary;
+  if (Array.isArray(data?.hiddenExercises)) out.hiddenExercises = data.hiddenExercises;
+  if (data?.goals) out.goals = { ...DEFAULT_GOALS, ...data.goals };
   return out;
+}
+
+function getAllExercises(data) {
+  const custom = Array.isArray(data?.exerciseLibrary) ? data.exerciseLibrary : [];
+  const hidden = Array.isArray(data?.hiddenExercises) ? data.hiddenExercises : [];
+  const merged = [...DEFAULT_EXERCISES, ...custom].map(ex => ({...ex, hidden:hidden.includes(ex.id)}));
+  return merged;
+}
+
+function getVisibleExercises() {
+  return ACTIVE_EXERCISES.filter(ex => !ex.hidden);
 }
 
 async function sheetLoad() {
@@ -105,7 +132,7 @@ async function sheetLoad() {
       const raw = localStorage.getItem(FALLBACK_KEY);
       return normalizeData(raw ? JSON.parse(raw) : { logs:{} });
     } catch {
-      return { logs:{} };
+      return normalizeData({ logs:{} });
     }
   }
 }
@@ -146,6 +173,11 @@ function paceDecimal(duration, distance) {
   return t / d;
 }
 
+function paceToDecimal(pace) {
+  const [m,s] = String(pace || "0:00").split(":").map(Number);
+  return (m || 0) + (s || 0) / 60;
+}
+
 function allSessions(logs) {
   return Object.entries(logs || {})
     .flatMap(([date,sessions]) => normalizeDay(sessions).map(s => ({ ...s, date })))
@@ -162,7 +194,7 @@ function getActivityKind(session) {
 }
 
 function getExerciseMeta(id) {
-  return EXERCISES.find(ex => ex.id === id) || { id, name:id, icon:"•", muscle:"Other", equipment:"-" };
+  return ACTIVE_EXERCISES.find(ex => ex.id === id) || { id, name:id, icon:"•", muscle:"Other", equipment:"-", custom:false, hidden:false };
 }
 
 function normalizeStrengthEntry(key, value) {
@@ -218,16 +250,38 @@ function getStrengthPR(logs) {
         const weight = Number(set.weight || 0);
         const reps = Number(set.reps || 0);
         if (!reps && !weight) return;
-
-        if (!pr[id]) pr[id] = { maxReps:0, maxWeight:0, bestVolume:0 };
-
-        pr[id].maxReps = Math.max(pr[id].maxReps, reps);
-        pr[id].maxWeight = Math.max(pr[id].maxWeight, weight);
-        pr[id].bestVolume = Math.max(pr[id].bestVolume, weight * reps);
+        if (!pr[id]) pr[id] = { maxReps:0, maxWeight:0, bestVolume:0, date:session.date };
+        if (reps > pr[id].maxReps) pr[id].maxReps = reps;
+        if (weight > pr[id].maxWeight) pr[id].maxWeight = weight;
+        if (weight * reps > pr[id].bestVolume) {
+          pr[id].bestVolume = weight * reps;
+          pr[id].date = session.date;
+        }
       });
     });
   });
   return pr;
+}
+
+function findLastExerciseEntry(logs, exerciseId) {
+  const sessions = allSessions(logs).reverse();
+  for (const session of sessions) {
+    const found = getStrengthEntries(session).find(row => row.actualId === exerciseId);
+    if (found) return { session, row:found };
+  }
+  return null;
+}
+
+function progressionText(logs, exerciseId) {
+  const last = findLastExerciseEntry(logs, exerciseId);
+  if (!last) return "ยังไม่มีข้อมูลครั้งก่อน";
+  const sets = last.row.sets.filter(s => s.reps || s.weight);
+  if (!sets.length) return "ยังไม่มีข้อมูล set ก่อนหน้า";
+  const top = sets.slice().sort((a,b) => (Number(b.weight||0)*Number(b.reps||0)+Number(b.reps||0)) - (Number(a.weight||0)*Number(a.reps||0)+Number(a.reps||0)))[0];
+  const w = Number(top.weight || 0);
+  const r = Number(top.reps || 0);
+  if (w > 0) return "ครั้งก่อน " + w + "kg × " + r + " → วันนี้ลอง " + w + "kg × " + (r + 1) + " หรือ " + (w + 1) + "kg × " + Math.max(1, r - 2);
+  return "ครั้งก่อน " + r + " reps → วันนี้ลอง " + (r + 1) + " reps";
 }
 
 function isRunWalkCardio(session) {
@@ -260,16 +314,36 @@ function calculateRecovery(logs) {
   return Math.max(25, Math.min(100, Math.round(score)));
 }
 
-function coachMessage(logs) {
+function getWeekSessions(logs, offset = 0) {
+  const now = new Date();
+  const start = new Date(now);
+  start.setDate(now.getDate() - now.getDay() - offset * 7);
+  start.setHours(0,0,0,0);
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+  end.setHours(23,59,59,999);
+  return allSessions(logs).filter(s => inRange(s.date,start,end));
+}
+
+function coachMessage(logs, goals = DEFAULT_GOALS) {
   const recovery = calculateRecovery(logs);
   const sessions = allSessions(logs);
   const latest = sessions[sessions.length - 1];
+  const thisWeek = getWeekSessions(logs, 0);
+  const lastWeek = getWeekSessions(logs, 1);
+  const thisVol = thisWeek.filter(isStrengthSession).reduce((sum,s) => sum + getStrengthVolume(s), 0);
+  const lastVol = lastWeek.filter(isStrengthSession).reduce((sum,s) => sum + getStrengthVolume(s), 0);
+  const z2 = thisWeek.filter(s => !isStrengthSession(s)).reduce((sum,s) => sum + Number(s.duration || 0), 0);
+  const strengthCount = thisWeek.filter(isStrengthSession).length;
 
-  if (!latest) return "เริ่มบันทึก session แรก แล้วระบบจะเริ่มวิเคราะห์ readiness และ progression ให้ครับ";
+  if (!latest) return "เริ่มบันทึก session แรก แล้วระบบจะเริ่มวิเคราะห์ readiness, progression และเป้าหมายให้ครับ";
   if (recovery < 45) return "Recovery ต่ำ วันนี้แนะนำพัก เดินเบา ๆ หรือ mobility 15–20 นาที เพื่อกันล้าสะสม";
+  if (thisVol > 0 && lastVol > 0 && thisVol > lastVol * 1.35) return "Volume สัปดาห์นี้เพิ่มเร็วมาก แนะนำคุมความหนักหรือทำ deload เบา ๆ 1–2 วัน";
+  if (strengthCount < Number(goals.weeklyStrengthSessions || 0)) return "สัปดาห์นี้ Strength ยังไม่ถึงเป้า เหมาะกับการเพิ่มเวท/บอดี้เวทอีก 1 session";
+  if (z2 < Number(goals.zone2MinWeek || 0)) return "Zone 2 ยังไม่ถึงเป้าสัปดาห์นี้ ลองเพิ่ม Easy Run/Walk 25–35 นาที";
   if (!isStrengthSession(latest) && Number(latest.avgHR || 0) > 150) return "Cardio ล่าสุด HR สูงกว่า Zone 2 เล็กน้อย รอบหน้าลองลด pace ลง เพื่อให้ฐานแอโรบิกนิ่งขึ้น";
   if (recovery < 70) return "วันนี้เหมาะกับ Zone 2 เบา ๆ หรือ strength volume กลาง ๆ ยังไม่ควรอัดหนักมาก";
-  return "ร่างกายพร้อมซ้อมดี วันนี้เล่น strength หรือ Zone 2 ตามตารางได้ครับ";
+  return "ภาพรวมดีมาก วันนี้เล่น Strength หรือ Zone 2 ตามแผนได้ และเลือก progression เพิ่ม reps/น้ำหนักเล็กน้อยได้";
 }
 
 function paceAI(logs) {
@@ -282,6 +356,32 @@ function paceAI(logs) {
   if (diff > 3) return "Pace ดีขึ้นประมาณ " + diff.toFixed(1) + "% จากข้อมูล cardio ที่มี ถือว่า aerobic efficiency กำลังดีขึ้น";
   if (diff < -3) return "Pace ช้าลงประมาณ " + Math.abs(diff).toFixed(1) + "% อาจเกิดจากความล้าหรือคุม HR เข้มขึ้น";
   return "Pace ค่อนข้างนิ่ง เหมาะกับการสร้าง Zone 2 base ต่อเนื่อง";
+}
+
+function weeklyReport(logs, goals = DEFAULT_GOALS) {
+  const week = getWeekSessions(logs, 0);
+  const prev = getWeekSessions(logs, 1);
+  const strength = week.filter(isStrengthSession);
+  const cardio = week.filter(s => !isStrengthSession(s));
+  const z2 = cardio.reduce((sum,s) => sum + Number(s.duration || 0), 0);
+  const km = cardio.reduce((sum,s) => sum + Number(s.distance || 0), 0);
+  const vol = strength.reduce((sum,s) => sum + getStrengthVolume(s), 0);
+  const prevVol = prev.filter(isStrengthSession).reduce((sum,s) => sum + getStrengthVolume(s), 0);
+  const volDiff = prevVol ? ((vol - prevVol) / prevVol * 100) : 0;
+  const pr = getStrengthPR({ temp:week });
+  const pull = pr.pullup?.maxReps || 0;
+  return {
+    sessions: week.length,
+    strength: strength.length,
+    cardio: cardio.length,
+    z2,
+    km,
+    vol,
+    volDiff,
+    pull,
+    z2Pct: Math.min(100, Math.round(z2 / Number(goals.zone2MinWeek || 1) * 100)),
+    strengthPct: Math.min(100, Math.round(strength.length / Number(goals.weeklyStrengthSessions || 1) * 100))
+  };
 }
 
 function getPeriodRange(mode) {
@@ -306,12 +406,14 @@ function inRange(dateStr,start,end) {
 
 function App() {
   const [tab,setTab] = useState("today");
-  const [data,setData] = useState({ logs:{} });
+  const [data,setData] = useState(normalizeData({ logs:{} }));
   const [loading,setLoading] = useState(true);
   const [toast,setToast] = useState(null);
   const [form,setForm] = useState(null);
   const [editing,setEditing] = useState(null);
   const [prefill,setPrefill] = useState(null);
+
+  ACTIVE_EXERCISES = getAllExercises(data);
 
   const today = dateKey();
   const todaySessions = normalizeDay(data.logs[today]);
@@ -330,8 +432,9 @@ function App() {
   }
 
   async function persist(next,msg) {
-    setData(next);
-    await sheetSave(next);
+    const normalized = normalizeData(next);
+    setData(normalized);
+    await sheetSave(normalized);
     notify(msg || "บันทึกสำเร็จ");
   }
 
@@ -353,15 +456,13 @@ function App() {
 
   async function deleteSession(date,id) {
     const current = normalizeDay(data.logs[date]);
-    const next = { ...data, logs:{ ...data.logs, [date]:current.filter(s => s.id !== id) } };
-    await persist(next, "ลบ session แล้ว");
+    await persist({ ...data, logs:{ ...data.logs, [date]:current.filter(s => s.id !== id) } }, "ลบ session แล้ว");
   }
 
   async function duplicateSession(date,session) {
     const current = normalizeDay(data.logs[date]);
     const copy = { ...session, id:"sess_" + Date.now(), createdAt:new Date().toISOString(), source:session.source ? session.source + " Copy" : "Copy" };
-    const next = { ...data, logs:{ ...data.logs, [date]:[...current, copy] } };
-    await persist(next, "Duplicate session แล้ว");
+    await persist({ ...data, logs:{ ...data.logs, [date]:[...current, copy] } }, "Duplicate session แล้ว");
   }
 
   function copyLastStrength() {
@@ -386,6 +487,29 @@ function App() {
     }
   }
 
+  async function addOrUpdateExercise(payload) {
+    const isDefault = DEFAULT_EXERCISES.some(ex => ex.id === payload.id);
+    let custom = data.exerciseLibrary || [];
+    if (isDefault) {
+      custom = custom.filter(ex => ex.id !== payload.id);
+      custom.push({ ...getExerciseMeta(payload.id), ...payload, custom:true });
+    } else {
+      custom = custom.filter(ex => ex.id !== payload.id);
+      custom.push({ ...payload, custom:true });
+    }
+    await persist({ ...data, exerciseLibrary:custom }, "บันทึก Exercise Library แล้ว");
+  }
+
+  async function toggleHideExercise(id) {
+    const hidden = data.hiddenExercises || [];
+    const nextHidden = hidden.includes(id) ? hidden.filter(x => x !== id) : [...hidden, id];
+    await persist({ ...data, hiddenExercises:nextHidden }, hidden.includes(id) ? "แสดงท่าแล้ว" : "ซ่อนท่าแล้ว");
+  }
+
+  async function saveGoals(goals) {
+    await persist({ ...data, goals:{ ...DEFAULT_GOALS, ...goals } }, "บันทึกเป้าหมายแล้ว");
+  }
+
   if (loading) {
     return <div className="app"><div className="header"><div className="title">Loading...</div></div></div>;
   }
@@ -407,8 +531,9 @@ function App() {
           <TodayScreen
             sessions={todaySessions}
             recovery={recovery}
-            coach={coachMessage(data.logs)}
+            coach={coachMessage(data.logs, data.goals)}
             paceText={paceAI(data.logs)}
+            report={weeklyReport(data.logs, data.goals)}
             onAddCardio={() => { setEditing(null); setPrefill(null); setForm("cardio"); }}
             onAddStrength={() => { setEditing(null); setPrefill(null); setForm("strength"); }}
             onCopyLastStrength={copyLastStrength}
@@ -438,8 +563,17 @@ function App() {
         )}
 
         {tab === "analytics" && <AnalyticsScreen logs={data.logs} />}
-        {tab === "coach" && <CoachScreen logs={data.logs} />}
-        {tab === "stats" && <StatsScreen logs={data.logs} />}
+        {tab === "coach" && <CoachScreen logs={data.logs} goals={data.goals} />}
+        {tab === "stats" && (
+          <StatsScreen
+            data={data}
+            logs={data.logs}
+            goals={data.goals}
+            onSaveExercise={addOrUpdateExercise}
+            onToggleHide={toggleHideExercise}
+            onSaveGoals={saveGoals}
+          />
+        )}
       </div>
 
       {form && (
@@ -448,6 +582,7 @@ function App() {
             type={form}
             existing={editing?.session || prefill || null}
             isCopyMode={!editing && !!prefill}
+            logs={data.logs}
             onSave={saveSession}
             onCancel={() => { setForm(null); setEditing(null); setPrefill(null); }}
           />
@@ -471,14 +606,22 @@ function App() {
   );
 }
 
-function TodayScreen({ sessions,recovery,coach,paceText,onAddCardio,onAddStrength,onCopyLastStrength,onSyncStrava,onEdit,onDelete,onDuplicate }) {
+function TodayScreen({ sessions,recovery,coach,paceText,report,onAddCardio,onAddStrength,onCopyLastStrength,onSyncStrava,onEdit,onDelete,onDuplicate }) {
   return (
     <>
       <div className="card ai-card">
-        <div className="label">Readiness / Recovery</div>
+        <div className="label">AI Coach v2</div>
         <div className="recovery-circle">{recovery}%</div>
         <div style={{ textAlign:"center", fontWeight:800, lineHeight:1.45 }}>{coach}</div>
         <div className="muted" style={{ textAlign:"center", marginTop:8 }}>{paceText}</div>
+      </div>
+
+      <div className="card">
+        <div className="label">Weekly Goal</div>
+        <div className="grid2">
+          <MetricBubble label="ZONE 2" value={report.z2Pct + "%"} suffix={report.z2 + " min"} color="var(--cyan)" compact />
+          <MetricBubble label="STRENGTH" value={report.strengthPct + "%"} suffix={report.strength + " ครั้ง"} color="var(--orange)" compact />
+        </div>
       </div>
 
       <div className="card">
@@ -714,8 +857,8 @@ function ChartCard({ title,data,valueKey,color }) {
   const minRaw = Math.min(...values), maxRaw = Math.max(...values);
   const padding = (maxRaw - minRaw || 1) * .16;
   const min = Math.max(0, minRaw - padding), max = maxRaw + padding, range = max - min || 1;
-
   const w=300,h=190,left=42,right=14,top=18,bottom=34,chartW=w-left-right,chartH=h-top-bottom;
+
   const pointFor = (item,i) => {
     const x = left + (i * (chartW / Math.max(1, data.length - 1)));
     const y = top + chartH - ((Number(item[valueKey]) - min) / range) * chartH;
@@ -764,12 +907,25 @@ function ChartCard({ title,data,valueKey,color }) {
   );
 }
 
-function CoachScreen({ logs }) {
+function CoachScreen({ logs, goals }) {
+  const rep = weeklyReport(logs, goals);
   return (
     <>
       <div className="card ai-card">
-        <div className="label">AI Coach รายวัน</div>
-        <div style={{ marginTop:10, lineHeight:1.7, fontWeight:700 }}>{coachMessage(logs)}</div>
+        <div className="label">AI Coach v2</div>
+        <div style={{ marginTop:10, lineHeight:1.7, fontWeight:700 }}>{coachMessage(logs, goals)}</div>
+      </div>
+
+      <div className="card">
+        <div className="label">Weekly Report</div>
+        <div style={{ lineHeight:1.8 }}>
+          ซ้อมรวม <b className="orange">{rep.sessions}</b> ครั้ง<br/>
+          Strength <b className="orange">{rep.strength}</b> ครั้ง • Cardio <b className="cyan">{rep.cardio}</b> ครั้ง<br/>
+          Zone 2 รวม <b className="cyan">{rep.z2}</b> นาที ({rep.z2Pct}%)<br/>
+          Distance <b className="green">{rep.km.toFixed(1)}</b> km<br/>
+          Strength Volume <b className="green">{Math.round(rep.vol)}</b> kg-reps<br/>
+          Volume เทียบสัปดาห์ก่อน <b className={rep.volDiff >= 0 ? "green" : "warn"}>{rep.volDiff.toFixed(1)}%</b>
+        </div>
       </div>
 
       <div className="card">
@@ -780,8 +936,30 @@ function CoachScreen({ logs }) {
   );
 }
 
-function StatsScreen({ logs }) {
+function StatsScreen({ data, logs, goals, onSaveExercise, onToggleHide, onSaveGoals }) {
   const [range,setRange] = useState("week");
+  const [sub,setSub] = useState("overview");
+
+  return (
+    <>
+      <div className="card">
+        <div className="segmented segmented4">
+          <button className={"seg-btn " + (sub === "overview" ? "active" : "")} onClick={() => setSub("overview")}>Stats</button>
+          <button className={"seg-btn " + (sub === "library" ? "active" : "")} onClick={() => setSub("library")}>Library</button>
+          <button className={"seg-btn " + (sub === "goals" ? "active" : "")} onClick={() => setSub("goals")}>Goals</button>
+          <button className={"seg-btn " + (sub === "report" ? "active" : "")} onClick={() => setSub("report")}>Report</button>
+        </div>
+      </div>
+
+      {sub === "overview" && <StatsOverview logs={logs} range={range} setRange={setRange} />}
+      {sub === "library" && <ExerciseLibraryScreen data={data} onSaveExercise={onSaveExercise} onToggleHide={onToggleHide} />}
+      {sub === "goals" && <GoalsScreen goals={goals} onSaveGoals={onSaveGoals} />}
+      {sub === "report" && <ReportScreen logs={logs} goals={goals} />}
+    </>
+  );
+}
+
+function StatsOverview({ logs, range, setRange }) {
   const period = getPeriodRange(range);
   const sessions = allSessions(logs).filter(s => inRange(s.date, period.start, period.end));
   const cardio = sessions.filter(s => !isStrengthSession(s));
@@ -793,9 +971,7 @@ function StatsScreen({ logs }) {
   const totalCalories = sessions.reduce((sum,s) => sum + Number(s.calories || 0), 0);
   const strengthVolume = strength.reduce((sum,s) => sum + getStrengthVolume(s), 0);
   const pr = getStrengthPR(logs);
-  const prRows = Object.entries(pr)
-    .sort((a,b) => (b[1].bestVolume || b[1].maxReps) - (a[1].bestVolume || a[1].maxReps))
-    .slice(0,6);
+  const prRows = Object.entries(pr).sort((a,b) => (b[1].bestVolume || b[1].maxReps) - (a[1].bestVolume || a[1].maxReps)).slice(0,6);
 
   return (
     <>
@@ -845,6 +1021,117 @@ function StatsScreen({ logs }) {
   );
 }
 
+function ExerciseLibraryScreen({ data, onSaveExercise, onToggleHide }) {
+  const [editing,setEditing] = useState(null);
+  const [name,setName] = useState("");
+  const [muscle,setMuscle] = useState("Chest");
+  const [equipment,setEquipment] = useState("Bodyweight");
+  const [icon,setIcon] = useState("🏋️");
+
+  function startEdit(ex) {
+    setEditing(ex.id);
+    setName(ex.name);
+    setMuscle(ex.muscle);
+    setEquipment(ex.equipment);
+    setIcon(ex.icon || "🏋️");
+  }
+
+  function reset() {
+    setEditing(null); setName(""); setMuscle("Chest"); setEquipment("Bodyweight"); setIcon("🏋️");
+  }
+
+  function save() {
+    if (!name.trim()) return;
+    const id = editing || name.toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"") + "_" + Date.now();
+    onSaveExercise({ id, name:name.trim(), muscle, equipment, icon, custom:true, hidden:false });
+    reset();
+  }
+
+  return (
+    <>
+      <div className="card">
+        <div className="label">{editing ? "Edit Exercise" : "Add Custom Exercise"}</div>
+        <input className="input" placeholder="ชื่อท่า เช่น DB Row" value={name} onChange={e => setName(e.target.value)} />
+        <div className="grid2">
+          <select className="input" value={muscle} onChange={e => setMuscle(e.target.value)}>
+            {["Chest","Back","Shoulder","Legs","Core","Arms","Cardio","Other"].map(x => <option key={x}>{x}</option>)}
+          </select>
+          <input className="input" placeholder="Icon" value={icon} onChange={e => setIcon(e.target.value)} />
+        </div>
+        <input className="input" placeholder="Equipment" value={equipment} onChange={e => setEquipment(e.target.value)} />
+        <button className="btn btn-orange" onClick={save}>💾 Save Exercise</button>
+        {editing && <button className="btn btn-dark" onClick={reset}>Cancel Edit</button>}
+      </div>
+
+      <div className="card">
+        <div className="label">Exercise Library</div>
+        {getAllExercises(data).map(ex => (
+          <div key={ex.id} className="card2" style={{ opacity:ex.hidden ? .45 : 1 }}>
+            <div className="row">
+              <div>
+                <div style={{ fontWeight:900 }}>{ex.icon} {ex.name}</div>
+                <div className="muted">{ex.muscle} • {ex.equipment} {ex.custom ? "• Custom" : ""}</div>
+              </div>
+              <div style={{ display:"flex", gap:6 }}>
+                <button className="btn-small" onClick={() => startEdit(ex)}>Edit</button>
+                <button className="btn-small" onClick={() => onToggleHide(ex.id)}>{ex.hidden ? "Show" : "Hide"}</button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+function GoalsScreen({ goals, onSaveGoals }) {
+  const [form,setForm] = useState({ ...DEFAULT_GOALS, ...goals });
+  function set(k,v) { setForm(f => ({ ...f, [k]:v })); }
+
+  return (
+    <div className="card">
+      <div className="label">Goal Tracking</div>
+      <input className="input" type="number" placeholder="Pull-up target reps" value={form.pullupReps} onChange={e => set("pullupReps", Number(e.target.value||0))} />
+      <input className="input" type="number" placeholder="Zone 2 min/week" value={form.zone2MinWeek} onChange={e => set("zone2MinWeek", Number(e.target.value||0))} />
+      <input className="input" type="number" placeholder="Strength sessions/week" value={form.weeklyStrengthSessions} onChange={e => set("weeklyStrengthSessions", Number(e.target.value||0))} />
+      <input className="input" type="number" placeholder="Cardio sessions/week" value={form.weeklyCardioSessions} onChange={e => set("weeklyCardioSessions", Number(e.target.value||0))} />
+      <input className="input" placeholder="Target pace เช่น 8:00" value={form.targetPace} onChange={e => set("targetPace", e.target.value)} />
+      <input className="input" type="number" step="0.1" placeholder="Body weight goal" value={form.bodyWeight} onChange={e => set("bodyWeight", Number(e.target.value||0))} />
+      <button className="btn btn-blue" onClick={() => onSaveGoals(form)}>💾 Save Goals</button>
+    </div>
+  );
+}
+
+function ReportScreen({ logs, goals }) {
+  const rep = weeklyReport(logs, goals);
+  const pr = getStrengthPR(logs);
+  const pull = pr.pullup?.maxReps || 0;
+  const pullPct = Math.min(100, Math.round(pull / Number(goals.pullupReps || 1) * 100));
+
+  return (
+    <>
+      <div className="card ai-card">
+        <div className="label">Weekly Report</div>
+        <div style={{ lineHeight:1.8, fontWeight:700 }}>
+          สัปดาห์นี้ซ้อม {rep.sessions} ครั้ง<br/>
+          Strength {rep.strength} ครั้ง / Cardio {rep.cardio} ครั้ง<br/>
+          Zone 2 {rep.z2} นาที จากเป้า {goals.zone2MinWeek} นาที<br/>
+          Distance {rep.km.toFixed(1)} km<br/>
+          Volume {Math.round(rep.vol)} kg-reps<br/>
+          Pull-up best {pull} reps จากเป้า {goals.pullupReps} reps
+        </div>
+      </div>
+
+      <div className="grid2">
+        <div className="card"><MiniStat label="ZONE 2 GOAL" value={rep.z2Pct + "%"} color="var(--cyan)" /></div>
+        <div className="card"><MiniStat label="STRENGTH GOAL" value={rep.strengthPct + "%"} color="var(--orange)" /></div>
+        <div className="card"><MiniStat label="PULL-UP GOAL" value={pullPct + "%"} color="var(--green)" /></div>
+        <div className="card"><MiniStat label="VOL VS LAST" value={rep.volDiff.toFixed(1) + "%"} color={rep.volDiff >= 0 ? "var(--green)" : "var(--orange)"} /></div>
+      </div>
+    </>
+  );
+}
+
 function Modal({ children }) {
   return (
     <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.72)", zIndex:50, overflowY:"auto", padding:"28px 12px 120px" }}>
@@ -874,7 +1161,7 @@ function RestTimer({ seconds,setSeconds }) {
   );
 }
 
-function SessionForm({ type,existing,isCopyMode,onSave,onCancel }) {
+function SessionForm({ type,existing,isCopyMode,logs,onSave,onCancel }) {
   const isCardio = type === "cardio";
   const [duration,setDuration] = useState(isCopyMode ? "" : existing?.duration || "");
   const [distance,setDistance] = useState(isCopyMode ? "" : existing?.distance || "");
@@ -897,7 +1184,7 @@ function SessionForm({ type,existing,isCopyMode,onSave,onCancel }) {
       if (rows.length) return rows;
     }
 
-    return EXERCISES.slice(0,6).map(ex => ({
+    return getVisibleExercises().slice(0,6).map(ex => ({
       uid:ex.id,
       key:ex.id,
       plannedId:ex.id,
@@ -934,7 +1221,7 @@ function SessionForm({ type,existing,isCopyMode,onSave,onCancel }) {
   }
 
   function addExercise() {
-    const first = EXERCISES[0];
+    const first = getVisibleExercises()[0] || DEFAULT_EXERCISES[0];
     setStrengthRows(rows => [...rows, {
       uid:"row_" + Date.now(),
       key:first.id + "_" + Date.now(),
@@ -1034,6 +1321,7 @@ function SessionForm({ type,existing,isCopyMode,onSave,onCancel }) {
                     <div style={{ fontWeight:900 }}>{actualMeta.icon} {actualMeta.name}</div>
                     <div className="muted">{actualMeta.muscle} • {actualMeta.equipment}</div>
                     {row.replacedFrom && <div className="muted" style={{ color:"var(--cyan)" }}>วันนี้เปลี่ยนจาก {plannedMeta.name}</div>}
+                    <div className="muted green" style={{ marginTop:4 }}>{progressionText(logs, row.actualId)}</div>
                   </div>
                   <button className="btn-small" style={{ background:"#ff4757" }} onClick={() => removeExercise(rowIndex)}>ลบท่า</button>
                 </div>
@@ -1046,12 +1334,12 @@ function SessionForm({ type,existing,isCopyMode,onSave,onCancel }) {
                   <>
                     <div className="label">ท่าหลัก</div>
                     <select className="input" value={row.plannedId} onChange={e => changePlannedExercise(rowIndex, e.target.value)}>
-                      {EXERCISES.map(ex => <option key={ex.id} value={ex.id}>{ex.name}</option>)}
+                      {getVisibleExercises().map(ex => <option key={ex.id} value={ex.id}>{ex.name}</option>)}
                     </select>
 
                     <div className="label">วันนี้เล่นจริง</div>
                     <select className="input" value={row.actualId} onChange={e => replaceExercise(rowIndex, e.target.value)}>
-                      {EXERCISES
+                      {getVisibleExercises()
                         .filter(ex => ex.muscle === plannedMeta.muscle || ex.id === row.plannedId)
                         .map(ex => <option key={ex.id} value={ex.id}>{ex.name}</option>)}
                     </select>
