@@ -4439,6 +4439,24 @@
         "id": "sess_1781005832559",
         "createdAt": "2026-06-09T11:50:32.559Z"
       }
+    ],
+    "2026-06-12": [
+      {
+        "id": "strava_18889789283",
+        "type": "cardio",
+        "duration": 31,
+        "distance": 3.18,
+        "avgHR": 137.7,
+        "calories": 229,
+        "totalCalories": 229,
+        "caloriesSource": "detail.calories",
+        "notes": "Indoor run",
+        "source": "Strava",
+        "sourceId": "18889789283",
+        "sportType": "Run",
+        "updatedAt": "2026-06-12T16:32:05.310Z",
+        "createdAt": "2026-06-12T16:32:05.310Z"
+      }
     ]
   }
 }
