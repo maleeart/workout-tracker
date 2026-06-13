@@ -4640,12 +4640,36 @@
               }
             ],
             "note": "มือหมดแรง"
+          },
+          "aus_pull_3": {
+            "plannedId": "aus_pull",
+            "actualId": "aus_pull",
+            "replacedFrom": null,
+            "replaceReason": "",
+            "sets": [
+              {
+                "weight": 0,
+                "reps": 12,
+                "rpe": 8
+              },
+              {
+                "weight": 0,
+                "reps": 12,
+                "rpe": 9
+              },
+              {
+                "weight": 0,
+                "reps": 11,
+                "rpe": 10
+              }
+            ],
+            "note": ""
           }
         },
         "notes": "",
         "id": "sess_1781354901597",
         "createdAt": "2026-06-13T12:48:21.597Z",
-        "updatedAt": "2026-06-13T12:57:05.397Z"
+        "updatedAt": "2026-06-13T13:05:52.760Z"
       }
     ]
   },
