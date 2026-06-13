@@ -4694,6 +4694,22 @@
         "id": "sess_1781354901597",
         "createdAt": "2026-06-13T12:48:21.597Z",
         "updatedAt": "2026-06-13T13:26:45.881Z"
+      },
+      {
+        "id": "strava_18903673825",
+        "type": "cardio",
+        "duration": 59,
+        "distance": 0,
+        "avgHR": 97.2,
+        "calories": 246,
+        "totalCalories": 246,
+        "caloriesSource": "detail.calories",
+        "notes": "Strength",
+        "source": "Strava",
+        "sourceId": "18903673825",
+        "sportType": "WeightTraining",
+        "updatedAt": "2026-06-13T17:25:38.550Z",
+        "createdAt": "2026-06-13T17:25:38.550Z"
       }
     ]
   },
