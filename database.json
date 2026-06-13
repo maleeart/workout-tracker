@@ -4664,12 +4664,36 @@
               }
             ],
             "note": ""
+          },
+          "dec_push_4": {
+            "plannedId": "dec_push",
+            "actualId": "dec_push",
+            "replacedFrom": null,
+            "replaceReason": "",
+            "sets": [
+              {
+                "weight": 0,
+                "reps": 20,
+                "rpe": 8
+              },
+              {
+                "weight": 0,
+                "reps": 18,
+                "rpe": 9
+              },
+              {
+                "weight": 0,
+                "reps": 18,
+                "rpe": 9
+              }
+            ],
+            "note": ""
           }
         },
         "notes": "",
         "id": "sess_1781354901597",
         "createdAt": "2026-06-13T12:48:21.597Z",
-        "updatedAt": "2026-06-13T13:05:52.760Z"
+        "updatedAt": "2026-06-13T13:26:45.881Z"
       }
     ]
   },
