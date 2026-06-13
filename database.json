@@ -4561,6 +4561,77 @@
         "updatedAt": "2026-06-13T01:24:38.693Z",
         "createdAt": "2026-06-13T01:24:38.693Z"
       }
+    ],
+    "2026-06-13": [
+      {
+        "type": "strength",
+        "duration": 0,
+        "avgHR": 0,
+        "calories": 0,
+        "exercises": {
+          "neg_pull_1": {
+            "plannedId": "neg_pull",
+            "actualId": "neg_pull",
+            "replacedFrom": null,
+            "replaceReason": "",
+            "sets": [
+              {
+                "weight": 65,
+                "reps": 8,
+                "rpe": 9
+              },
+              {
+                "weight": 65,
+                "reps": 8,
+                "rpe": 9
+              },
+              {
+                "weight": 65,
+                "reps": 8,
+                "rpe": 9
+              }
+            ],
+            "note": "หนักลงไว"
+          },
+          "knee_raise_4": {
+            "plannedId": "knee_raise",
+            "actualId": "knee_raise",
+            "replacedFrom": null,
+            "replaceReason": "",
+            "sets": [
+              {
+                "weight": 0,
+                "reps": 15,
+                "rpe": 8
+              },
+              {
+                "weight": 0,
+                "reps": 15,
+                "rpe": 9
+              },
+              {
+                "weight": 0,
+                "reps": 15,
+                "rpe": 10
+              }
+            ],
+            "note": ""
+          }
+        },
+        "notes": "",
+        "id": "sess_1781354901597",
+        "createdAt": "2026-06-13T12:48:21.597Z"
+      }
     ]
+  },
+  "exerciseLibrary": [],
+  "hiddenExercises": [],
+  "goals": {
+    "pullupReps": 5,
+    "zone2MinWeek": 120,
+    "weeklyStrengthSessions": 3,
+    "weeklyCardioSessions": 3,
+    "targetPace": "8:00",
+    "bodyWeight": 60
   }
 }
