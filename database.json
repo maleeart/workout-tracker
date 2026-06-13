@@ -4624,7 +4624,17 @@
       }
     ]
   },
-  "exerciseLibrary": [],
+  "exerciseLibrary": [
+    {
+      "id": "scapular_pull_up_1781354985502",
+      "name": "Scapular pull up",
+      "muscle": "Back",
+      "equipment": "Bodyweight",
+      "icon": "🏋️",
+      "custom": true,
+      "hidden": false
+    }
+  ],
   "hiddenExercises": [],
   "goals": {
     "pullupReps": 5,
